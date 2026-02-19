@@ -13,19 +13,17 @@ def soup():
     input_md = test_dir / "input.md"
     output_html = test_dir / "output.html"
     
-    base_dir = test_dir.parent.parent
-    defaults_path = base_dir / "pandoc" / "defaults.yaml"
-    # The resource path needs to include the test directory itself so it can find sources.bib
-    resource_path = f".:{base_dir / 'pandoc'}:{test_dir}"
+    pandoc_dir = test_dir.parent.parent / "pandoc"
 
     subprocess.run(
         [
             "pandoc", str(input_md),
-            "--defaults", str(defaults_path),
-            "--resource-path", resource_path,
+            "--defaults=defaults.yaml",
+            f"--resource-path=.:{test_dir}",
             "-o", str(output_html)
         ],
         check=True,
+        cwd=pandoc_dir
     )
 
     with open(output_html, "r", encoding="utf-8") as f:

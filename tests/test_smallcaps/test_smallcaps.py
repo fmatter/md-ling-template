@@ -14,20 +14,18 @@ def soup():
     input_md = test_dir / "input.md"
     output_html = test_dir / "output.html"
     
-    # Construct absolute paths from the test file's location
-    base_dir = test_dir.parent.parent
-    defaults_path = base_dir / "pandoc" / "defaults.yaml"
-    resource_path = f".:{base_dir / 'pandoc'}"
+    pandoc_dir = test_dir.parent.parent / "pandoc"
 
     # Run pandoc to generate the output file
     subprocess.run(
         [
             "pandoc", str(input_md),
-            "--defaults", str(defaults_path),
-            "--resource-path", resource_path,
+            "--defaults=defaults.yaml",
+            f"--resource-path=.:{test_dir}",
             "-o", str(output_html)
         ],
         check=True,
+        cwd=pandoc_dir
     )
 
     # Now, read the generated file and return the soup
