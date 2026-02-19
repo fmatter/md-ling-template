@@ -3,18 +3,24 @@ filters:
   - citeproc
   # - filters/pandoc-ling.lua
 
-# --css (can be used multiple times)
+# Default metadata values that can be overridden by documents
+metadata:
+  # Set the default language for the document
+  lang: en-US
+  # Bibliography and citation style
+  citeproc: true
+  bibliography: sources.bib
+  reference-section-title: "Bibliography"
+  link-citations: true
+  linkReferences: true # For pandoc-crossref to link references
+  # This is a dummy default, will be overridden by `crossrefYaml` in documents
+  crossrefYaml: crossref-en-US.yaml
+
+# Output file settings
+to: html
+template: templates/default.html
 css:
   - style.css
-
-template: templates/default.html
-
-metadata:
-  # This is how we tell pandoc-crossref which config file to use.
-  # It reads this from the document's metadata.
-  crossrefYaml: "crossref-%LANG%.yaml"
-  # Set a default title for the bibliography section.
-  reference-section-title: "Bibliography"
-
-variables:
-  lang: en-US
+number-sections: true
+# toc: true
+# toc-depth: 2

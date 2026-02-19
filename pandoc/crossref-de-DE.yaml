@@ -1,5 +1,6 @@
 # German cross-reference labels
 figPrefix: "Abbildung"
 tblPrefix: "Tabelle"
+tableTitle: "Tabelle"
 exPrefix: "Beispiel"
 secPrefix: "Abschnitt"
