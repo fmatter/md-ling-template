@@ -29,6 +29,31 @@ def soup():
     with open(output_html, "r", encoding="utf-8") as f:
         return BeautifulSoup(f, "lxml")
 
+@pytest.fixture(scope="module")
+def latex_output():
+    """
+    A pytest fixture that runs Pandoc to generate the test LaTeX output.
+    """
+    test_dir = Path(__file__).parent
+    input_md = test_dir / "input.md"
+    output_tex = test_dir / "output.tex"
+    pandoc_dir = test_dir.parent.parent / "pandoc"
+
+    subprocess.run(
+        [
+            "pandoc", str(input_md),
+            "--defaults=defaults.yaml",
+            f"--resource-path=.:{test_dir}",
+            "--template=templates/default.latex",
+            "-o", str(output_tex)
+        ],
+        check=True,
+        cwd=pandoc_dir
+    )
+
+    with open(output_tex, "r", encoding="utf-8") as f:
+        return f.read()
+
 def test_section_numbers_exist(soup):
     """
     Tests that <span> tags with class 'header-section-number' are created.
@@ -41,3 +66,11 @@ def test_section_numbers_are_correct(soup):
     """
     numbers = [s.get_text() for s in soup.find_all("span", class_="header-section-number")]
     assert numbers == ["1", "1.1", "2"]
+
+def test_section_numbering_in_latex(latex_output):
+    """
+    Tests that the LaTeX output includes sectioning commands.
+    """
+    assert r"\section{First Section}" in latex_output
+    assert r"\subsection{First Subsection}" in latex_output
+    assert r"\section{Second Section}" in latex_output

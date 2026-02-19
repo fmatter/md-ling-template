@@ -8,6 +8,6 @@ See @sec:one.
 |----------|----------|
 | Cell 1   | Cell 2   |
 
-Table: My Table {#tbl:one}
+Table: A test table. {#tbl:one}
 
 See @tbl:one.

@@ -1,5 +1,5 @@
-# Section 1
+# First Section
 
-## Section 1.1
+## First Subsection
 
-# Section 2
+# Second Section
