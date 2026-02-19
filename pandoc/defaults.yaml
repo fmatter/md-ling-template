@@ -1,19 +1,17 @@
 filters:
   - pandoc-crossref
-  - citeproc
+  # - citeproc # This is now handled by the --citeproc flag
   # - filters/pandoc-ling.lua
 
 # Default metadata values that can be overridden by documents
 metadata:
-  # Bibliography and citation style
-  citeproc: true
-  bibliography: sources.bib
+  # Bibliography and citation style are now handled by the --citeproc flag
+  # and project-specific metadata.
   # reference-section-title: "Bibliography"
   link-citations: true
   linkReferences: true # For pandoc-crossref to link references
 
 # Output file settings
-to: html
 template: templates/default.html
 css:
   - style.css
