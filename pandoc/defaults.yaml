@@ -1,0 +1,18 @@
+filters:
+  - pandoc-crossref
+  - citeproc
+  # - filters/pandoc-ling.lua
+
+# --css (can be used multiple times)
+css:
+  - style.css
+
+template: templates/default.html
+
+metadata:
+  # This is how we tell pandoc-crossref which config file to use.
+  # It reads this from the document's metadata.
+  crossrefYaml: "crossref-%LANG%.yaml"
+
+variables:
+  lang: en-US
