@@ -13,6 +13,8 @@ metadata:
   # This is how we tell pandoc-crossref which config file to use.
   # It reads this from the document's metadata.
   crossrefYaml: "crossref-%LANG%.yaml"
+  # Set a default title for the bibliography section.
+  reference-section-title: "Bibliography"
 
 variables:
   lang: en-US
