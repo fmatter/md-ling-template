@@ -1,0 +1,4 @@
+# German language-specific metadata
+lang: de-DE
+reference-section-title: "Literaturverzeichnis"
+crossrefYaml: crossref-de-DE.yaml
