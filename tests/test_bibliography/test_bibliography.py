@@ -19,6 +19,7 @@ def soup():
         [
             "pandoc", str(input_md),
             "--defaults=defaults.yaml",
+            "--citeproc",
             f"--resource-path=.:{test_dir}",
             "-o", str(output_html)
         ],
