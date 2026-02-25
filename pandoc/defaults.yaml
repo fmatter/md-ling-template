@@ -12,7 +12,4 @@ metadata:
   linkReferences: true # For pandoc-crossref to link references
 
 # Output file settings
-template: templates/default.html
-css:
-  - style.css
 number-sections: true

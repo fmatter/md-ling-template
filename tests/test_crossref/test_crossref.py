@@ -31,6 +31,8 @@ def test_crossref_labels(lang, sec_label, tbl_label, tbl_title):
             f"--resource-path=.:{test_dir}",
             "--metadata", f"lang={lang}",
             "--metadata", f"crossrefYaml=crossref-{lang}.yaml",
+            "--template=templates/default.html",
+            "--css=style.css",
             "-o", str(output_html)
         ],
         check=True,

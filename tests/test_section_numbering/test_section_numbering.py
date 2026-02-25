@@ -20,6 +20,8 @@ def soup():
             "pandoc", str(input_md),
             "--defaults=defaults.yaml",
             f"--resource-path=.:{test_dir}",
+            "--template=templates/default.html",
+            "--css=style.css",
             "-o", str(output_html)
         ],
         check=True,

@@ -21,6 +21,8 @@ def soup():
             "--defaults=defaults.yaml",
             "--citeproc",
             f"--resource-path=.:{test_dir}",
+            "--template=templates/default.html",
+            "--css=style.css",
             "-o", str(output_html)
         ],
         check=True,
