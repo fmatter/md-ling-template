@@ -1,7 +1,7 @@
 filters:
+  - ../../pandoc-ling/pandoc-ling.lua
   - pandoc-crossref
   # - citeproc # This is now handled by the --citeproc flag
-  - ../../pandoc-ling/pandoc-ling.lua
 
 # Default metadata values that can be overridden by documents
 metadata:
