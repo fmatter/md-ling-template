@@ -31,9 +31,35 @@ $endif$
 
 % --- CUSTOMIZATIONS FOR LUALATEX ---
 \usepackage{fontspec}
-\setmainfont{Latin Modern Roman}
+$if(mainfont)$
+\setmainfont{$mainfont$}
+$else$
+% Default to Noto Serif for comprehensive Unicode/IPA support
+% Other good options: Linux Libertine, Charis SIL, Gentium Plus
+\IfFontExistsTF{Noto Serif}{
+  \setmainfont{Noto Serif}
+}{
+  \IfFontExistsTF{Linux Libertine}{
+    \setmainfont{Linux Libertine}
+  }{
+    \IfFontExistsTF{Charis SIL}{
+      \setmainfont{Charis SIL}
+    }{
+      \setmainfont{Latin Modern Roman}
+    }
+  }
+}
+$endif$
+$if(sansfont)$
+\setsansfont{$sansfont$}
+$else$
 \setsansfont{Latin Modern Sans}
+$endif$
+$if(monofont)$
+\setmonofont{$monofont$}
+$else$
 \setmonofont{Latin Modern Mono}
+$endif$
 \usepackage{microtype}
 % --- END CUSTOMIZATIONS ---
 
