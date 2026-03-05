@@ -20,6 +20,7 @@ $endfor$
 $if(beamerarticle)$
 \usepackage{beamerarticle} % needs to be loaded first
 $endif$
+\addtokomafont{disposition}{\rmfamily} % Use serif for headings
 \usepackage{xcolor}
 $if(geometry)$
 \usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
