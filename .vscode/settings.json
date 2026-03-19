@@ -1,0 +1,59 @@
+{
+  // Markdown editor settings
+  "files.associations": {
+    "*.md": "markdown"
+  },
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": false,
+    "editor.snippetSuggestions": "top",
+    "editor.rulers": [80]
+  },
+  
+  // Standard markdown preview
+  "markdown.preview.breaks": false,
+  "markdown.preview.linkify": true,
+  
+  // Markdown Preview Enhanced settings
+  "markdown-preview-enhanced.usePandocParser": true,
+  "markdown-preview-enhanced.pandocArguments": [
+    "--defaults=pandoc/defaults.yaml",
+    "--citeproc",
+    "--resource-path=.:pandoc"
+  ],
+  "markdown-preview-enhanced.previewTheme": "one-light.css",
+  "markdown-preview-enhanced.enablePreviewZenMode": false,
+  "markdown-preview-enhanced.breakOnSingleNewLine": false,
+  
+  // File exclusions for cleaner workspace
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/*.pyc": true
+  },
+  
+  // Search exclusions
+  "search.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/*.pdf": true,
+    "**/*.tex": true
+  },
+  
+  // Git settings
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  
+  // Spell checking (if using Code Spell Checker extension)
+  "cSpell.language": "en",
+  "cSpell.words": [
+    "pandoc",
+    "linguex",
+    "crossref",
+    "citeproc",
+    "smallcaps",
+    "interlinear",
+    "gloss",
+    "lualatex"
+  ]
+}

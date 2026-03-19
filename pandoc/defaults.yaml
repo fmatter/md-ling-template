@@ -1,5 +1,5 @@
 filters:
-  - ../../pandoc-ling/pandoc-ling.lua
+  - pandoc-ling/pandoc-ling.lua
   - pandoc-crossref
   # - citeproc # This is now handled by the --citeproc flag
 

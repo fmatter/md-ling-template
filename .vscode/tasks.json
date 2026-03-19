@@ -1,0 +1,118 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build PDF (current file)",
+      "type": "shell",
+      "command": "pandoc",
+      "args": [
+        "${file}",
+        "--defaults=pandoc/defaults.yaml",
+        "--citeproc",
+        "--template=pandoc/templates/default.latex",
+        "--resource-path=.:${fileDirname}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}.pdf"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build HTML (current file)",
+      "type": "shell",
+      "command": "pandoc",
+      "args": [
+        "${file}",
+        "--defaults=pandoc/defaults.yaml",
+        "--citeproc",
+        "--template=pandoc/templates/default.html",
+        "--css=pandoc/style.css",
+        "--resource-path=.:${fileDirname}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}.html"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build LaTeX (current file)",
+      "type": "shell",
+      "command": "pandoc",
+      "args": [
+        "${file}",
+        "--defaults=pandoc/defaults.yaml",
+        "--citeproc",
+        "--template=pandoc/templates/default.latex",
+        "--resource-path=.:${fileDirname}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}.tex"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run tests",
+      "type": "shell",
+      "command": "pytest",
+      "args": [
+        "-v"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean outputs",
+      "type": "shell",
+      "command": "find",
+      "args": [
+        ".",
+        "-type",
+        "f",
+        "(",
+        "-name",
+        "*.pdf",
+        "-o",
+        "-name",
+        "*.html",
+        "-o",
+        "-name",
+        "*.tex",
+        ")",
+        "-not",
+        "-path",
+        "*/pandoc/*",
+        "-not",
+        "-path",
+        "*/tests/*",
+        "-delete"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
