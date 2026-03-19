@@ -1,5 +1,5 @@
 filters:
-  - filters/pandoc-ling.lua  # now it's self-contained!
+  - pandoc/filters/pandoc-ling.lua  # Path relative to workspace root
   - pandoc-crossref
   # - citeproc # This is now handled by the --citeproc flag
 
