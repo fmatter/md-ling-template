@@ -1,5 +1,5 @@
 filters:
-  - pandoc-ling/pandoc-ling.lua
+  - filters/pandoc-ling.lua  # now it's self-contained!
   - pandoc-crossref
   # - citeproc # This is now handled by the --citeproc flag
 

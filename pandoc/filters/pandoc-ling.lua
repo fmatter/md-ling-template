@@ -28,6 +28,7 @@ local counter = 0 -- actual numbering of examples
 local chapter = 0 -- numbering of chapters
 local counterInChapter = 0 -- counter reset for each chapter
 local indexEx = {} -- global lookup for example IDs
+local subExIndex = {} -- lookup for sub-example IDs: subExID -> {parentExID, letter}
 local orderInText = 0 -- order of references for resolving "Next"-style references
 local indexRef = {} -- key/value: order in text = refID/exID
 local rev_indexRef = {} -- "reversed" indexRef, i.e. key/value: refID/exID = order-number in text
@@ -229,6 +230,7 @@ function processDiv (div)
 
   -- keep track of chapters (header == 1)
   -- included in this loop by trick "addDivToHeader"
+  -- print(div)
   if div.content[1].tag == "Header" and div.content[1].classes[1] == "restart"  then
     chapter = chapter + 1
     counterInChapter = 0
@@ -273,7 +275,7 @@ function processDiv (div)
       example = parsedDiv.examples
       example = pandocMakeExample(parsedDiv)
       example = pandoc.Div(example)
-      example.attr = {id = "ex"..parsedDiv.number}
+      example.attr = {id = parsedDiv.exID}
     end
 
     -- return to global setting
@@ -333,6 +335,7 @@ function parseDiv (div)
   local judgements = {}
   local examples = {}
   local kind = {}
+  local subExIDs = {} -- track sub-example IDs
 
   if noFormat then
     preamble = nil
@@ -341,10 +344,52 @@ function parseDiv (div)
     examples[1] = div
   elseif data.tag == "OrderedList" or data.tag == "BulletList" then
     for i=1,#data.content do
+      -- Extract sub-example ID if present, BEFORE calling parseExample
+      local firstBlock = data.content[i][1]
+      if firstBlock.tag == "LineBlock" then
+        -- For interlinear examples, check the first line (header/label line)
+        local firstLine = firstBlock.content[1]
+        local lineText = pandoc.utils.stringify(firstLine)
+        local subID = string.match(lineText, "{#([^}]+)}")
+        if subID then
+          subExIDs[i] = subID
+          -- Remove the {#id} from the actual content
+          for j = #firstLine, 1, -1 do
+            local elem = firstLine[j]
+            if elem.tag == "Str" and string.match(elem.text, "{#[^}]+}") then
+              firstLine[j] = pandoc.Str(string.gsub(elem.text, "%s*{#[^}]+}", ""))
+              break
+            end
+          end
+        end
+      elseif firstBlock.tag == "Para" or firstBlock.tag == "Plain" then
+        -- For single-line examples, check the content
+        local content = firstBlock.content
+        local contentText = pandoc.utils.stringify(content)
+        local subID = string.match(contentText, "{#([^}]+)}")
+        if subID then
+          subExIDs[i] = subID
+          -- Remove the {#id} from the actual content
+          for j = #content, 1, -1 do
+            local elem = content[j]
+            if elem.tag == "Str" and string.match(elem.text, "{#[^}]+}") then
+              content[j] = pandoc.Str(string.gsub(elem.text, "%s*{#[^}]+}", ""))
+              break
+            end
+          end
+        end
+      end
+      -- Now parse the example (after ID extraction and removal)
       judgements[i], examples[i], kind[i] = parseExample(data.content[i][1])
     end
   else
     judgements[1], examples[1], kind[1] = parseExample(data)
+  end
+  
+  -- Register sub-example IDs in global index
+  for i, subID in pairs(subExIDs) do
+    local letter = string.char(96 + i) -- a, b, c, etc.
+    subExIndex[subID] = {parentExID = exID, letter = letter}
   end
 
   return { 	kind = kind, -- list of single/interlinear
@@ -352,7 +397,8 @@ function parseDiv (div)
             judgements = judgements, -- judgements is list of Str
             examples = examples,   -- examples is list of (list of) Plain
             number = number,       -- number, exID are bare string
-            exID = exID 
+            exID = exID,
+            subExIDs = subExIDs    -- map: index -> sub-example ID
           }
 end
 
@@ -551,8 +597,16 @@ function pandocMakeExample (parsedDiv)
     example[1] = pandocNoFormat(parsedDiv)
   elseif #kind == 1 and kind[1] == "single" then
     example[1] = pandocMakeSingle(parsedDiv)
+    -- Set ID if this single example has a sub-example ID
+    if parsedDiv.subExIDs and parsedDiv.subExIDs[1] then
+      example[1].attr = pandoc.Attr(parsedDiv.subExIDs[1])
+    end
   elseif #kind == 1 and kind[1] == "interlinear" then
     example[1] = pandocMakeInterlinear(parsedDiv)
+    -- Set ID if this interlinear has a sub-example ID
+    if parsedDiv.subExIDs and parsedDiv.subExIDs[1] then
+      example[1].attr = pandoc.Attr(parsedDiv.subExIDs[1])
+    end
   elseif #kind > 1 and onlySingle then
     example[1] = pandocMakeList(parsedDiv)
   else
@@ -841,6 +895,10 @@ function pandocMakeMixedList (parsedDiv)
     if parsedDiv.kind[i] == "interlinear" then
       local label = i
       result[resultCount]        = pandocMakeInterlinear(parsedDiv, label, forceJudge)
+      -- Set ID attribute if this sub-example has an ID
+      if parsedDiv.subExIDs and parsedDiv.subExIDs[i] then
+        result[resultCount].attr = pandoc.Attr(parsedDiv.subExIDs[i])
+      end
       isInterlinear[resultCount] = true
       resultCount = resultCount + 1
     elseif parsedDiv.kind[i] == "single" then
@@ -850,6 +908,10 @@ function pandocMakeMixedList (parsedDiv)
       if parsedDiv.kind[i+1] ~= "single" then
         local to = i
         result[resultCount]        = pandocMakeList(parsedDiv, from, to, forceJudge)
+        -- For single-line list, check if any items have IDs (just use first for now)
+        if parsedDiv.subExIDs and parsedDiv.subExIDs[from] then
+          result[resultCount].attr = pandoc.Attr(parsedDiv.subExIDs[from])
+        end
         isInterlinear[resultCount] = false
         resultCount = resultCount + 1
       end
@@ -1531,6 +1593,25 @@ end
 function makeCrossrefs (cite)
 
   local id = cite.citations[1].id
+  
+  -- Check if this is a sub-example reference
+  if subExIndex[id] ~= nil then
+    local subEx = subExIndex[id]
+    local parentID = subEx.parentExID
+    local letter = subEx.letter
+    local parentNumber = indexEx[parentID]
+    
+    -- Format as (1a), (2b), etc. with no space
+    if FORMAT:match "latex" then
+      if latexPackage == "expex" then
+        return pandoc.RawInline("latex", "(\\getref{"..parentID.."}"..letter..")")
+      else
+        return pandoc.RawInline("latex", "(\\ref{"..parentID.."}"..letter..")")
+      end
+    else
+      return pandoc.Link("("..parentNumber..letter..")", "#"..id)
+    end
+  end
 
   -- ignore other "cite" elements
   if indexEx[id] ~= nil then 
@@ -1539,13 +1620,14 @@ function makeCrossrefs (cite)
     local suffix = ""
     if #cite.citations[1].suffix > 0 then
       suffix = pandoc.utils.stringify(cite.citations[1].suffix[2])
+      -- For backwards compatibility: append suffix to number ([@ex:parent b])
       suffix = xrefSuffixSep..suffix
     end
 
     -- prevent Latex error when user sets xrefSuffixSep to space or nothing
     if FORMAT:match "latex" then
       if xrefSuffixSep == " " or -- space
-        xrefSuffixSep == " "    -- non-breaking space
+        xrefSuffixSep == " "    -- non-breaking space
       then
         xrefSuffixSep = "\\," -- set to thin space
       end
@@ -1558,7 +1640,7 @@ function makeCrossrefs (cite)
       else
         return pandoc.RawInline("latex", "(\\ref{"..id.."}"..suffix..")")
       end
-    else	
+    else
       return pandoc.Link("("..indexEx[id]..suffix..")", "#"..id)
     end
 
