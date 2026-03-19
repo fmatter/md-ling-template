@@ -79,6 +79,13 @@ $for(header-includes)$
 $header-includes$
 $endfor$
 $after-header-includes.latex()$
+
+% --- LINGUEX CUSTOMIZATIONS ---
+% Fix unwanted vspace when gloss appears after preamble text
+% (see linguex doc section on cgloss4e.sty)
+\renewenvironment{flushleft}{\raggedright}{}
+% --- END LINGUEX CUSTOMIZATIONS ---
+
 $hypersetup.latex()$
 $if(pdf-trailer-id)$
 
