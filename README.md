@@ -59,25 +59,34 @@ EOF
 **Using Command Line:**
 
 ```bash
-# From the pandoc/ directory:
-cd pandoc/
+# Always run from the template root directory
+cd my-article/
 
 # Build PDF
-pandoc ../content.md \
-  --defaults=defaults.yaml \
+pandoc content.md \
+  --defaults=pandoc/defaults.yaml \
   --citeproc \
-  --template=templates/default.latex \
+  --template=pandoc/templates/default.latex \
+  --css=pandoc/style.css \
   --pdf-engine=lualatex \
-  -o ../output.pdf
+  -o output.pdf
 
 # Build HTML
-pandoc ../content.md \
-  --defaults=defaults.yaml \
+pandoc content.md \
+  --defaults=pandoc/defaults.yaml \
   --citeproc \
-  --template=templates/default.html \
-  --css=style.css \
-  -o ../output.html
+  --template=pandoc/templates/default.html \
+  --css=pandoc/style.css \
+  -o output.html
+
+# Build DOCX
+pandoc content.md \
+  --defaults=pandoc/defaults.yaml \
+  --citeproc \
+  -o output.docx
 ```
+
+**Note:** All pandoc commands should be run from your project root (where `content.md` is), not from inside the `pandoc/` directory.
 
 ## Features
 
