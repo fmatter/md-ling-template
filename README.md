@@ -48,6 +48,16 @@ This paper examines Mapudungun inverse constructions.
 
 See [@sec:intro] for details.
 EOF
+
+# Create a minimal sources.bib in your project root
+cat > sources.bib << 'EOF'
+@article{example2024,
+  author  = {Smith, John},
+  title   = {An Example Article},
+  journal = {Journal of Examples},
+  year    = {2024}
+}
+EOF
 ```
 
 ### 3. Build Output
