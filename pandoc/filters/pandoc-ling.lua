@@ -4,6 +4,9 @@ pandoc-linguex: make interlinear glossing with pandoc
 Version 1.6
 Copyright © 2021, 2022 Michael Cysouw <cysouw@mac.com>
 
+Bundled in md-ling-template (2026-03-19)
+Original: https://github.com/cysouw/pandoc-ling
+
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
 copyright notice and this permission notice appear in all copies.
@@ -230,7 +233,6 @@ function processDiv (div)
 
   -- keep track of chapters (header == 1)
   -- included in this loop by trick "addDivToHeader"
-  -- print(div)
   if div.content[1].tag == "Header" and div.content[1].classes[1] == "restart"  then
     chapter = chapter + 1
     counterInChapter = 0

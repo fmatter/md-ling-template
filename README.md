@@ -160,13 +160,15 @@ md-ling-template/
 │   ├── lang-de.yaml    # German language settings
 │   ├── style.css       # HTML styling
 │   ├── filters/        # Lua filters
-│   │   └── pandoc-ling.lua
+│   │   └── pandoc-ling.lua  # Bundled v1.6 (2026-03-19)
 │   └── templates/      # Output templates
 │       ├── default.html
 │       └── default.latex
 ├── tests/              # Test suite with examples
 └── requirements.txt    # Python dependencies for tests
 ```
+
+**Note:** The `pandoc-ling.lua` filter is bundled directly in this template for portability. It's version 1.6 from [Michael Cysouw's repository](https://github.com/cysouw/pandoc-ling).
 
 ## Customization
 
@@ -261,7 +263,9 @@ Tests verify:
 The template configuration files are provided as-is for educational use.
 
 - LaTeX template based on Pandoc's default template
-- pandoc-ling.lua by Michael Cysouw (ISC license)
+- `pandoc-ling.lua` (v1.6) by Michael Cysouw, bundled with permission (ISC license)
+  - Original: https://github.com/cysouw/pandoc-ling
+  - Bundled for portability; users can update independently if desired
 
 ## Resources
 
