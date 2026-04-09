@@ -4,9 +4,6 @@ pandoc-linguex: make interlinear glossing with pandoc
 Version 1.6
 Copyright © 2021, 2022 Michael Cysouw <cysouw@mac.com>
 
-Bundled in md-ling-template (2026-03-19)
-Original: https://github.com/cysouw/pandoc-ling
-
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
 copyright notice and this permission notice appear in all copies.
@@ -355,11 +352,14 @@ function parseDiv (div)
         local subID = string.match(lineText, "{#([^}]+)}")
         if subID then
           subExIDs[i] = subID
-          -- Remove the {#id} from the actual content
+          -- Remove the {#id} from the actual content and trim whitespace
           for j = #firstLine, 1, -1 do
             local elem = firstLine[j]
             if elem.tag == "Str" and string.match(elem.text, "{#[^}]+}") then
-              firstLine[j] = pandoc.Str(string.gsub(elem.text, "%s*{#[^}]+}", ""))
+              local cleaned = string.gsub(elem.text, "%s*{#[^}]+}%s*", " ")
+              cleaned = string.gsub(cleaned, "^%s+", "")  -- trim leading
+              cleaned = string.gsub(cleaned, "%s+$", "")  -- trim trailing
+              firstLine[j] = pandoc.Str(cleaned)
               break
             end
           end
@@ -371,11 +371,14 @@ function parseDiv (div)
         local subID = string.match(contentText, "{#([^}]+)}")
         if subID then
           subExIDs[i] = subID
-          -- Remove the {#id} from the actual content
+          -- Remove the {#id} from the actual content and trim whitespace
           for j = #content, 1, -1 do
             local elem = content[j]
             if elem.tag == "Str" and string.match(elem.text, "{#[^}]+}") then
-              content[j] = pandoc.Str(string.gsub(elem.text, "%s*{#[^}]+}", ""))
+              local cleaned = string.gsub(elem.text, "%s*{#[^}]+}%s*", " ")
+              cleaned = string.gsub(cleaned, "^%s+", "")  -- trim leading
+              cleaned = string.gsub(cleaned, "%s+$", "")  -- trim trailing
+              content[j] = pandoc.Str(cleaned)
               break
             end
           end
@@ -496,7 +499,35 @@ function getTrans (line)
     if line[1].tag == "Quoted" then
       line = line[1].content
     end
+    
+    -- Extract trailing citations and spaces to place them outside the quotes
+    local citations = {}
+    local i = #line
+    while i >= 1 do
+      if line[i].tag == "Cite" or line[i].tag == "Space" then
+        table.insert(citations, 1, line[i])
+        i = i - 1
+      else
+        break
+      end
+    end
+    
+    -- Remove extracted citations from line
+    for j = 1, #citations do
+      table.remove(line)
+    end
+    
+    -- Quote the remaining content
     line = pandoc.Quoted("SingleQuote", line)
+    
+    -- Append citations after the quote
+    if #citations > 0 then
+      local result = {line}
+      for _, cite in ipairs(citations) do
+        table.insert(result, cite)
+      end
+      line = result
+    end
   end
   return pandoc.Plain(line)
 end
@@ -601,13 +632,13 @@ function pandocMakeExample (parsedDiv)
     example[1] = pandocMakeSingle(parsedDiv)
     -- Set ID if this single example has a sub-example ID
     if parsedDiv.subExIDs and parsedDiv.subExIDs[1] then
-      example[1].attr = pandoc.Attr(parsedDiv.subExIDs[1])
+      example[1].attr = pandoc.Attr(parsedDiv.subExIDs[1], {"linguistic-example"})
     end
   elseif #kind == 1 and kind[1] == "interlinear" then
     example[1] = pandocMakeInterlinear(parsedDiv)
     -- Set ID if this interlinear has a sub-example ID
     if parsedDiv.subExIDs and parsedDiv.subExIDs[1] then
-      example[1].attr = pandoc.Attr(parsedDiv.subExIDs[1])
+      example[1].attr = pandoc.Attr(parsedDiv.subExIDs[1], {"linguistic-example"})
     end
   elseif #kind > 1 and onlySingle then
     example[1] = pandocMakeList(parsedDiv)
@@ -697,7 +728,12 @@ function pandocMakeInterlinear (parsedDiv, label, forceJudge)
   local interlinear = parsedDiv.examples[selection]
   
   local header = {{ interlinear.header }}
-  local headerPresent = interlinear.header.content[1] ~= nil
+  -- Check if header is present AND has meaningful content (not just empty/whitespace)
+  local headerPresent = false
+  if interlinear.header.content[1] ~= nil then
+    local headerText = pandoc.utils.stringify(interlinear.header)
+    headerPresent = headerText:match("%S") ~= nil  -- has non-whitespace
+  end
   local source = interlinear.source 
   for i=1,#source do source[i] = { source[i] } end
   local gloss =  interlinear.gloss 
@@ -899,7 +935,7 @@ function pandocMakeMixedList (parsedDiv)
       result[resultCount]        = pandocMakeInterlinear(parsedDiv, label, forceJudge)
       -- Set ID attribute if this sub-example has an ID
       if parsedDiv.subExIDs and parsedDiv.subExIDs[i] then
-        result[resultCount].attr = pandoc.Attr(parsedDiv.subExIDs[i])
+        result[resultCount].attr = pandoc.Attr(parsedDiv.subExIDs[i], {"linguistic-example"})
       end
       isInterlinear[resultCount] = true
       resultCount = resultCount + 1
@@ -912,7 +948,7 @@ function pandocMakeMixedList (parsedDiv)
         result[resultCount]        = pandocMakeList(parsedDiv, from, to, forceJudge)
         -- For single-line list, check if any items have IDs (just use first for now)
         if parsedDiv.subExIDs and parsedDiv.subExIDs[from] then
-          result[resultCount].attr = pandoc.Attr(parsedDiv.subExIDs[from])
+          result[resultCount].attr = pandoc.Attr(parsedDiv.subExIDs[from], {"linguistic-example"})
         end
         isInterlinear[resultCount] = false
         resultCount = resultCount + 1
