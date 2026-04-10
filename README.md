@@ -164,6 +164,110 @@ According to @smith2020, we find that...
 Previous work [@jones2019; @doe2021] shows...
 ```
 
+### Multi-File Projects
+
+For longer documents (theses, books, complex papers), organize your content across multiple markdown files:
+
+**Recommended structure:**
+
+```
+my-thesis/
+├── metadata.yaml       # Shared metadata
+├── 01-introduction.md
+├── 02-background.md
+├── 03-method.md
+├── 04-results.md
+├── 05-conclusion.md
+├── sources.bib
+└── pandoc/
+    └── ...
+```
+
+**metadata.yaml:**
+```yaml
+---
+title: "My Dissertation Title"
+author: "Your Name"
+date: "2026"
+bibliography: sources.bib
+---
+```
+
+**Build all chapters together:**
+
+```bash
+# List files in order
+pandoc metadata.yaml \
+       01-introduction.md \
+       02-background.md \
+       03-method.md \
+       04-results.md \
+       05-conclusion.md \
+  --defaults=pandoc/defaults.yaml \
+  --citeproc \
+  --template=pandoc/templates/default.latex \
+  --pdf-engine=lualatex \
+  -o thesis.pdf
+```
+
+**Automate with a build script:**
+
+```python
+# tasks.py (using invoke)
+from invoke import task
+
+@task
+def thesis(c):
+    """Build the complete thesis."""
+    chapters = [
+        "metadata.yaml",
+        "01-introduction.md",
+        "02-background.md",
+        "03-method.md",
+        "04-results.md",
+        "05-conclusion.md"
+    ]
+    
+    command = (
+        f"pandoc {' '.join(chapters)} "
+        "--defaults=pandoc/defaults.yaml "
+        "--citeproc "
+        "--template=pandoc/templates/default.latex "
+        "--pdf-engine=lualatex "
+        "-o thesis.pdf"
+    )
+    c.run(command)
+```
+
+Then simply run: `invoke thesis`
+
+**Or use a Makefile:**
+
+```makefile
+CHAPTERS := metadata.yaml 01-introduction.md 02-background.md 03-method.md 04-results.md 05-conclusion.md
+
+thesis.pdf: $(CHAPTERS) sources.bib
+	pandoc $(CHAPTERS) \
+	  --defaults=pandoc/defaults.yaml \
+	  --citeproc \
+	  --template=pandoc/templates/default.latex \
+	  --pdf-engine=lualatex \
+	  -o $@
+
+.PHONY: clean
+clean:
+	rm -f thesis.pdf
+```
+
+**Cross-references work across files:**
+
+```markdown
+# Introduction {#sec:intro}      # in 01-introduction.md
+# Method {#sec:method}            # in 03-method.md
+
+See [@sec:intro] for background.  # works from any file!
+```
+
 ## File Structure
 
 ```
