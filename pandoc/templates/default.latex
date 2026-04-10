@@ -75,6 +75,11 @@ $endif$
 $fonts.latex()$
 $font-settings.latex()$
 $common.latex()$
+
+% --- SUBTABLES SUPPORT ---
+\usepackage{subfig}
+% --- END SUBTABLES SUPPORT ---
+
 $for(header-includes)$
 $header-includes$
 $endfor$

@@ -175,7 +175,43 @@ Reference sections, figures, tables, and examples:
 See [@sec:intro] for background.
 See [@ex:passive] for an example.
 See [@tbl:results] for data.
+See [@fig:tree] for the structure.
 ```
+
+**Subfigures and subtables:**
+
+Subfigures:
+```markdown
+![Subfigure A](tree-a.png){#fig:a width=45%}
+![Subfigure B](tree-b.png){#fig:b width=45%}
+
+: Main caption for both {#fig:trees}
+
+Reference: [@fig:trees] or individual [@fig:a]
+```
+
+Subtables (custom filter):
+```markdown
+::: {#tbl:main}
+**Main caption for both tables**
+
+Table: First subtable {#tbl:first}
+
+| Data | Value |
+|------|-------|
+| A    | 1     |
+
+Table: Second subtable {#tbl:second}
+
+| Data | Value |
+|------|-------|
+| B    | 2     |
+:::
+
+Reference: [@tbl:first] or [@tbl:second]
+```
+
+**Note:** In PDF/LaTeX, subtables are rendered using `\subfloat` with a single parent table and caption. In HTML, tables are visually grouped but numbered separately - reference individual tables only (`[@tbl:first]`), not the parent div.
 
 ### Citations
 
@@ -337,6 +373,7 @@ md-ling-template/
 │   ├── style.css       # HTML styling
 │   ├── filters/        # Lua filters
 │   │   ├── linguistic-markup.lua  # Semantic markup (.gl, .ob, .rc)
+│   │   ├── subtables.lua  # Subtable support (custom)
 │   │   └── pandoc-ling.lua  # Bundled v1.6 (2026-03-19)
 │   └── templates/      # Output templates
 │       ├── default.html
@@ -346,6 +383,7 @@ md-ling-template/
 ```
 
 **Bundled Filters:**
+- `subtables.lua` - Custom filter for grouping related tables (like subfigures)
 - `linguistic-markup.lua` - Converts semantic markup classes (`.gl`, `.ob`, `.rc`) to appropriate formatting in all output formats
 - `pandoc-ling.lua` - Version 1.6 from [Michael Cysouw's repository](https://github.com/cysouw/pandoc-ling) for professional linguistic examples
 

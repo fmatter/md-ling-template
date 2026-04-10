@@ -16,3 +16,27 @@
 .rc {
   font-style: italic;
 }
+
+/* Subtable grouping */
+.subtable-group {
+  border: 1px solid #ddd;
+  padding: 1.5em;
+  margin: 1.5em 0;
+  background-color: #fafafa;
+  border-radius: 4px;
+}
+
+.subtable-group > p:first-child {
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 1em;
+  font-size: 1.1em;
+}
+
+.subtable-group table {
+  margin-bottom: 1.5em;
+}
+
+.subtable-group table:last-of-type {
+  margin-bottom: 0;
+}

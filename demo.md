@@ -97,6 +97,10 @@ Cross-references work for sections, examples, figures, and tables:
 - See [@sec:glossing] for interlinear examples  
 - See [@tbl:inventory] for the phoneme inventory
 - See [@fig:tree] for the syntactic structure
+- See [@sec:subfigures] for subfigures and [@fig:comparison] for an example
+- Reference individual subfigures: [@fig:direct] vs [@fig:inverse]
+- See [@sec:subtables] for subtables and [@tbl:consonants] for an example
+- Reference individual subtables: [@tbl:consonants] and [@tbl:fricatives]
 
 # Data and Analysis {#sec:data}
 
@@ -119,6 +123,40 @@ For complex tables with special formatting, use images instead (see [@fig:tree])
 ![Hypothetical syntactic tree structure (placeholder)](figures/tree.png){#fig:tree width=80%}
 
 Note: For this demo, create a `figures/` directory and add images as needed.
+
+## Subfigures {#sec:subfigures}
+
+Subfigures allow you to group related images with individual subcaptions and a main caption. Reference the main figure with [@fig:comparison] or individual subfigures like [@fig:direct] or [@fig:inverse].
+
+![Direct construction tree](figures/tree.png){#fig:direct width=45%}
+![Inverse construction tree](figures/tree.png){#fig:inverse width=45%}
+
+: Comparison of direct and inverse voice constructions {#fig:comparison}
+
+You can also use letter labels that appear automatically (a), (b), etc.
+
+## Subtables {#sec:subtables}
+
+Subtables group related tables together. In PDF/LaTeX, they render as a single grouped table with subcaptions. In HTML, they're visually grouped but numbered separately. Reference individual tables: [@tbl:consonants] and [@tbl:fricatives].
+
+::: {#tbl:phonemes}
+**Mapudungun obstruent inventory**
+
+Table: Consonants {#tbl:consonants}
+
+| Stop | Place |
+|------|-------|
+| p    | Bilabial |
+| t    | Alveolar |
+| k    | Velar |
+
+Table: Fricatives {#tbl:fricatives}
+
+| Fricative | Place |
+|-----------|-------|
+| f         | Labiodental |
+| s         | Alveolar |
+:::
 
 # Multiple Citation Styles
 
