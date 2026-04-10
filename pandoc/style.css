@@ -1,4 +1,18 @@
 /* Global stylesheet */
-.gloss {
+
+/* Linguistic markup classes */
+.gloss, .gl {
   font-variant: small-caps;
+}
+
+.ob {
+  font-style: italic;
+}
+
+.rc::before {
+  content: "*";
+}
+
+.rc {
+  font-style: italic;
 }

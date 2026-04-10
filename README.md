@@ -2,6 +2,8 @@
 
 A complete Pandoc template for writing linguistic articles and books with professional typesetting of interlinear glosses, cross-references, and citations.
 
+**See [`demo.md`](demo.md) for a comprehensive showcase of all features.**
+
 ## Quick Start
 
 ### 1. Install Dependencies
@@ -98,6 +100,30 @@ pandoc content.md \
 
 **Note:** All pandoc commands should be run from your project root (where `content.md` is), not from inside the `pandoc/` directory.
 
+### 4. Explore the Demo
+
+Build the included demo to see all features in action:
+
+```bash
+cd md-ling-template/
+
+# Build PDF
+pandoc demo.md \
+  --defaults=pandoc/defaults.yaml \
+  --citeproc \
+  --template=pandoc/templates/default.latex \
+  --pdf-engine=lualatex \
+  -o demo.pdf
+
+# Build HTML
+pandoc demo.md \
+  --defaults=pandoc/defaults.yaml \
+  --citeproc \
+  -o demo.html
+```
+
+The demo showcases interlinear glossing, cross-references, citations, semantic markup, tables, and more.
+
 ## Features
 
 ### Linguistic Examples with pandoc-ling
@@ -163,6 +189,30 @@ bibliography: sources.bib
 According to @smith2020, we find that...
 Previous work [@jones2019; @doe2021] shows...
 ```
+
+### Semantic Markup for Object Language
+
+The template provides CSS classes for semantic markup of linguistic data. These work across HTML, PDF, and DOCX outputs:
+
+**Gloss abbreviations (smallcaps):**
+```markdown
+The word has [nom]{.gl} case marking.
+```
+Shorthand for the more verbose `.gloss` class from pandoc-ling.
+
+**Object language (italics):**
+```markdown
+The Bernese German word [äue]{.ob} has a rich history.
+```
+Semantic alternative to explicit italics: `_äue_`
+
+**Reconstructed forms (asterisk + italics):**
+```markdown
+The Proto-Indo-European root [bʰer-]{.rc} means 'to carry'.
+```
+Don't include the asterisk in the content - it's added automatically.
+
+**Why use semantic markup?** While you can use underscores for italics (`_text_`), semantic classes make your intent explicit and allow for consistent formatting changes later. However, for quick drafts, plain Markdown formatting works fine.
 
 ### Multi-File Projects
 
@@ -274,6 +324,8 @@ See [@sec:intro] for background.  # works from any file!
 ```
 md-ling-template/
 ├── README.md           # This file
+├── demo.md             # Feature showcase document
+├── demo.bib            # Example bibliography
 ├── .vscode/            # VS Code configuration
 │   ├── settings.json   # Editor settings
 │   ├── tasks.json      # Build tasks (Ctrl+Shift+B)
@@ -284,6 +336,7 @@ md-ling-template/
 │   ├── lang-de.yaml    # German language settings
 │   ├── style.css       # HTML styling
 │   ├── filters/        # Lua filters
+│   │   ├── linguistic-markup.lua  # Semantic markup (.gl, .ob, .rc)
 │   │   └── pandoc-ling.lua  # Bundled v1.6 (2026-03-19)
 │   └── templates/      # Output templates
 │       ├── default.html
@@ -292,7 +345,9 @@ md-ling-template/
 └── requirements.txt    # Python dependencies for tests
 ```
 
-**Note:** The `pandoc-ling.lua` filter is bundled directly in this template for portability. It's version 1.6 from [Michael Cysouw's repository](https://github.com/cysouw/pandoc-ling).
+**Bundled Filters:**
+- `linguistic-markup.lua` - Converts semantic markup classes (`.gl`, `.ob`, `.rc`) to appropriate formatting in all output formats
+- `pandoc-ling.lua` - Version 1.6 from [Michael Cysouw's repository](https://github.com/cysouw/pandoc-ling) for professional linguistic examples
 
 ## Customization
 
