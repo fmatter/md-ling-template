@@ -15,4 +15,5 @@ metadata:
 css: pandoc/style.css
 
 # Output file settings
+standalone: true
 number-sections: true
