@@ -197,12 +197,12 @@ bibliography: sources.bib
 
 ```bash
 # List files in order
-pandoc metadata.yaml \
-       01-introduction.md \
+pandoc 01-introduction.md \
        02-background.md \
        03-method.md \
        04-results.md \
        05-conclusion.md \
+  --metadata-file=metadata.yaml \
   --defaults=pandoc/defaults.yaml \
   --citeproc \
   --template=pandoc/templates/default.latex \
@@ -220,7 +220,6 @@ from invoke import task
 def thesis(c):
     """Build the complete thesis."""
     chapters = [
-        "metadata.yaml",
         "01-introduction.md",
         "02-background.md",
         "03-method.md",
@@ -230,6 +229,7 @@ def thesis(c):
     
     command = (
         f"pandoc {' '.join(chapters)} "
+        "--metadata-file=metadata.yaml "
         "--defaults=pandoc/defaults.yaml "
         "--citeproc "
         "--template=pandoc/templates/default.latex "
@@ -244,10 +244,11 @@ Then simply run: `invoke thesis`
 **Or use a Makefile:**
 
 ```makefile
-CHAPTERS := metadata.yaml 01-introduction.md 02-background.md 03-method.md 04-results.md 05-conclusion.md
+CHAPTERS := 01-introduction.md 02-background.md 03-method.md 04-results.md 05-conclusion.md
 
-thesis.pdf: $(CHAPTERS) sources.bib
+thesis.pdf: metadata.yaml $(CHAPTERS) sources.bib
 	pandoc $(CHAPTERS) \
+	  --metadata-file=metadata.yaml \
 	  --defaults=pandoc/defaults.yaml \
 	  --citeproc \
 	  --template=pandoc/templates/default.latex \
