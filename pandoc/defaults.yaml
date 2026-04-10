@@ -11,5 +11,8 @@ metadata:
   link-citations: true
   linkReferences: true # For pandoc-crossref to link references
 
+# CSS for HTML output
+css: pandoc/style.css
+
 # Output file settings
 number-sections: true
