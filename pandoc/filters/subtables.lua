@@ -67,6 +67,8 @@ function Div(el)
         :gsub("\\endfirsthead.-\\endlastfoot%s*", "")
         :gsub("\\caption%b{}%s*", "")
         :gsub("\\label%b{}%s*", "")
+        -- Add bottomrule before end of tabular
+        :gsub("(\\end{tabular})", "\\bottomrule\n%1")
       
       local subfloat = "\\subfloat[" .. caption .. "]{" .. label .. "\n" .. table_latex .. "}"
       table.insert(latex_subfloats, subfloat)
