@@ -250,6 +250,45 @@ Don't include the asterisk in the content - it's added automatically.
 
 **Why use semantic markup?** While you can use underscores for italics (`_text_`), semantic classes make your intent explicit and allow for consistent formatting changes later. However, for quick drafts, plain Markdown formatting works fine.
 
+### Glossing Abbreviations List
+
+The template automatically manages glossing abbreviations. This feature:
+
+1. **Lists** all abbreviations defined in metadata
+2. **Links** abbreviations in running text (`.gl` spans) to definitions in HTML output (hover for tooltip)
+3. **Generates** a formatted table of abbreviations
+4. **Warns** about abbreviations used in running text but not defined in metadata
+
+**Setup in YAML frontmatter:**
+
+```yaml
+glossing-abbreviations:
+  APPL: applicative
+  INV: inverse voice
+  IND: indicative
+  3: third person
+  DEF: definite
+  NOM: nominative
+
+glossing-list:
+  position: after  # 'before' (after intro) or 'after' (before references) or null (no list)
+  title: "List of Glossing Abbreviations"
+  warn-undefined: true
+```
+
+**How it works:**
+- All abbreviations defined in `glossing-abbreviations` are listed in alphabetical order
+- In running text, `[nom]{.gl}` becomes an `<abbr>` tag with tooltip in HTML
+- The filter auto-discovers abbreviations from `.gl` spans and warns if not defined
+- **Important**: Abbreviations in interlinear glosses must be manually added to metadata
+- The list appears before References (or after Introduction if `position: before`)
+
+**Best practices:**
+- Include ALL abbreviations you use, including those only in interlinear examples
+- Define abbreviations you deviate from or those not in Leipzig Glossing Rules
+- Test with `make html` to see tooltips (hover over `[nom]{.gl}` in running text)
+- Use `warn-undefined: true` to catch missing definitions in running text
+
 ### Multi-File Projects
 
 For longer documents (theses, books, complex papers), organize your content across multiple markdown files:

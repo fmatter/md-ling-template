@@ -3,6 +3,22 @@ title: "Demonstration of Linguistic Markdown Template Features"
 author: "Template Demo"
 date: "2026-04-10"
 bibliography: demo.bib
+
+# Glossing abbreviations auto-discovery and linking
+glossing-abbreviations:
+  APPL: applicative
+  INV: inverse voice
+  IND: indicative
+  3: third person
+  3ACT: third person actor
+  DEF: definite
+  NOM: nominative
+  3SG: third person singular
+
+glossing-list:
+  position: after  # 'before' (after intro) or 'after' (before references) or null (no list)
+  title: "List of Glossing Abbreviations"
+  warn-undefined: true  # warn about used but undefined abbreviations
 ---
 
 # Introduction {#sec:intro}

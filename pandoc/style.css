@@ -40,3 +40,35 @@
 .subtable-group table:last-of-type {
   margin-bottom: 0;
 }
+
+/* Glossing abbreviations */
+abbr.gloss-abbr {
+  text-decoration: none;
+  border-bottom: 1px dotted #666;
+  cursor: help;
+}
+
+abbr.gloss-abbr:hover {
+  border-bottom-color: #000;
+}
+
+/* Glossing abbreviations table */
+table.glossing-abbreviations {
+  margin: 2em 0;
+  border-collapse: collapse;
+}
+
+table.glossing-abbreviations th {
+  text-align: left;
+  padding: 0.5em 1em;
+  border-bottom: 2px solid #333;
+}
+
+table.glossing-abbreviations td {
+  padding: 0.3em 1em;
+  border-bottom: 1px solid #ddd;
+}
+
+table.glossing-abbreviations td:first-child {
+  font-weight: 500;
+}
