@@ -1,8 +1,8 @@
 filters:
   - pandoc/filters/linguistic-markup.lua  # Semantic markup (.gl, .ob, .rc)
   - pandoc/filters/subtables.lua  # Subtable support
+  - pandoc/filters/glossing-list.lua  # Auto-discover and link glossing abbreviations (must run before pandoc-ling)
   - pandoc/filters/pandoc-ling.lua  # Path relative to workspace root
-  - pandoc/filters/glossing-list.lua  # Auto-discover and link glossing abbreviations
   - pandoc-crossref
   # - citeproc # This is now handled by the --citeproc flag
 

@@ -1,10 +1,9 @@
 ---
-title: "Demonstration of Linguistic Markdown Template Features"
+title: "Linguistic Markdown Template: Feature Demonstration"
 author: "Template Demo"
 date: "2026-04-10"
 bibliography: demo.bib
 
-# Glossing abbreviations auto-discovery and linking
 glossing-abbreviations:
   APPL: applicative
   INV: inverse voice
@@ -16,32 +15,31 @@ glossing-abbreviations:
   3SG: third person singular
 
 glossing-list:
-  position: after  # 'before' (after intro) or 'after' (before references) or null (no list)
+  position: after
   title: "List of Glossing Abbreviations"
-  warn-undefined: true  # warn about used but undefined abbreviations
+  warn-undefined: true
 ---
 
 # Introduction {#sec:intro}
 
-This document demonstrates all features provided by the linguistic Markdown template, including interlinear glossing, cross-references, citations, and semantic markup for object language data.
+This document demonstrates the template's capabilities for linguistic writing: interlinear glossing, cross-references, citations, and semantic markup.
 
-As shown in [@sec:examples], the template supports professional typesetting of linguistic examples using the pandoc-ling filter [@cysouw2023]. For theoretical background, see [@sec:theory].
+## Semantic Markup {#sec:markup}
 
-## Object Language Markup {#sec:markup}
+**Gloss abbreviations (`.gl`):** The word has [nom]{.gl} case and [3sg]{.gl} agreement.
 
-The template provides three semantic markup classes for linguistic data:
+**Object language (`.ob`):** German [Haus]{.ob} means 'house'.
 
-1. **Gloss abbreviations**: The word has [nom]{.gl} case and [3sg]{.gl} agreement.
-2. **Object language**: The German word [Haus]{.ob} means 'house'.
-3. **Reconstructed forms**: Proto-Indo-European [bʰer-]{.rc} became Latin [ferre]{.ob}.
+**Reconstructed forms (`.rc`):** PIE [bʰer-]{.rc} became Latin [ferre]{.ob}.
 
-You can also use traditional Markdown formatting: _Haus_, but semantic markup is more explicit about intent.
+**Inline abbreviations list:**
+
+::: glossing-abbreviations-inline
+:::
 
 # Linguistic Examples {#sec:examples}
 
-## Simple Numbered Examples
-
-Basic examples are numbered automatically:
+## Numbered Examples
 
 ::: ex
 The cat sat on the mat.
@@ -53,16 +51,12 @@ The cat sat on the mat.
 
 ## Interlinear Glossing {#sec:glossing}
 
-The template uses pandoc-ling for professional interlinear glosses:
-
 ::: {.ex formatGloss=true}
 | Mapudungun (Isolate)
 | amuy chi weñi
 | go.IND.3 DEF man
 | 'The man went.'
 :::
-
-Example with inverse marking:
 
 ::: {.ex formatGloss=true}
 | Mapudungun (Isolate)
@@ -71,11 +65,7 @@ Example with inverse marking:
 | 'The guanaco came to him.'
 :::
 
-As discussed by @augusta1903, Mapudungun has a rich system of verbal morphology.
-
 ## Sub-examples
-
-Examples can have multiple parts:
 
 ::: ex
 a. The dog barked.
@@ -97,32 +87,27 @@ c. The bird sang.
 Who do you think will come?
 :::
 
-# Theoretical Background {#sec:theory}
+# Cross-References {#sec:xref}
 
-Following @comrie1989, we adopt a framework based on semantic roles. The cross-linguistic work by @bickel2005 demonstrates the diversity of argument marking strategies.
+Section references: [@sec:intro], [@sec:examples], [@sec:glossing]
 
-According to @dubois1987 [p. 805], discourse factors play a crucial role in determining argument structure patterns:
+Table references: [@tbl:inventory], [@tbl:consonants], [@tbl:fricatives]
 
-> One does not lightly embark on the proliferation of nouns in actual discourse.
+Figure references: [@fig:tree], [@fig:direct], [@fig:inverse]
 
-## Cross-References
+# Citations
 
-Cross-references work for sections, examples, figures, and tables:
+In-text: @comrie1989 proposes a typological framework.
 
-- See [@sec:intro] for the introduction
-- See [@sec:glossing] for interlinear examples  
-- See [@tbl:inventory] for the phoneme inventory
-- See [@fig:tree] for the syntactic structure
-- See [@sec:subfigures] for subfigures and [@fig:comparison] for an example
-- Reference individual subfigures: [@fig:direct] vs [@fig:inverse]
-- See [@sec:subtables] for subtables and [@tbl:consonants] for an example
-- Reference individual subtables: [@tbl:consonants] and [@tbl:fricatives]
+Parenthetical: Previous work [@bickel2005; @dubois1987] demonstrates variation.
 
-# Data and Analysis {#sec:data}
+With page: @dubois1987 [p. 805] notes discourse constraints.
+
+With prefix: [see @augusta1903, for Mapudungun]
+
+# Data {#sec:data}
 
 ## Tables
-
-Tables can be created with Pandoc's table syntax:
 
 | Phoneme | IPA | Example |
 |---------|-----|---------|
@@ -130,30 +115,9 @@ Tables can be created with Pandoc's table syntax:
 | /t/     | t   | [tun]{.ob} 'many' |
 | /k/     | k   | [kuy]{.ob} 'sand' |
 
-: Consonant inventory of Mapudungun {#tbl:inventory}
-
-For complex tables with special formatting, use images instead (see [@fig:tree]).
-
-## Figures
-
-![Hypothetical syntactic tree structure (placeholder)](figures/tree.png){#fig:tree width=80%}
-
-Note: For this demo, create a `figures/` directory and add images as needed.
-
-## Subfigures {#sec:subfigures}
-
-Subfigures allow you to group related images with individual subcaptions and a main caption. Reference the main figure with [@fig:comparison] or individual subfigures like [@fig:direct] or [@fig:inverse].
-
-![Direct construction tree](figures/tree.png){#fig:direct width=45%}
-![Inverse construction tree](figures/tree.png){#fig:inverse width=45%}
-
-: Comparison of direct and inverse voice constructions {#fig:comparison}
-
-You can also use letter labels that appear automatically (a), (b), etc.
+: Consonant inventory {#tbl:inventory}
 
 ## Subtables {#sec:subtables}
-
-Subtables group related tables together. In PDF/LaTeX, they render as a single grouped table with subcaptions. In HTML, they're visually grouped but numbered separately. Reference individual tables: [@tbl:consonants] and [@tbl:fricatives].
 
 ::: {#tbl:phonemes}
 **Mapudungun obstruent inventory**
@@ -174,26 +138,15 @@ Table: Fricatives {#tbl:fricatives}
 | s         | Alveolar |
 :::
 
-# Multiple Citation Styles
+## Figures
 
-- Single citation: @comrie1989
-- Parenthetical: [@comrie1989]
-- Multiple sources: [@comrie1989; @bickel2005; @dubois1987]
-- With page numbers: [@dubois1987, p. 805]
-- With prefix: [see @comrie1989, chapter 3]
+![Hypothetical syntactic tree](figures/tree.png){#fig:tree width=80%}
 
-# Conclusion {#sec:conclusion}
+## Subfigures {#sec:subfigures}
 
-This template provides comprehensive support for linguistic writing, combining:
+![Direct construction](figures/tree.png){#fig:direct width=45%}
+![Inverse construction](figures/tree.png){#fig:inverse width=45%}
 
-1. Professional interlinear glossing via pandoc-ling
-2. Cross-references via pandoc-crossref
-3. Bibliography management via citeproc
-4. Semantic markup for object language data
-5. Multi-format output (PDF, HTML, DOCX)
-
-For German documents, use `lang: de-DE` in the YAML frontmatter and include `crossrefYaml: pandoc/crossref-de-DE.yaml` for localized labels.
+: Voice construction comparison {#fig:comparison}
 
 # References {-}
-
-<!-- Bibliography will be automatically generated here -->

@@ -283,11 +283,26 @@ glossing-list:
 - **Important**: Abbreviations in interlinear glosses must be manually added to metadata
 - The list appears before References (or after Introduction if `position: before`)
 
+**Inline abbreviation list:**
+You can insert a comma-separated inline list of all abbreviations anywhere in your document:
+
+```markdown
+This paper uses the following abbreviations: 
+
+::: glossing-abbreviations-inline
+:::
+```
+
+This renders as: "APPL (applicative), DEF (definite), IND (indicative), NOM (nominative), ..."
+
+Each abbreviation is formatted with the `.gl` class and gets tooltips in HTML output.
+
 **Best practices:**
 - Include ALL abbreviations you use, including those only in interlinear examples
 - Define abbreviations you deviate from or those not in Leipzig Glossing Rules
 - Test with `make html` to see tooltips (hover over `[nom]{.gl}` in running text)
 - Use `warn-undefined: true` to catch missing definitions in running text
+- Use inline list for space-constrained documents (no full table needed)
 
 ### Multi-File Projects
 

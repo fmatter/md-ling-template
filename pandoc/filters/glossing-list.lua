@@ -184,9 +184,12 @@ local function link_abbreviations(doc)
     return span
   end
   
-  doc.blocks = doc.blocks:walk({
-    Span = link_span
+  -- Walk all blocks
+  local temp_div = pandoc.Div(doc.blocks)
+  temp_div = temp_div:walk({
+    Span = link_span  
   })
+  doc.blocks = temp_div.content
   
   return doc
 end
@@ -216,15 +219,17 @@ local function generate_abbr_list()
     table.insert(blocks, pandoc.Header(1, config.title, {class = "unnumbered"}))
   end
   
-  -- Generate table or description list
+  --Generate table or description list
   if FORMAT:match('latex') then
     -- LaTeX: use description list
     local items = {}
     for _, abbr in ipairs(abbr_list) do
       local def = abbreviations[abbr]
+      -- Use .gl class for consistent formatting (lowercase for smallcaps)
+      local abbr_span = pandoc.Span({pandoc.Str(abbr:lower())}, {class = "gl"})
       table.insert(items, {
-        pandoc.Plain({pandoc.Str(abbr)}),
-        {pandoc.Plain({pandoc.Str(def)})}
+        {abbr_span},
+        {{pandoc.Plain({pandoc.Str(def)})}}
       })
     end
     table.insert(blocks, pandoc.DefinitionList(items))
@@ -238,8 +243,10 @@ local function generate_abbr_list()
     local body_rows = {}
     for _, abbr in ipairs(abbr_list) do
       local def = abbreviations[abbr]
+      -- Use .gl class for consistent formatting and tooltips (lowercase for smallcaps)
+      local abbr_span = pandoc.Span({pandoc.Str(abbr:lower())}, {class = "gl"})
       table.insert(body_rows, {
-        {pandoc.Plain({pandoc.SmallCaps({pandoc.Str(abbr)})})},
+        {pandoc.Plain({abbr_span})},
         {pandoc.Plain({pandoc.Str(def)})}
       })
     end
@@ -257,6 +264,64 @@ local function generate_abbr_list()
   end
   
   return blocks
+end
+
+-- Generate inline abbreviation list
+local function generate_inline_abbr_list()
+  -- Build sorted list of ALL abbreviations from metadata
+  local abbr_list = {}
+  for abbr in pairs(abbreviations) do
+    table.insert(abbr_list, abbr)
+  end
+  table.sort(abbr_list)
+  
+  if #abbr_list == 0 then
+    return {}
+  end
+  
+  local inlines = {}
+  for i, abbr in ipairs(abbr_list) do
+    local def = abbreviations[abbr]
+    
+    -- Add abbreviation with .gl class (lowercase for smallcaps)
+    local abbr_span = pandoc.Span({pandoc.Str(abbr:lower())}, {class = "gl"})
+    table.insert(inlines, abbr_span)
+    
+    -- Add definition in parentheses
+    table.insert(inlines, pandoc.Space())
+    table.insert(inlines, pandoc.Str("("))
+    table.insert(inlines, pandoc.Str(def))
+    table.insert(inlines, pandoc.Str(")"))
+    
+    -- Add comma separator except after last item
+    if i < #abbr_list then
+      table.insert(inlines, pandoc.Str(","))
+      table.insert(inlines, pandoc.Space())
+    end
+  end
+  
+  return inlines
+end
+
+-- Replace inline abbreviation list placeholders
+local function replace_inline_abbr_lists(doc)
+  local function process_div(div)
+    -- Check for glossing-abbreviations-inline class
+    if div.classes:includes('glossing-abbreviations-inline') then
+      local inlines = generate_inline_abbr_list()
+      return pandoc.Para(inlines)
+    end
+    return div
+  end
+  
+  -- Walk all blocks
+  local temp_div = pandoc.Div(doc.blocks)
+  temp_div = temp_div:walk({
+    Div = process_div
+  })
+  doc.blocks = temp_div.content
+  
+  return doc
 end
 
 -- Warn about undefined abbreviations
@@ -289,10 +354,10 @@ function Pandoc(doc)
   -- Warn about undefined
   warn_undefined()
   
-  -- Pass 2: Link abbreviations
-  doc = link_abbreviations(doc)
+  -- Pass 2: Replace inline abbreviation list placeholders
+  doc = replace_inline_abbr_lists(doc)
   
-  -- Pass 3: Insert abbreviations list if requested
+  -- Pass 3: Insert abbreviations table if requested
   if config.position then
     local abbr_list = generate_abbr_list()
     if abbr_list then
@@ -341,6 +406,10 @@ function Pandoc(doc)
       end
     end
   end
+  
+  -- Pass 4: Link abbreviations (do this AFTER inserting inline list and table
+  -- so that .gl spans in those get linked too)
+  doc = link_abbreviations(doc)
   
   return doc
 end
