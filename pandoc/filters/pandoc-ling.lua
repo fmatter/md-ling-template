@@ -495,11 +495,14 @@ end
 
 function getTrans (line)
   if formatGloss then
-    -- remove quotes and add singlequote througout
-    if line[1].tag == "Quoted" then
-      line = line[1].content
+    -- Check if user provided their own quotes
+    if line[1] and line[1].tag == "Quoted" then
+      -- User provided quotes - preserve everything as-is
+      -- This allows users to manually handle citations and formatting
+      return pandoc.Plain(line)
     end
     
+    -- No user quotes - apply automatic formatting
     -- Extract trailing citations and spaces to place them outside the quotes
     local citations = {}
     local i = #line
@@ -538,19 +541,69 @@ end
 
 function formatGlossLine (s)
   -- turn uppercase in gloss into small caps
+  -- Only fully uppercase components are treated as glosses
+  
+  -- Check if this is a name abbreviation (e.g., "A." or "B.")
+  -- These end with a period and are typically short
+  if string.match(s, "^[%u][%u]?%.$") then
+    -- Name abbreviation - don't format
+    return {pandoc.Str(s)}
+  end
+  
+  -- Check if this looks like a proper name (starts with capital, then lowercase, no separators)
+  if string.match(s, "^[%u][%l][%l]") and not string.match(s, "[%-‑:=<>~%.%d]") then
+    -- Likely a proper name (e.g., "Antonio") - don't format
+    return {pandoc.Str(s)}
+  end
+  
   local split = {}
-  for lower,upper in string.gmatch(s, "(.-)([%u%d]+)") do
-    if lower ~= "" then
-      lower = pandoc.Str(lower)
-      table.insert(split, lower)
+  local pos = 1
+  
+  while pos <= #s do
+    -- Try to match lowercase/separator sequence
+    local lower_start, lower_end = string.find(s, "^[^%u%d]+", pos)
+    if lower_start then
+      table.insert(split, pandoc.Str(string.sub(s, lower_start, lower_end)))
+      pos = lower_end + 1
     end
-    upper = pandoc.SmallCaps(pandoc.text.lower(upper))
-    table.insert(split, upper)
+    
+    if pos <= #s then
+      -- Try to match an uppercase/digit sequence
+      local upper_start, upper_end = string.find(s, "^[%u%d]+", pos)
+      if upper_start then
+        local upper_text = string.sub(s, upper_start, upper_end)
+        -- Check if this uppercase sequence is followed by lowercase (making it mixed case)
+        local next_pos = upper_end + 1
+        if next_pos <= #s then
+          local next_char = string.sub(s, next_pos, next_pos)
+          if string.match(next_char, "%l") then
+            -- Mixed case (e.g., "Ind") - don't convert, treat whole thing as regular text
+            -- Find the end of this mixed-case word
+            local mixed_end = string.find(s, "[^%a%d]", next_pos)
+            if mixed_end then
+              mixed_end = mixed_end - 1
+            else
+              mixed_end = #s
+            end
+            table.insert(split, pandoc.Str(string.sub(s, upper_start, mixed_end)))
+            pos = mixed_end + 1
+          else
+            -- Fully uppercase - convert to smallcaps
+            table.insert(split, pandoc.SmallCaps(pandoc.text.lower(upper_text)))
+            pos = next_pos
+          end
+        else
+          -- At end of string and all uppercase - convert
+          table.insert(split, pandoc.SmallCaps(pandoc.text.lower(upper_text)))
+          pos = next_pos
+        end
+      else
+        -- Shouldn't happen, but handle gracefully
+        pos = pos + 1
+      end
+    end
   end
-  for leftover in string.gmatch(s, "[%u%d]+([‑%-:=<>~][^‑%-:=<>~]-%l+)$") do
-    leftover = pandoc.Str(leftover)
-    table.insert(split, leftover)
-  end
+  
   if #split == 0 then
     if s == "~" then s = "   " end -- sequence "space-nobreakspace-space"
     table.insert(split, pandoc.Str(s))
@@ -1632,6 +1685,78 @@ function makeCrossrefs (cite)
 
   local id = cite.citations[1].id
   
+  -- Check if this is a range reference
+  -- Pandoc converts -- to en-dash (–) and puts it in suffix
+  if cite.citations[1].suffix and #cite.citations[1].suffix > 0 then
+    local suffix_str = pandoc.utils.stringify(cite.citations[1].suffix)
+    -- Check if suffix starts with en-dash (U+2013) or em-dash (U+2014)
+    -- Use string.sub to check the first character
+    local end_id = nil
+    if string.sub(suffix_str, 1, 3) == "–" or string.sub(suffix_str, 1, 3) == "—" then
+      -- En-dash or em-dash is 3 bytes in UTF-8
+      end_id = string.sub(suffix_str, 4)
+    end
+    
+    if end_id then
+      -- This is a range reference
+      local start_id = id
+      
+      -- Check if both are sub-example references
+      local start_subex = subExIndex[start_id]
+      local end_subex = subExIndex[end_id]
+      
+      if start_subex and end_subex then
+        -- Both are sub-examples
+        local start_parent = start_subex.parentExID
+        local end_parent = end_subex.parentExID
+        local start_letter = start_subex.letter
+        local end_letter = end_subex.letter
+        
+        if start_parent == end_parent then
+          -- Same parent: format as (1a-c)
+          local parentNumber = indexEx[start_parent]
+          if FORMAT:match "latex" then
+            if latexPackage == "expex" then
+              return pandoc.RawInline("latex", "(\\getref{"..start_parent.."}"..start_letter.."-"..end_letter..")")
+            else
+              return pandoc.RawInline("latex", "(\\ref{"..start_parent.."}"..start_letter.."-"..end_letter..")")
+            end
+          else
+            return pandoc.Link("("..parentNumber..start_letter.."-"..end_letter..")", "#"..start_id)
+          end
+        else
+          -- Different parents: format as (1a-2c)
+          local start_number = indexEx[start_parent]
+          local end_number = indexEx[end_parent]
+          if FORMAT:match "latex" then
+            if latexPackage == "expex" then
+              return pandoc.RawInline("latex", "(\\getref{"..start_parent.."}"..start_letter.."-\\getref{"..end_parent.."}"..end_letter..")")
+            else
+              return pandoc.RawInline("latex", "(\\ref{"..start_parent.."}"..start_letter.."-\\ref{"..end_parent.."}"..end_letter..")")
+            end
+          else
+            return pandoc.Str("("..start_number..start_letter.."-"..end_number..end_letter..")")
+          end
+        end
+      elseif indexEx[start_id] and indexEx[end_id] then
+        -- Both are regular examples: format as (1-3)
+        local start_number = indexEx[start_id]
+        local end_number = indexEx[end_id]
+        
+        if FORMAT:match "latex" then
+          if latexPackage == "expex" then
+            return pandoc.RawInline("latex", "(\\getref{"..start_id.."}-\\getref{"..end_id.."})")
+          else
+            return pandoc.RawInline("latex", "(\\ref{"..start_id.."}-\\ref{"..end_id.."})")
+          end
+        else
+          return pandoc.Link("("..start_number.."-"..end_number..")", "#"..start_id)
+        end
+      end
+      -- If we get here, the range was invalid - fall through to regular processing
+    end
+  end
+  
   -- Check if this is a sub-example reference
   if subExIndex[id] ~= nil then
     local subEx = subExIndex[id]
@@ -1654,12 +1779,19 @@ function makeCrossrefs (cite)
   -- ignore other "cite" elements
   if indexEx[id] ~= nil then 
     
-    -- only make suffix if there is something there
+    -- only make suffix if there is something there AND it's not a range
     local suffix = ""
-    if #cite.citations[1].suffix > 0 then
-      suffix = pandoc.utils.stringify(cite.citations[1].suffix[2])
-      -- For backwards compatibility: append suffix to number ([@ex:parent b])
-      suffix = xrefSuffixSep..suffix
+    if cite.citations[1].suffix and #cite.citations[1].suffix > 0 then
+      local suffix_str = pandoc.utils.stringify(cite.citations[1].suffix)
+      -- Check if it's a range (starts with en-dash or em-dash)
+      if not (string.sub(suffix_str, 1, 3) == "–" or string.sub(suffix_str, 1, 3) == "—") then
+        -- Not a range - it's backwards-compatible suffix syntax
+        if #cite.citations[1].suffix >= 2 then
+          suffix = pandoc.utils.stringify(cite.citations[1].suffix[2])
+          -- For backwards compatibility: append suffix to number ([@ex:parent b])
+          suffix = xrefSuffixSep..suffix
+        end
+      end
     end
 
     -- prevent Latex error when user sets xrefSuffixSep to space or nothing
