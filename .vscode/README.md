@@ -50,18 +50,40 @@ When you first open this workspace, VS Code will suggest these extensions:
 
 ## Custom Keyboard Shortcuts
 
-You can add these to your personal keybindings.json:
+The template includes code snippets for quick markdown input. Type the trigger and press Tab:
 
-```json
-[
-  {
-    "key": "ctrl+shift+p",
-    "command": "workbench.action.tasks.runTask",
-    "args": "Build PDF (current file)",
-    "when": "editorLangId == markdown"
-  }
-]
-```
+### Linguistic Examples
+- `ex` → Simple numbered example
+- `exgloss` → Interlinear glossed example with formatGloss
+- `exsub` → Sub-examples (a, b, c)
+
+### Semantic Markup
+- `gl` → Gloss abbreviation [nom]{.gl}
+- `ob` → Object language [word]{.ob}
+- `rc` → Reconstructed form [*form]{.rc}
+
+### Tables & Figures
+- `tbl` → Table with caption and ID
+- `fig` → Figure with caption and ID
+- `subfigs` → Subfigures with subcaptions
+- `subtables` → Subtables with subcaptions
+- `abbrinline` → Inline abbreviations list
+
+### Cross-References
+- `refsec` → [@sec:id]
+- `reffig` → [@fig:id]
+- `reftbl` → [@tbl:id]
+- `refex` → [@ex:id]
+
+### Citations
+- `cite` → In-text citation @citekey
+- `citep` → Parenthetical [@citekey]
+- `citepage` → Citation with page [@citekey, p. 123]
+
+### Sections
+- `sec` → Section heading with ID
+
+All snippets use tab stops for quick navigation through placeholders.
 
 ## Troubleshooting
 

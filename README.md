@@ -419,7 +419,9 @@ md-ling-template/
 ├── .vscode/            # VS Code configuration
 │   ├── settings.json   # Editor settings
 │   ├── tasks.json      # Build tasks (Ctrl+Shift+B)
-│   └── extensions.json # Recommended extensions
+│   ├── extensions.json # Recommended extensions
+│   ├── markdown.code-snippets  # Markdown snippets (ex, gl, ob, etc.)
+│   └── README.md       # VS Code usage guide
 ├── pandoc/             # Pandoc configuration
 │   ├── defaults.yaml   # Default pandoc settings
 │   ├── crossref-*.yaml # Language-specific labels
@@ -427,6 +429,7 @@ md-ling-template/
 │   ├── style.css       # HTML styling
 │   ├── filters/        # Lua filters
 │   │   ├── linguistic-markup.lua  # Semantic markup (.gl, .ob, .rc)
+│   │   ├── glossing-list.lua  # Abbreviations management
 │   │   ├── subtables.lua  # Subtable support (custom)
 │   │   └── pandoc-ling.lua  # Bundled v1.6 (2026-03-19)
 │   └── templates/      # Output templates
@@ -437,8 +440,9 @@ md-ling-template/
 ```
 
 **Bundled Filters:**
-- `subtables.lua` - Custom filter for grouping related tables (like subfigures)
 - `linguistic-markup.lua` - Converts semantic markup classes (`.gl`, `.ob`, `.rc`) to appropriate formatting in all output formats
+- `glossing-list.lua` - Auto-discovers and links glossing abbreviations, generates abbreviations table/list
+- `subtables.lua` - Custom filter for grouping related tables (like subfigures)
 - `pandoc-ling.lua` - Version 1.6 from [Michael Cysouw's repository](https://github.com/cysouw/pandoc-ling) for professional linguistic examples
 
 ## Customization
@@ -480,14 +484,22 @@ pandoc content.md \
 
 ## VS Code Integration
 
-The template includes complete VS Code configuration:
+The template includes complete VS Code configuration with code snippets for all custom markdown features:
 
-- **Live Preview**: Ctrl+K V (uses actual Pandoc with all filters!)
-- **Build Tasks**: Ctrl+Shift+B for default build
-- **Extensions**: Automatic suggestions for helpful extensions
-- **Settings**: Optimized for Markdown editing
+### Quick Start
+- **Ctrl+Shift+B** (Cmd+Shift+B on Mac) → Build PDF
+- **Ctrl+K V** (Cmd+K V on Mac) → Live preview with Pandoc
 
-See `.vscode/README.md` for details.
+### Code Snippets
+Type trigger + Tab for instant markdown templates:
+
+**Examples:** `ex`, `exgloss`, `exsub`  
+**Markup:** `gl`, `ob`, `rc`  
+**Tables/Figures:** `tbl`, `fig`, `subfigs`, `subtables`  
+**References:** `refsec`, `reffig`, `reftbl`, `refex`  
+**Citations:** `cite`, `citep`, `citepage`
+
+See [`.vscode/README.md`](.vscode/README.md) for complete documentation and all available shortcuts.
 
 ## Testing
 
@@ -528,6 +540,11 @@ Tests verify:
 - Verify pandoc-crossref is installed and in PATH
 - Check that IDs use correct prefixes: `#sec:`, `#tbl:`, `#fig:`
 - Ensure IDs are unique
+
+**LaTeX Error: Environment subfigure undefined?**
+- The template uses `subfig` package (not `subcaption`)
+- This is configured via `subfigGrid: true` in crossref YAML files
+- If using custom pandoc-crossref settings, ensure subfigGrid is enabled
 
 ## License
 
