@@ -228,14 +228,14 @@ local function generate_abbr_list()
   
   --Generate table or description list
   if FORMAT:match('latex') then
-    -- LaTeX: use description list
+    -- LaTeX: use description list with \gl{} command
     local items = {}
     for _, abbr in ipairs(abbr_list) do
       local def = abbreviations[abbr]
-      -- Use .gl class for consistent formatting (lowercase for smallcaps)
-      local abbr_span = pandoc.Span({pandoc.Str(abbr:lower())}, {class = "gl"})
+      -- Use RawInline for LaTeX \gl{} command
+      local abbr_latex = pandoc.RawInline('latex', '\\gl{' .. abbr:lower() .. '}')
       table.insert(items, {
-        {abbr_span},
+        {abbr_latex},
         {{pandoc.Plain({pandoc.Str(def)})}}
       })
     end
@@ -290,9 +290,14 @@ local function generate_inline_abbr_list()
   for i, abbr in ipairs(abbr_list) do
     local def = abbreviations[abbr]
     
-    -- Add abbreviation with .gl class (lowercase for smallcaps)
-    local abbr_span = pandoc.Span({pandoc.Str(abbr:lower())}, {class = "gl"})
-    table.insert(inlines, abbr_span)
+    -- Add abbreviation: use RawInline for LaTeX, Span for HTML
+    if FORMAT:match('latex') then
+      local abbr_latex = pandoc.RawInline('latex', '\\gl{' .. abbr:lower() .. '}')
+      table.insert(inlines, abbr_latex)
+    else
+      local abbr_span = pandoc.Span({pandoc.Str(abbr:lower())}, {class = "gl"})
+      table.insert(inlines, abbr_span)
+    end
     
     -- Add definition in parentheses
     table.insert(inlines, pandoc.Space())

@@ -11,12 +11,21 @@ which are defined in the template and can be customized by users.
 ]]
 
 function Span(el)
-  -- Convert .gl and .gloss to smallcaps
+  -- Convert .gl and .gloss to smallcaps (for grammatical glosses)
   if el.classes:includes('gl') or el.classes:includes('gloss') then
     if FORMAT:match 'latex' then
       return pandoc.RawInline('latex', '\\gl{' .. pandoc.utils.stringify(el.content) .. '}')
     else
       -- For HTML/other formats, let CSS handle it
+      return el
+    end
+  end
+  
+  -- Convert .smallcaps to generic smallcaps (stays as \textsc in LaTeX)
+  if el.classes:includes('smallcaps') then
+    if FORMAT:match 'latex' then
+      return pandoc.RawInline('latex', '\\textsc{' .. pandoc.utils.stringify(el.content) .. '}')
+    else
       return el
     end
   end

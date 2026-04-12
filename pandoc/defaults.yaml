@@ -15,6 +15,10 @@ metadata:
   linkReferences: true # For pandoc-crossref to link references
   codeBlockCaptions: true
 
+# Pandoc-crossref configuration
+metadata-files:
+  - pandoc/crossref-en-US.yaml
+
 # CSS for HTML output
 css: pandoc/style.css
 
