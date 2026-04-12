@@ -58,5 +58,6 @@
     "interlinear",
     "gloss",
     "lualatex"
-  ]
+  ],
+  "PandocCiter.RootFile": "metadata.yaml"
 }

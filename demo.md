@@ -2,7 +2,7 @@
 title: "Linguistic Markdown Template: Feature Demonstration"
 author: "Template Demo"
 date: "2026-04-10"
-bibliography: demo.bib
+bibliography: [demo.bib]
 
 glossing-abbreviations:
   APPL: applicative
@@ -24,6 +24,7 @@ glossing-list:
   title: "List of Glossing Abbreviations"
   warn-undefined: true
 ---
+
 
 
 
