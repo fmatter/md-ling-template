@@ -3,3 +3,7 @@ figPrefix: "Figure"
 tblPrefix: "Table"
 secPrefix: "Section"
 reference-section-title: "References"
+
+# Default font (Noto Serif has excellent Unicode/IPA support)
+# Users can override in their document metadata
+mainfont: "Noto Serif"

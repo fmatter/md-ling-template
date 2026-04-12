@@ -58,15 +58,15 @@ This directory contains VS Code configuration for the md-ling-template workflow.
   ```
 - This overrides the template's default settings for your project only
 
-## Recommended Extensions
+## Required Extension
 
-When you first open this workspace, VS Code will suggest these extensions:
+When you first open this workspace, VS Code will prompt you to install:
 
 - **Markdown Preview Enhanced** - Live preview with Pandoc integration
-- **Markdown All in One** - Shortcuts for lists, tables, etc.
-- **Code Spell Checker** - Catch typos while writing
-- **LaTeX Workshop** - Syntax highlighting for .tex files
-- **vscode-pandoc** - Additional pandoc integration
+
+This is the only extension you need. VS Code has built-in support for code snippets and markdown editing.
+
+**Optional:** If you want spell checking, install "Code Spell Checker" separately.
 
 ## Features Configured
 
@@ -87,19 +87,33 @@ When you first open this workspace, VS Code will suggest these extensions:
 - PDF/TEX files excluded from search
 - Clean workspace view focused on source files
 
-## Custom Keyboard Shortcuts
+## Code Snippets
 
-The template includes code snippets for quick markdown input. Type the trigger and press Tab:
+The template includes code snippets for quick markdown input.
+
+**How to use snippets:**
+
+1. **Make sure you've reloaded VS Code** after opening this workspace (the settings need to load)
+2. Start typing a snippet prefix (e.g., `ex`)
+3. A suggestion dropdown will appear automatically
+4. Press **Tab** to expand the snippet (or press Enter to select it)
+5. **Tab** moves between placeholders, **Shift+Tab** goes back
+
+**If suggestions don't appear automatically:**
+- Press **Ctrl+Space** to manually trigger them
+- Make sure you're editing a `.md` file
+- Try reloading the window: Ctrl+Shift+P → "Reload Window"
 
 ### Linguistic Examples
-- `ex` → Simple numbered example
-- `exgloss` → Interlinear glossed example with formatGloss
-- `exsub` → Sub-examples (a, b, c)
+- `ex` → Interlinear glossed example with formatGloss
+- `exsub` → Multipart interlinear example (a, b)
 
-### Semantic Markup
-- `gl` → Gloss abbreviation [nom]{.gl}
-- `ob` → Object language [word]{.ob}
-- `rc` → Reconstructed form [*form]{.rc}
+### Semantic Markup (Keyboard Shortcuts)
+- **Ctrl+Alt+Shift+G** → Wrap selection in [text]{.gl} (gloss abbreviation, smallcaps)
+- **Ctrl+Alt+Shift+O** → Wrap selection in [text]{.ob} (object language, italics)
+- **Ctrl+Alt+Shift+R** → Wrap selection in [text]{.rc} (reconstructed form, *italics)
+
+**How to use:** Select text, then press the keyboard shortcut. Works in markdown files only.
 
 ### Tables & Figures
 - `tbl` → Table with caption and ID
@@ -123,20 +137,41 @@ The template includes code snippets for quick markdown input. Type the trigger a
 ### Sections
 - `sec` → Section heading with ID
 
-All snippets use tab stops for quick navigation through placeholders.
-
 ## Troubleshooting
 
+**Snippets not appearing?**
+- **First, reload VS Code window:** Ctrl+Shift+P → "Reload Window"
+- Make sure you're editing a `.md` file
+- Start typing the full prefix (e.g., `ex` not just `e`)
+- Press Ctrl+Space to manually trigger suggestions
+- Press **Tab** (not Enter) to expand the snippet
+
 **Preview not showing linguistic examples?**
-- Make sure Markdown Preview Enhanced extension is installed
-- Check that pandoc is in your PATH
-- Verify pandoc-crossref is installed
+- Install Markdown Preview Enhanced extension (VS Code will prompt you)
+- Check that pandoc is in your PATH: `which pandoc`
+- Verify pandoc-crossref is installed: `which pandoc-crossref`
 
 **Build task fails?**
 - Check Terminal output for error messages
-- Ensure all paths in defaults.yaml are correct
-- Try building with `--verbose` flag for more details
+- Ensure LuaLaTeX is installed: `which lualatex`
+- Try the command manually in Terminal to see detailed errors
 
-**Fonts missing in PDF?**
-- Install recommended fonts: Noto Serif, Linux Libertine, or Charis SIL
-- Template will fall back to Latin Modern if fonts unavailable
+**Fonts not rendering properly in PDF?**
+
+The template defaults to **Noto Serif**, which has excellent Unicode and IPA support. This is set in `pandoc/crossref-en-US.yaml`.
+
+If you see "Missing character" warnings in the build output, it means Noto Serif isn't installed on your system.
+
+**Solution:** Install at least one linguistics-friendly font:
+1. **Noto Serif** - [Download](https://fonts.google.com/noto/specimen/Noto+Serif) (recommended)
+2. **Linux Libertine** - [Download](https://libertine-fonts.org/)
+3. **Charis SIL** - [Download](https://software.sil.org/charis/)
+
+**To override the default font** in your document:
+```yaml
+---
+mainfont: "Linux Libertine"
+---
+```
+
+**Why set it explicitly?** The template's `\IfFontExistsTF` fallback mechanism in LaTeX isn't reliable across systems. Setting `mainfont` in the crossref YAML provides a working default, and you can override it in any document's metadata.

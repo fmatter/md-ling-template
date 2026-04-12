@@ -25,9 +25,11 @@ glossing-list:
   warn-undefined: true
 ---
 
+
 # Introduction {#sec:intro}
 
 This document demonstrates the template's capabilities for linguistic writing: interlinear glossing, cross-references, citations, and semantic markup.^[Glossing abbreviations used: [...]{.glossing-abbreviations-inline}]
+
 
 ## Semantic Markup {#sec:markup}
 
@@ -53,6 +55,8 @@ The cat sat on the mat.
 ::: ex
 *The cat sitted on the mat.
 :::
+
+
 
 ## Interlinear Glossing {#sec:glossing}
 
@@ -208,3 +212,4 @@ Voice construction comparison
 
 Newness and lexicality of S in 25 texts depending on IPQ
 </div>
+

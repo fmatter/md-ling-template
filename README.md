@@ -22,6 +22,20 @@ sudo apt install pandoc texlive-full pandoc-crossref
 # - pandoc-crossref: https://github.com/lierdakil/pandoc-crossref/releases
 ```
 
+**Recommended: Install a linguistics-friendly font**
+
+The template supports these fonts (install at least one, then specify it in your document):
+1. **Noto Serif** - [Download from Google Fonts](https://fonts.google.com/noto/specimen/Noto+Serif)
+2. **Linux Libertine** - [Download from libertine-fonts.org](https://libertine-fonts.org/)
+3. **Charis SIL** - [Download from SIL](https://software.sil.org/charis/)
+
+Then add to your document metadata (replace "Noto Serif" with your installed font):
+```yaml
+---
+mainfont: "Noto Serif"
+---
+```
+
 ### 2. Create Your Document
 
 ```bash
@@ -34,6 +48,7 @@ cat > content.md << 'EOF'
 ---
 title: My Linguistic Paper
 author: Your Name
+mainfont: "Noto Serif"
 bibliography: sources.bib
 ---
 
@@ -621,12 +636,25 @@ Tests verify:
 **PDF build fails?**
 - Ensure LuaLaTeX is installed: `which lualatex`
 - Check terminal output for specific LaTeX errors
-- Try building intermediate .tex: `invoke mpas --fmt=tex`
 
-**Fonts missing in PDF?**
-- Install recommended fonts: Noto Serif, Linux Libertine, or Charis SIL
-- Template falls back to Latin Modern if unavailable
-- Or specify a font in your metadata: `mainfont: "Charis SIL"`
+**Fonts not rendering properly in PDF?**
+
+The template tries several linguistics-friendly fonts, but the `\IfFontExistsTF` fallback doesn't always work correctly.
+
+**Solution:** Explicitly set a font in your document metadata:
+```yaml
+---
+mainfont: "Noto Serif"
+# Or: "Linux Libertine" or "Charis SIL"
+---
+```
+
+**Install at least one of these fonts:**
+1. **Noto Serif** - [Download](https://fonts.google.com/noto/specimen/Noto+Serif)
+2. **Linux Libertine** - [Download](https://libertine-fonts.org/)
+3. **Charis SIL** - [Download](https://software.sil.org/charis/)
+
+Without an explicitly specified font, the template may fall back to Latin Modern Roman which lacks many IPA characters and extended diacritics.
 
 **Cross-references not working?**
 - Verify pandoc-crossref is installed and in PATH

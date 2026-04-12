@@ -6,11 +6,10 @@
   "[markdown]": {
     "editor.wordWrap": "on",
     "editor.quickSuggestions": {
-      "comments": "off",
-      "strings": "off",
-      "other": "off"
+      "other": true  // Enable suggestions for snippets
     },
     "editor.snippetSuggestions": "top",
+    "editor.tabCompletion": "on",
     "editor.rulers": [80]
   },
 

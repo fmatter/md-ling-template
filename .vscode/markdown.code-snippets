@@ -1,15 +1,7 @@
 {
-  "Linguistic Example": {
+  "Interlinear Example": {
+    "scope": "markdown",
     "prefix": "ex",
-    "body": [
-      "::: ex",
-      "$1",
-      ":::"
-    ],
-    "description": "Simple numbered linguistic example"
-  },
-  "Interlinear Gloss": {
-    "prefix": "exgloss",
     "body": [
       "::: {.ex formatGloss=true}",
       "| ${1:Language (Family)}",
@@ -20,33 +12,30 @@
     ],
     "description": "Interlinear glossed example with auto-formatting"
   },
-  "Sub-examples": {
+  "Multipart Interlinear Example": {
+    "scope": "markdown",
     "prefix": "exsub",
     "body": [
       "::: ex",
-      "a. ${1:first example}",
-      "b. ${2:second example}",
-      "c. ${3:third example}",
+      "a. ::: {.ex formatGloss=true}",
+      "   | ${1:Language (Family)}",
+      "   | ${2:source line}",
+      "   | ${3:gloss line}",
+      "   | '${4:translation}'",
+      "   :::",
+      "",
+      "b. ::: {.ex formatGloss=true}",
+      "   | ${5:Language (Family)}",
+      "   | ${6:source line}",
+      "   | ${7:gloss line}",
+      "   | '${8:translation}'",
+      "   :::",
       ":::"
     ],
-    "description": "Example with sub-parts (a, b, c)"
-  },
-  "Gloss Abbreviation": {
-    "prefix": "gl",
-    "body": "[${1:nom}]{.gl}",
-    "description": "Gloss abbreviation (smallcaps)"
-  },
-  "Object Language": {
-    "prefix": "ob",
-    "body": "[${1:word}]{.ob}",
-    "description": "Object language (italics)"
-  },
-  "Reconstructed Form": {
-    "prefix": "rc",
-    "body": "[${1:form}]{.rc}",
-    "description": "Reconstructed form (*italics)"
+    "description": "Multi-part example with interlinear glosses"
   },
   "Subtables": {
+    "scope": "markdown",
     "prefix": "subtables",
     "body": [
       "::: {#tbl:${1:id}}",
@@ -68,6 +57,7 @@
     "description": "Grouped subtables with subcaptions"
   },
   "Inline Abbreviations List": {
+    "scope": "markdown",
     "prefix": "abbrinline",
     "body": [
       "::: glossing-abbreviations-inline",
@@ -76,51 +66,61 @@
     "description": "Insert inline comma-separated abbreviations list (block version)"
   },
   "Inline Abbreviations (span)": {
+    "scope": "markdown",
     "prefix": "abbrspan",
     "body": "[...]{.glossing-abbreviations-inline}",
     "description": "Inline abbreviations list (for use in footnotes)"
   },
   "Section Reference": {
+    "scope": "markdown",
     "prefix": "refsec",
     "body": "[@sec:${1:id}]",
     "description": "Cross-reference to section"
   },
   "Figure Reference": {
+    "scope": "markdown",
     "prefix": "reffig",
     "body": "[@fig:${1:id}]",
     "description": "Cross-reference to figure"
   },
   "Table Reference": {
+    "scope": "markdown",
     "prefix": "reftbl",
     "body": "[@tbl:${1:id}]",
     "description": "Cross-reference to table"
   },
   "Example Reference": {
+    "scope": "markdown",
     "prefix": "refex",
     "body": "[@ex:${1:id}]",
     "description": "Cross-reference to example"
   },
   "Citation (in-text)": {
+    "scope": "markdown",
     "prefix": "cite",
     "body": "@${1:citekey}",
     "description": "In-text citation"
   },
   "Citation (parenthetical)": {
+    "scope": "markdown",
     "prefix": "citep",
     "body": "[@${1:citekey}]",
     "description": "Parenthetical citation"
   },
   "Citation (with page)": {
+    "scope": "markdown",
     "prefix": "citepage",
     "body": "[@${1:citekey}, p. ${2:123}]",
     "description": "Citation with page number"
   },
   "Section with ID": {
+    "scope": "markdown",
     "prefix": "sec",
     "body": "# ${1:Section Title} {#sec:${2:id}}",
     "description": "Section heading with cross-reference ID"
   },
   "Subfigures": {
+    "scope": "markdown",
     "prefix": "subfigs",
     "body": [
       "<div id=\"fig:${1:main}\">",
@@ -135,6 +135,7 @@
     "description": "Subfigures with div wrapper (each subfigure in separate paragraph)"
   },
   "Table with Caption": {
+    "scope": "markdown",
     "prefix": "tbl",
     "body": [
       "| ${1:Header 1} | ${2:Header 2} |",
@@ -146,6 +147,7 @@
     "description": "Table with caption and cross-reference ID"
   },
   "Figure with Caption": {
+    "scope": "markdown",
     "prefix": "fig",
     "body": "![${1:Caption}](${2:filename.png}){#fig:${3:id} width=${4:80}%}",
     "description": "Figure with caption, ID, and width"
