@@ -14,7 +14,7 @@
   },
   "Multipart Interlinear Example": {
     "scope": "markdown",
-    "prefix": "exsub",
+    "prefix": "mex",
     "body": [
       "::: ex",
       "a. ::: {.ex formatGloss=true}",
