@@ -4,6 +4,7 @@ filters:
   - pandoc/filters/glossing-list.lua  # Auto-discover and link glossing abbreviations (must run before pandoc-ling)
   - pandoc/filters/pandoc-ling.lua  # Path relative to workspace root
   - pandoc-crossref
+  - pandoc/filters/simple-tables.lua  # Convert tables with empty headers to simple auto-width tabular
   # - citeproc # This is now handled by the --citeproc flag
 
 # Default metadata values that can be overridden by documents
