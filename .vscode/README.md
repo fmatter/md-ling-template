@@ -5,19 +5,37 @@ This directory contains VS Code configuration for the md-ling-template workflow.
 ## Quick Start
 
 ### Build your document
-- **Ctrl+Shift+B** (Cmd+Shift+B on Mac) → Build PDF (default)
+- **Ctrl+Shift+B** (Cmd+Shift+B on Mac) → Build with default task
 - **Ctrl+P** then type `task ` → See all available tasks
 
 ### Available Tasks
-1. **Build PDF (current file)** - Generate PDF from your markdown (default build task)
-2. **Build HTML (current file)** - Generate HTML output
-3. **Build LaTeX (current file)** - Generate intermediate .tex file for debugging
-4. **Run tests** - Run the pytest test suite
-5. **Clean outputs** - Remove generated PDF/HTML/TeX files
+
+**For multi-file projects** (with `metadata.yaml`):
+1. **Build PDF (multi-file project)** - Compile all `*.md` files with metadata.yaml (default)
+2. **Build HTML (multi-file project)** - HTML output for multi-file projects
+3. **Build with Makefile** - Use project's Makefile (if present)
+
+**For single-file projects** (metadata in markdown file):
+1. **Build PDF (current file)** - Generate PDF from current file only
+2. **Build HTML (current file)** - Generate HTML from current file only
+3. **Build LaTeX (current file)** - Generate .tex for debugging
+
+**Other tasks:**
+1. **Run tests** - Run the pytest test suite
+2. **Clean outputs** - Remove generated PDF/HTML/TeX files
+
+**Note:** The default build task (Ctrl+Shift+B) is set to "multi-file project". If working on a single file, use **Ctrl+P** → `task Build PDF (current file)` instead.
 
 ### Preview
 - **Ctrl+K V** (Cmd+K V on Mac) → Open markdown preview side-by-side
 - Preview uses actual Pandoc with all filters, so linguistic examples render correctly!
+- **For multi-file projects:** Create `metadata.yaml` in the same directory as your markdown files
+  - Bibliography, title, author, and other metadata will be loaded automatically
+  - Citations and cross-references will resolve in preview
+- **For single-file projects:** Put metadata in YAML frontmatter (between `---` lines at file start)
+  - If no `metadata.yaml` exists, pandoc uses frontmatter only
+
+**Note:** Preview looks for `metadata.yaml` in the file's directory. If it doesn't exist, you'll see a warning (safe to ignore for single-file projects).
 
 ## Recommended Extensions
 

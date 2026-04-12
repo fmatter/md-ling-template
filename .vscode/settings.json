@@ -22,6 +22,7 @@
   "markdown-preview-enhanced.usePandocParser": true,
   "markdown-preview-enhanced.pandocArguments": [
     "--defaults=pandoc/defaults.yaml",
+    "--metadata-file=metadata.yaml",
     "--citeproc",
     "--resource-path=.:pandoc"
   ],
