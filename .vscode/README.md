@@ -67,7 +67,8 @@ The template includes code snippets for quick markdown input. Type the trigger a
 - `fig` → Figure with caption and ID
 - `subfigs` → Subfigures in div wrapper (blank lines between each)
 - `subtables` → Subtables with subcaptions
-- `abbrinline` → Inline abbreviations list
+- `abbrinline` → Inline abbreviations list (block version)
+- `abbrspan` → Inline abbreviations (for footnotes)
 
 ### Cross-References
 - `refsec` → [@sec:id]

@@ -309,7 +309,13 @@ This paper uses the following abbreviations:
 :::
 ```
 
-This renders as: "APPL (applicative), DEF (definite), IND (indicative), NOM (nominative), ..."
+For use inside footnotes or other inline contexts (where blank lines aren't allowed):
+
+```markdown
+Examples use Leipzig Glossing Rules.^[Abbreviations: [...]{.glossing-abbreviations-inline}]
+```
+
+Both render as: "appl (applicative), def (definite), ind (indicative), nom (nominative), ..."
 
 Each abbreviation is formatted with the `.gl` class and gets tooltips in HTML output.
 

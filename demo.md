@@ -22,7 +22,7 @@ glossing-list:
 
 # Introduction {#sec:intro}
 
-This document demonstrates the template's capabilities for linguistic writing: interlinear glossing, cross-references, citations, and semantic markup.
+This document demonstrates the template's capabilities for linguistic writing: interlinear glossing, cross-references, citations, and semantic markup.^[Glossing abbreviations used: [...]{.glossing-abbreviations-inline}]
 
 ## Semantic Markup {#sec:markup}
 

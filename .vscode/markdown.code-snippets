@@ -73,7 +73,12 @@
       "::: glossing-abbreviations-inline",
       ":::"
     ],
-    "description": "Insert inline comma-separated abbreviations list"
+    "description": "Insert inline comma-separated abbreviations list (block version)"
+  },
+  "Inline Abbreviations (span)": {
+    "prefix": "abbrspan",
+    "body": "[...]{.glossing-abbreviations-inline}",
+    "description": "Inline abbreviations list (for use in footnotes)"
   },
   "Section Reference": {
     "prefix": "refsec",

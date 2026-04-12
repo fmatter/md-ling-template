@@ -21,6 +21,13 @@ Metadata structure:
     position: after      # 'before' (after intro) or 'after' (before references) or null (no list)
     title: "List of Glossing Abbreviations"
     warn-undefined: true # warn about used but undefined abbreviations
+
+Inline abbreviations list (for use in text or footnotes):
+  Block version:  ::: glossing-abbreviations-inline
+                  :::
+  
+  Span version:   [...]{.glossing-abbreviations-inline}
+                  (The span content is replaced entirely)
 ]]
 
 local abbreviations = {}  -- From metadata: { ABBR = "definition" }
@@ -314,10 +321,20 @@ local function replace_inline_abbr_lists(doc)
     return div
   end
   
-  -- Walk all blocks
+  local function process_span(span)
+    -- Check for glossing-abbreviations-inline class
+    if span.classes:includes('glossing-abbreviations-inline') then
+      local inlines = generate_inline_abbr_list()
+      return inlines
+    end
+    return span
+  end
+  
+  -- Walk all blocks and inlines
   local temp_div = pandoc.Div(doc.blocks)
   temp_div = temp_div:walk({
-    Div = process_div
+    Div = process_div,
+    Span = process_span
   })
   doc.blocks = temp_div.content
   
