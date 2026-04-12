@@ -68,47 +68,11 @@
     "body": "[...]{.glossing-abbreviations-inline}",
     "description": "Inline abbreviations list (for use in footnotes)"
   },
-  "Section Reference": {
-    "scope": "markdown",
-    "prefix": "refsec",
-    "body": "[@sec:${1:id}]",
-    "description": "Cross-reference to section"
-  },
-  "Figure Reference": {
-    "scope": "markdown",
-    "prefix": "reffig",
-    "body": "[@fig:${1:id}]",
-    "description": "Cross-reference to figure"
-  },
-  "Table Reference": {
-    "scope": "markdown",
-    "prefix": "reftbl",
-    "body": "[@tbl:${1:id}]",
-    "description": "Cross-reference to table"
-  },
   "Example Reference": {
     "scope": "markdown",
     "prefix": "refex",
     "body": "[@ex:${1:id}]",
     "description": "Cross-reference to example"
-  },
-  "Citation (in-text)": {
-    "scope": "markdown",
-    "prefix": "cite",
-    "body": "@${1:citekey}",
-    "description": "In-text citation"
-  },
-  "Citation (parenthetical)": {
-    "scope": "markdown",
-    "prefix": "citep",
-    "body": "[@${1:citekey}]",
-    "description": "Parenthetical citation"
-  },
-  "Citation (with page)": {
-    "scope": "markdown",
-    "prefix": "citepage",
-    "body": "[@${1:citekey}, p. ${2:123}]",
-    "description": "Citation with page number"
   },
   "Section with ID": {
     "scope": "markdown",

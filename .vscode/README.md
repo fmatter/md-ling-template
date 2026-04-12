@@ -58,15 +58,23 @@ This directory contains VS Code configuration for the md-ling-template workflow.
   ```
 - This overrides the template's default settings for your project only
 
-## Required Extension
+## Required Extensions
 
 When you first open this workspace, VS Code will prompt you to install:
 
 - **Markdown Preview Enhanced** - Live preview with Pandoc integration
+- **Pandoc Citer** - Autocomplete for citations and cross-references
 
-This is the only extension you need. VS Code has built-in support for code snippets and markdown editing.
+These extensions provide:
+- Live preview with actual Pandoc rendering (Markdown Preview Enhanced)
+- IntelliSense autocomplete for `@citekey`, `@fig:id`, `@sec:id`, `@tbl:id` (Pandoc Citer)
 
 **Optional:** If you want spell checking, install "Code Spell Checker" separately.
+
+**Note for Pandoc Citer:**
+- Configured to read from `metadata.yaml` for multi-file projects
+- In markdown frontmatter: use `bibliography: [sources.bib]` (list notation required)
+- In metadata.yaml: use `bibliography: sources.bib` (string notation works fine)
 
 ## Features Configured
 
@@ -106,7 +114,7 @@ The template includes code snippets for quick markdown input.
 
 ### Linguistic Examples
 - `ex` → Interlinear glossed example with formatGloss
-- `exsub` → Multipart interlinear example (a, b)
+- `mex` → Multipart interlinear example (a, b)
 
 ### Semantic Markup (Keyboard Shortcuts)
 - **Ctrl+Alt+Shift+G** → Wrap selection in [text]{.gl} (gloss abbreviation, smallcaps)
@@ -118,21 +126,21 @@ The template includes code snippets for quick markdown input.
 ### Tables & Figures
 - `tbl` → Table with caption and ID
 - `fig` → Figure with caption and ID
-- `subfigs` → Subfigures in div wrapper (blank lines between each)
+- `subfigs` → Subfigures in pandoc div wrapper (blank lines between each)
 - `subtables` → Subtables with subcaptions
 - `abbrinline` → Inline abbreviations list (block version)
 - `abbrspan` → Inline abbreviations (for footnotes)
 
-### Cross-References
-- `refsec` → [@sec:id]
-- `reffig` → [@fig:id]
-- `reftbl` → [@tbl:id]
-- `refex` → [@ex:id]
+### Cross-References & Citations
 
-### Citations
-- `cite` → In-text citation @citekey
-- `citep` → Parenthetical [@citekey]
-- `citepage` → Citation with page [@citekey, p. 123]
+**Pandoc Citer extension** provides autocomplete for:
+- Citations: Type `@` to see bibliography entries
+- Section references: Type `@sec:` to see available sections
+- Figure references: Type `@fig:` to see available figures
+- Table references: Type `@tbl:` to see available tables
+
+**Snippet for example references** (not handled by Pandoc Citer):
+- `refex` → [@ex:id]
 
 ### Sections
 - `sec` → Section heading with ID
