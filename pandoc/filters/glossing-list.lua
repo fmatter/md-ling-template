@@ -2,7 +2,7 @@
 glossing-list.lua - Auto-discover and link glossing abbreviations
 
 This filter:
-1. Reads abbreviation definitions from metadata (glossing-abbreviations)
+1. Reads abbreviation definitions from metadata (glossing-abbreviations and abbreviations)
 2. Auto-discovers used abbreviations from span.gl (linguistic-markup.lua output)  
 3. Generates a list of ALL abbreviations defined in metadata
 4. Links abbreviations to definitions in HTML output (for .gl spans)
@@ -12,10 +12,15 @@ Note: Abbreviations in pandoc-ling interlinear glosses are not auto-discovered.
 Include all abbreviations you use (including those in examples) in the metadata.
 
 Metadata structure:
-  glossing-abbreviations:
+  glossing-abbreviations:  # For linguistic glosses (formatted with small caps)
     APPL: applicative
     INV: inverse voice
     3: third person
+  
+  abbreviations:           # For general abbreviations (plain text)
+    e.g.: for example
+    i.e.: that is
+    cf.: compare
   
   glossing-list:
     position: after      # 'before' (after intro) or 'after' (before references) or null (no list)
@@ -31,6 +36,7 @@ Inline abbreviations list (for use in text or footnotes):
 ]]
 
 local abbreviations = {}  -- From metadata: { ABBR = "definition" }
+local glossing_abbrs = {} -- Track which abbreviations are glossing (vs general)
 local used_abbrs = {}     -- Discovered in document: { ABBR = true }
 local config = {
   position = "after",
@@ -62,10 +68,19 @@ end
 
 -- Collect abbreviations from metadata
 function Meta(meta)
-  -- Read abbreviation definitions
+  -- Read glossing abbreviation definitions (formatted with small caps)
   if meta['glossing-abbreviations'] then
     for k, v in pairs(meta['glossing-abbreviations']) do
       abbreviations[k] = pandoc.utils.stringify(v)
+      glossing_abbrs[k] = true  -- Mark as glossing abbreviation
+    end
+  end
+  
+  -- Read general abbreviation definitions (plain text)
+  if meta['abbreviations'] then
+    for k, v in pairs(meta['abbreviations']) do
+      abbreviations[k] = pandoc.utils.stringify(v)
+      -- Don't mark as glossing_abbrs - these are plain
     end
   end
   
@@ -228,18 +243,28 @@ local function generate_abbr_list()
   
   --Generate table or description list
   if FORMAT:match('latex') then
-    -- LaTeX: use description list with \gl{} command
-    local items = {}
+    -- LaTeX: use simple two-column tabular
+    local rows = {}
     for _, abbr in ipairs(abbr_list) do
       local def = abbreviations[abbr]
-      -- Use RawInline for LaTeX \gl{} command
-      local abbr_latex = pandoc.RawInline('latex', '\\gl{' .. abbr:lower() .. '}')
-      table.insert(items, {
-        {abbr_latex},
-        {{pandoc.Plain({pandoc.Str(def)})}}
-      })
+      local abbr_cell
+      
+      -- Use \gl{} for glossing abbreviations, plain text for others
+      if glossing_abbrs[abbr] then
+        abbr_cell = '\\gl{' .. abbr:lower() .. '}'
+      else
+        abbr_cell = abbr
+      end
+      
+      table.insert(rows, abbr_cell .. ' & ' .. def .. ' \\\\')
     end
-    table.insert(blocks, pandoc.DefinitionList(items))
+    
+    -- Build tabular environment
+    local latex_table = '\\begin{tabular}{@{}ll@{}}\n' ..
+                        table.concat(rows, '\n') .. '\n' ..
+                        '\\end{tabular}'
+    
+    table.insert(blocks, pandoc.RawBlock('latex', latex_table))
   else
     -- HTML/DOCX: use simple table
     local header_row = {
@@ -250,10 +275,17 @@ local function generate_abbr_list()
     local body_rows = {}
     for _, abbr in ipairs(abbr_list) do
       local def = abbreviations[abbr]
-      -- Use .gl class for consistent formatting and tooltips (lowercase for smallcaps)
-      local abbr_span = pandoc.Span({pandoc.Str(abbr:lower())}, {class = "gl"})
+      local abbr_content
+      
+      -- Use .gl class for glossing abbreviations, plain for others
+      if glossing_abbrs[abbr] then
+        abbr_content = pandoc.Span({pandoc.Str(abbr:lower())}, {class = "gl"})
+      else
+        abbr_content = pandoc.Str(abbr)
+      end
+      
       table.insert(body_rows, {
-        {pandoc.Plain({abbr_span})},
+        {pandoc.Plain({abbr_content})},
         {pandoc.Plain({pandoc.Str(def)})}
       })
     end
@@ -290,13 +322,18 @@ local function generate_inline_abbr_list()
   for i, abbr in ipairs(abbr_list) do
     local def = abbreviations[abbr]
     
-    -- Add abbreviation: use RawInline for LaTeX, Span for HTML
-    if FORMAT:match('latex') then
-      local abbr_latex = pandoc.RawInline('latex', '\\gl{' .. abbr:lower() .. '}')
-      table.insert(inlines, abbr_latex)
+    -- Add abbreviation: use \gl{} for glossing abbreviations, plain for others
+    if glossing_abbrs[abbr] then
+      if FORMAT:match('latex') then
+        local abbr_latex = pandoc.RawInline('latex', '\\gl{' .. abbr:lower() .. '}')
+        table.insert(inlines, abbr_latex)
+      else
+        local abbr_span = pandoc.Span({pandoc.Str(abbr:lower())}, {class = "gl"})
+        table.insert(inlines, abbr_span)
+      end
     else
-      local abbr_span = pandoc.Span({pandoc.Str(abbr:lower())}, {class = "gl"})
-      table.insert(inlines, abbr_span)
+      -- General abbreviation - plain text
+      table.insert(inlines, pandoc.Str(abbr))
     end
     
     -- Add definition in parentheses

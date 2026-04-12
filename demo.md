@@ -4,7 +4,6 @@ author: "Template Demo"
 date: "2026-04-10"
 bibliography: demo.bib
 
-
 glossing-abbreviations:
   APPL: applicative
   INV: inverse voice
@@ -14,6 +13,11 @@ glossing-abbreviations:
   DEF: definite
   NOM: nominative
   3SG: third person singular
+
+abbreviations:
+  e.g.: for example
+  i.e.: that is
+  cf.: compare
 
 glossing-list:
   position: after

@@ -99,6 +99,12 @@ $after-header-includes.latex()$
 \newcommand{\rc}[1]{*\textit{#1}}         % reconstructed forms (asterisk + italics)
 % --- END LINGUISTIC MARKUP COMMANDS ---
 
+% --- DESCRIPTION LIST CUSTOMIZATION ---
+% Make description labels use serif font so \gl{} small caps work properly
+% (KOMA-Script default is bold sans-serif which doesn't support small caps well)
+\setkomafont{descriptionlabel}{\normalfont}
+% --- END DESCRIPTION LIST CUSTOMIZATION ---
+
 $hypersetup.latex()$
 $if(pdf-trailer-id)$
 
