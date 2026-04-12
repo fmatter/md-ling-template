@@ -19,8 +19,8 @@ tex:
 #
 # article.pdf: $(CHAPTERS) metadata.yaml sources.bib
 # 	pandoc $(CHAPTERS) \
-# 	  --metadata-file=metadata.yaml \
 # 	  --defaults=pandoc/defaults.yaml \
+# 	  --metadata-file=metadata.yaml \
 # 	  --template=pandoc/templates/default.latex \
 # 	  -o article.pdf
 

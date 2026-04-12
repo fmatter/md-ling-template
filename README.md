@@ -427,8 +427,8 @@ CHAPTERS := 01-introduction.md 02-background.md 03-method.md 04-results.md 05-co
 
 thesis.pdf: $(CHAPTERS) metadata.yaml sources.bib
 	pandoc $(CHAPTERS) \
-	  --metadata-file=metadata.yaml \
 	  --defaults=pandoc/defaults.yaml \
+	  --metadata-file=metadata.yaml \
 	  --template=pandoc/templates/default.latex \
 	  -o thesis.pdf
 
@@ -450,11 +450,13 @@ pandoc 01-introduction.md \
        03-method.md \
        04-results.md \
        05-conclusion.md \
-  --metadata-file=metadata.yaml \
   --defaults=pandoc/defaults.yaml \
+  --metadata-file=metadata.yaml \
   --template=pandoc/templates/default.latex \
   -o thesis.pdf
 ```
+
+**Important: Argument order matters!** Pandoc processes arguments in order, so later values override earlier ones. Always put `--defaults` before `--metadata-file` to allow your metadata.yaml to override template defaults (e.g., font selection).
 
 **Or customize the VS Code task:**
 Edit `.vscode/tasks.json` and update the "Build PDF (multi-file with metadata.yaml)" task to list your actual filenames in the desired order.

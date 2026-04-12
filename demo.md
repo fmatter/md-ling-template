@@ -3,6 +3,7 @@ title: "Linguistic Markdown Template: Feature Demonstration"
 author: "Template Demo"
 date: "2026-04-10"
 bibliography: [demo.bib]
+mainfont: Linux Libertine
 
 glossing-abbreviations:
   APPL: applicative

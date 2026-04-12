@@ -32,8 +32,8 @@
         "01-intro.md",
         "02-chapter.md",
         "03-conclusion.md",
-        "--metadata-file=metadata.yaml",
         "--defaults=pandoc/defaults.yaml",
+        "--metadata-file=metadata.yaml",
         "--template=pandoc/templates/default.latex",
         "-o",
         "article.pdf"
@@ -75,8 +75,8 @@
         "01-intro.md",
         "02-chapter.md",
         "03-conclusion.md",
-        "--metadata-file=metadata.yaml",
         "--defaults=pandoc/defaults.yaml",
+        "--metadata-file=metadata.yaml",
         "-o",
         "article.html"
       ],
