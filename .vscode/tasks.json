@@ -27,35 +27,13 @@
       "problemMatcher": []
     },
     {
-      "label": "Build PDF (all .md files)",
+      "label": "Build PDF (multi-file with metadata.yaml)",
       "type": "shell",
       "command": "pandoc",
       "args": [
-        "*.md",
-        "--defaults=pandoc/defaults.yaml",
-        "--citeproc",
-        "--template=pandoc/templates/default.latex",
-        "--pdf-engine=lualatex",
-        "-o",
-        "article.pdf"
-      ],
-      "group": "build",
-      "options": {
-        "cwd": "${fileDirname}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Build PDF (with metadata.yaml)",
-      "type": "shell",
-      "command": "pandoc",
-      "args": [
-        "*.md",
+        "01-intro.md",
+        "02-chapter.md",
+        "03-conclusion.md",
         "--metadata-file=metadata.yaml",
         "--defaults=pandoc/defaults.yaml",
         "--citeproc",
@@ -94,6 +72,31 @@
       "problemMatcher": []
     },
     {
+      "label": "Build HTML (multi-file with metadata.yaml)",
+      "type": "shell",
+      "command": "pandoc",
+      "args": [
+        "01-intro.md",
+        "02-chapter.md",
+        "03-conclusion.md",
+        "--metadata-file=metadata.yaml",
+        "--defaults=pandoc/defaults.yaml",
+        "--citeproc",
+        "-o",
+        "article.html"
+      ],
+      "group": "build",
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Build HTML (current file)",
       "type": "shell",
       "command": "pandoc",
@@ -108,51 +111,6 @@
         "${fileDirname}/${fileBasenameNoExtension}.html"
       ],
       "group": "build",
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Build HTML (all .md files)",
-      "type": "shell",
-      "command": "pandoc",
-      "args": [
-        "*.md",
-        "--defaults=pandoc/defaults.yaml",
-        "--citeproc",
-        "-o",
-        "article.html"
-      ],
-      "group": "build",
-      "options": {
-        "cwd": "${fileDirname}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Build HTML (with metadata.yaml)",
-      "type": "shell",
-      "command": "pandoc",
-      "args": [
-        "*.md",
-        "--metadata-file=metadata.yaml",
-        "--defaults=pandoc/defaults.yaml",
-        "--citeproc",
-        "-o",
-        "article.html"
-      ],
-      "group": "build",
-      "options": {
-        "cwd": "${fileDirname}"
-      },
       "presentation": {
         "reveal": "always",
         "panel": "shared",

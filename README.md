@@ -62,24 +62,36 @@ cat > sources.bib << 'EOF'
 EOF
 ```
 
-### 3. Build Output
+### 3. Build Your Document
 
-**Using VS Code:**
-- Press **Ctrl+Shift+B** (Cmd+Shift+B on Mac) to build PDF
-- Or: **Ctrl+P** → type `task` → select format
+**To build a PDF in VS Code:**
+1. Open your markdown file
+2. Press **Ctrl+Shift+B** (Cmd+Shift+B on Mac)
+3. PDF appears next to your markdown file
 
-**Using Command Line:**
+**To preview while writing:**
+1. Open your markdown file
+2. Press **Ctrl+K V** (Cmd+K V on Mac)
+3. Preview pane opens and updates as you type
+
+**To build HTML:**
+1. Press **Ctrl+Shift+P** (Cmd+Shift+P on Mac)
+2. Type "run task" and press Enter
+3. Choose "Build HTML (current file)"
+4. HTML appears next to your markdown file
+
+**For multi-file projects:**
+- See the [Multi-File Projects](#multi-file-projects) section below
+- Quick answer: Customize the included Makefile with your file list
+
+**Command line alternative:**
 
 ```bash
-# Always run from the template root directory
-cd my-article/
-
 # Build PDF
 pandoc content.md \
   --defaults=pandoc/defaults.yaml \
   --citeproc \
   --template=pandoc/templates/default.latex \
-  --css=pandoc/style.css \
   --pdf-engine=lualatex \
   -o output.pdf
 
@@ -87,22 +99,12 @@ pandoc content.md \
 pandoc content.md \
   --defaults=pandoc/defaults.yaml \
   --citeproc \
-  --template=pandoc/templates/default.html \
-  --css=pandoc/style.css \
   -o output.html
-
-# Build DOCX
-pandoc content.md \
-  --defaults=pandoc/defaults.yaml \
-  --citeproc \
-  -o output.docx
 ```
-
-**Note:** All pandoc commands should be run from your project root (where `content.md` is), not from inside the `pandoc/` directory.
 
 ### 4. Explore the Demo
 
-Build the included demo to see all features in action:
+Build the included demo to see all features:
 
 ```bash
 cd md-ling-template/
@@ -378,7 +380,7 @@ bibliography: sources.bib
 ...
 ```
 
-Build with: **Ctrl+P** → `task Build PDF (all .md files)`
+Build with: Customize Makefile or VS Code task (see below)
 
 **Option 2: Separate metadata.yaml file**
 
@@ -407,24 +409,7 @@ bibliography: sources.bib
 
 **Build all chapters together:**
 
-```bash
-# Using metadata.yaml file
-pandoc 01-introduction.md \
-       02-background.md \
-       03-method.md \
-       04-results.md \
-       05-conclusion.md \
-  --metadata-file=metadata.yaml \
-  --defaults=pandoc/defaults.yaml \
-  --citeproc \
-  --template=pandoc/templates/default.latex \
-  --pdf-engine=lualatex \
-  -o thesis.pdf
-```
-
-Or in VS Code: **Ctrl+P** → `task Build PDF (with metadata.yaml)`
-
-**Or use a Makefile:**
+**Recommended: Use a Makefile to specify file order explicitly**
 
 The template includes an example Makefile. Customize it for your project:
 
@@ -447,7 +432,27 @@ clean:
 
 Then simply run: `make thesis.pdf`
 
-Or in VS Code: **Ctrl+P** → `task Build with Makefile`
+Or in VS Code: **Ctrl+Shift+P** → type "run task" → **Build with Makefile**
+
+**Alternative: Command line with explicit file list**
+
+```bash
+# Using metadata.yaml file - list files in desired order
+pandoc 01-introduction.md \
+       02-background.md \
+       03-method.md \
+       04-results.md \
+       05-conclusion.md \
+  --metadata-file=metadata.yaml \
+  --defaults=pandoc/defaults.yaml \
+  --citeproc \
+  --template=pandoc/templates/default.latex \
+  --pdf-engine=lualatex \
+  -o thesis.pdf
+```
+
+**Or customize the VS Code task:**
+Edit `.vscode/tasks.json` and update the "Build PDF (multi-file with metadata.yaml)" task to list your actual filenames in the desired order.
 
 **Cross-references work across files:**
 
@@ -457,24 +462,6 @@ Or in VS Code: **Ctrl+P** → `task Build with Makefile`
 
 See [@sec:intro] for background.  # works from any file!
 ```
-
-**VS Code preview for multi-file projects:**
-
-To enable citations and metadata in preview (Ctrl+K V), create `.vscode/settings.json` in your project directory:
-
-```json
-{
-  "markdown-preview-enhanced.pandocArguments": [
-    "--defaults=pandoc/defaults.yaml",
-    "--metadata-file=metadata.yaml",
-    "--citeproc",
-    "--css=pandoc/style.css",
-    "--resource-path=.:pandoc"
-  ]
-}
-```
-
-This adds `--metadata-file=metadata.yaml` which loads your bibliography and other metadata for preview.
 
 ## File Structure
 
@@ -573,15 +560,38 @@ pandoc content.md \
 
 The template includes complete VS Code configuration with code snippets for all custom markdown features:
 
-### Quick Start
-- **Ctrl+Shift+B** (Cmd+Shift+B on Mac) → Build PDF (current file)
-- **Ctrl+P** → `task` → Choose from available build tasks:
-  - **Build PDF (all .md files)** - Multi-file, uses frontmatter from first file
-  - **Build PDF (with metadata.yaml)** - Multi-file with external metadata
-  - **Build with Makefile** - Uses the example Makefile (customize for your project)
-- **Ctrl+K V** (Cmd+K V on Mac) → Live preview with Pandoc
-  - Uses YAML frontmatter by default
-  - For metadata.yaml: Create local `.vscode/settings.json` (see [VS Code docs](.vscode/README.md#preview))
+### How to Build Your Document
+
+**Quick build (default):**
+- Press **Ctrl+Shift+B** (Cmd+Shift+B on Mac)
+- Builds PDF from current file using metadata from YAML frontmatter
+
+**All build options:**
+- Press **Ctrl+Shift+P** (Cmd+Shift+P on Mac) → type "run task" → choose:
+  - **Build PDF (current file)** - Single file with frontmatter metadata
+  - **Build PDF (multi-file with metadata.yaml)** - Customize file list in task, uses external metadata.yaml
+  - **Build HTML (current file)** - HTML from single file
+  - **Build HTML (multi-file with metadata.yaml)** - Customize file list in task, uses external metadata.yaml
+  - **Build with Makefile** - Recommended for multi-file projects (see below)
+
+**Live preview:**
+- Press **Ctrl+K V** (Cmd+K V on Mac)
+- Preview updates as you type
+- Shows linguistic examples, citations, and cross-references
+
+**For multi-file projects:**
+The multi-file tasks include placeholder filenames (`01-intro.md`, `02-chapter.md`, `03-conclusion.md`). **Edit [.vscode/tasks.json](.vscode/tasks.json) to match your actual files**, or better yet, use a Makefile (see [Multi-File Projects](#multi-file-projects) section).
+
+**For multi-file preview with metadata.yaml:**
+Edit `.vscode/settings.json` and uncomment the metadata-file line:
+```json
+"markdown-preview-enhanced.pandocArguments": [
+  "--defaults=pandoc/defaults.yaml",
+  "--metadata-file=metadata.yaml",  // ← Uncomment this line
+  "--citeproc",
+  "--resource-path=.:pandoc"
+]
+```
 
 ### Code Snippets
 Type trigger + Tab for instant markdown templates:
