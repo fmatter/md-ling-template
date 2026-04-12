@@ -1,0 +1,26 @@
+[
+  {
+    "key": "ctrl+alt+shift+g",
+    "command": "editor.action.insertSnippet",
+    "when": "editorTextFocus && editorLangId == markdown",
+    "args": {
+      "snippet": "[${TM_SELECTED_TEXT:${1:text}}]{.gl}"
+    }
+  },
+  {
+    "key": "ctrl+alt+shift+o",
+    "command": "editor.action.insertSnippet",
+    "when": "editorTextFocus && editorLangId == markdown",
+    "args": {
+      "snippet": "[${TM_SELECTED_TEXT:${1:text}}]{.ob}"
+    }
+  },
+  {
+    "key": "ctrl+alt+shift+r",
+    "command": "editor.action.insertSnippet",
+    "when": "editorTextFocus && editorLangId == markdown",
+    "args": {
+      "snippet": "[${TM_SELECTED_TEXT:${1:text}}]{.rc}"
+    }
+  }
+]
