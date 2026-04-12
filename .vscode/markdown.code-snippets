@@ -7,7 +7,7 @@
       "| ${1:Language (Family)}",
       "| ${2:source line}",
       "| ${3:gloss line}",
-      "| '${4:translation}'",
+      "| ${4:translation}",
       ":::"
     ],
     "description": "Interlinear glossed example with auto-formatting"
@@ -16,20 +16,17 @@
     "scope": "markdown",
     "prefix": "mex",
     "body": [
-      "::: ex",
-      "a. ::: {.ex formatGloss=true}",
-      "   | ${1:Language (Family)}",
-      "   | ${2:source line}",
-      "   | ${3:gloss line}",
-      "   | '${4:translation}'",
-      "   :::",
-      "",
-      "b. ::: {.ex formatGloss=true}",
-      "   | ${5:Language (Family)}",
-      "   | ${6:source line}",
-      "   | ${7:gloss line}",
-      "   | '${8:translation}'",
-      "   :::",
+      "::: {#ex:${1:id} .ex formatGloss=true}",
+      "a.",
+      "| {#ex:${1:id}-a} ${2:Language (Family)}",
+      "| ${3:source line}",
+      "| ${4:gloss line}",
+      "| ${5:translation}",
+      "b.",
+      "| {#ex:${1:id}-b} ${6:Language (Family)}",
+      "| ${7:source line}",
+      "| ${8:gloss line}",
+      "| ${9:translation}",
       ":::"
     ],
     "description": "Multi-part example with interlinear glosses"
@@ -123,16 +120,16 @@
     "scope": "markdown",
     "prefix": "subfigs",
     "body": [
-      "<div id=\"fig:${1:main}\">",
+      "::: {#fig:${1:main}}",
       "![${2:subfigure A caption}](${3:image-a.png}){#fig:${4:a} width=${5:45}%}",
       "",
       "![${6:subfigure B caption}](${7:image-b.png}){#fig:${8:b} width=${9:45}%}",
       "",
       "${10:Main figure caption}",
-      "</div>",
+      ":::",
       "$0"
     ],
-    "description": "Subfigures with div wrapper (each subfigure in separate paragraph)"
+    "description": "Subfigures with pandoc div (each subfigure in separate paragraph)"
   },
   "Table with Caption": {
     "scope": "markdown",
