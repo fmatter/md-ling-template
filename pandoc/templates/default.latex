@@ -77,7 +77,7 @@ $font-settings.latex()$
 $common.latex()$
 
 % --- SUBTABLES SUPPORT ---
-\usepackage{subfig}
+% Note: Pandoc-crossref uses subcaption for subfigures, so we use subfloat from subcaption for subtables too
 % --- END SUBTABLES SUPPORT ---
 
 $for(header-includes)$

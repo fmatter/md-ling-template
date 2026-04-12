@@ -180,14 +180,30 @@ See [@fig:tree] for the structure.
 
 **Subfigures and subtables:**
 
-Subfigures:
+Subfigures (use div wrapper, each subfigure in separate paragraph):
 ```markdown
+<div id="fig:trees">
 ![Subfigure A](tree-a.png){#fig:a width=45%}
+
 ![Subfigure B](tree-b.png){#fig:b width=45%}
 
-: Main caption for both {#fig:trees}
+Main caption for both
+</div>
 
 Reference: [@fig:trees] or individual [@fig:a]
+
+Note: For 2x2 grids, put images on separate lines (blank line = new row):
+<div id="fig:grid">
+![Image 1](a.png){#fig:a width=45%}
+
+![Image 2](b.png){#fig:b width=45%}
+
+![Image 3](c.png){#fig:c width=45%}
+
+![Image 4](d.png){#fig:d width=45%}
+
+Grid caption
+</div>
 ```
 
 Subtables (custom filter):

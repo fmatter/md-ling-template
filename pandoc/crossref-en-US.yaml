@@ -3,6 +3,3 @@ figPrefix: "Figure"
 tblPrefix: "Table"
 exPrefix: "Example"
 secPrefix: "Section"
-
-# Use subfig package instead of subcaption (compatible with our subtables filter)
-subfigGrid: true

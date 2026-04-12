@@ -144,9 +144,26 @@ Table: Fricatives {#tbl:fricatives}
 
 ## Subfigures {#sec:subfigures}
 
+<div id="fig:comparison">
 ![Direct construction](figures/tree.png){#fig:direct width=45%}
+
 ![Inverse construction](figures/tree.png){#fig:inverse width=45%}
 
-: Voice construction comparison {#fig:comparison}
+Voice construction comparison
+</div>
+
+### Four-subfigure grid (testing larger grid)
+
+<div id="fig:IPQ">
+![Newness and IPQ based on all new referents (r^2^ = 0.76, SE = 0.05)](figures/2a.png){#fig:IPQallnew width=45%}
+
+![Lexicality and IPQ based on all new referents (r^2^ = 0.05, SE = 0.12)](figures/2b.png){#fig:IPQalllex width=45%}
+
+![Newness and IPQ based on new human referents (r^2^ = 0.84, SE = 0.04)](figures/2c.png){#fig:IPQhumnew width=45%}
+
+![Lexicality and IPQ based on new human referents (r^2^ = 0.08, SE = 0.12)](figures/2d.png){#fig:IPQhumlex width=45%}
+
+Newness and lexicality of S in 25 texts depending on IPQ
+</div>
 
 # References {-}

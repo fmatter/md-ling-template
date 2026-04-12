@@ -4,6 +4,3 @@ tblPrefix: "Tabelle"
 tableTitle: "Tabelle"
 exPrefix: "Beispiel"
 secPrefix: "Abschnitt"
-
-# Use subfig package instead of subcaption (compatible with our subtables filter)
-subfigGrid: true

@@ -13,7 +13,7 @@ metadata:
   # reference-section-title: "Bibliography"
   link-citations: true
   linkReferences: true # For pandoc-crossref to link references
-  subfigGrid: true # Use subfig package instead of subcaption for compatibility
+  codeBlockCaptions: true
 
 # CSS for HTML output
 css: pandoc/style.css

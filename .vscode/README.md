@@ -65,7 +65,7 @@ The template includes code snippets for quick markdown input. Type the trigger a
 ### Tables & Figures
 - `tbl` → Table with caption and ID
 - `fig` → Figure with caption and ID
-- `subfigs` → Subfigures with subcaptions
+- `subfigs` → Subfigures in div wrapper (blank lines between each)
 - `subtables` → Subtables with subcaptions
 - `abbrinline` → Inline abbreviations list
 

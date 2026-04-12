@@ -70,12 +70,16 @@ function Div(el)
         -- Add bottomrule before end of tabular
         :gsub("(\\end{tabular})", "\\bottomrule\n%1")
       
-      local subfloat = "\\subfloat[" .. caption .. "]{" .. label .. "\n" .. table_latex .. "}"
-      table.insert(latex_subfloats, subfloat)
+      -- Use subcaption's subtable environment instead of subfig's subfloat
+      local subtable = "\\begin{subtable}{.45\\textwidth}\n\\centering\n" ..
+        table_latex .. "\n" ..
+        "\\caption{" .. caption .. "}" .. label .. "\n" ..
+        "\\end{subtable}"
+      table.insert(latex_subfloats, subtable)
     end
     
     local output = "\\begin{table}[ht]\n\\centering\n" ..
-      table.concat(latex_subfloats, "\\qquad\n") ..
+      table.concat(latex_subfloats, "\\hfill\n") ..
       "\n\\caption{" .. (overall_caption or "Subtables") .. "}\\label{" .. id .. "}\n\\end{table}"
     
     return pandoc.RawBlock("latex", output)
