@@ -9,9 +9,6 @@ filters:
 
 # Default metadata values that can be overridden by documents
 metadata:
-  # Bibliography and citation style are now handled by the --citeproc flag
-  # and project-specific metadata.
-  # reference-section-title: "Bibliography"
   link-citations: true
   linkReferences: true # For pandoc-crossref to link references
   codeBlockCaptions: true

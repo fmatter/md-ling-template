@@ -10,11 +10,15 @@
         "--defaults=pandoc/defaults.yaml",
         "--citeproc",
         "--template=pandoc/templates/default.latex",
+        "--pdf-engine=lualatex",
         "--resource-path=.:${fileDirname}",
         "-o",
         "${fileDirname}/${fileBasenameNoExtension}.pdf"
       ],
-      "group": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
       "presentation": {
         "reveal": "always",
         "panel": "shared",
@@ -23,7 +27,31 @@
       "problemMatcher": []
     },
     {
-      "label": "Build PDF (multi-file project)",
+      "label": "Build PDF (all .md files)",
+      "type": "shell",
+      "command": "pandoc",
+      "args": [
+        "*.md",
+        "--defaults=pandoc/defaults.yaml",
+        "--citeproc",
+        "--template=pandoc/templates/default.latex",
+        "--pdf-engine=lualatex",
+        "-o",
+        "article.pdf"
+      ],
+      "group": "build",
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build PDF (with metadata.yaml)",
       "type": "shell",
       "command": "pandoc",
       "args": [
@@ -36,10 +64,7 @@
         "-o",
         "article.pdf"
       ],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
+      "group": "build",
       "options": {
         "cwd": "${fileDirname}"
       },
@@ -91,7 +116,29 @@
       "problemMatcher": []
     },
     {
-      "label": "Build HTML (multi-file project)",
+      "label": "Build HTML (all .md files)",
+      "type": "shell",
+      "command": "pandoc",
+      "args": [
+        "*.md",
+        "--defaults=pandoc/defaults.yaml",
+        "--citeproc",
+        "-o",
+        "article.html"
+      ],
+      "group": "build",
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build HTML (with metadata.yaml)",
       "type": "shell",
       "command": "pandoc",
       "args": [

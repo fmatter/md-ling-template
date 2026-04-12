@@ -10,32 +10,53 @@ This directory contains VS Code configuration for the md-ling-template workflow.
 
 ### Available Tasks
 
-**For multi-file projects** (with `metadata.yaml`):
-1. **Build PDF (multi-file project)** - Compile all `*.md` files with metadata.yaml (default)
-2. **Build HTML (multi-file project)** - HTML output for multi-file projects
-3. **Build with Makefile** - Use project's Makefile (if present)
+**Default task** (Ctrl+Shift+B):
+- **Build PDF (current file)** - Builds current file with its frontmatter metadata
 
-**For single-file projects** (metadata in markdown file):
-1. **Build PDF (current file)** - Generate PDF from current file only
-2. **Build HTML (current file)** - Generate HTML from current file only
+**Single-file projects:**
+1. **Build PDF (current file)** - Uses metadata from YAML frontmatter
+2. **Build HTML (current file)** - HTML output from current file
 3. **Build LaTeX (current file)** - Generate .tex for debugging
+
+**Multi-file projects** (metadata in frontmatter):
+1. **Build PDF (all .md files)** - Compile all `*.md` files, uses frontmatter from first file
+2. **Build HTML (all .md files)** - HTML output combining all markdown files
+
+**Multi-file projects with metadata.yaml:**
+1. **Build PDF (with metadata.yaml)** - Compile all `*.md` files + `metadata.yaml`
+2. **Build HTML (with metadata.yaml)** - HTML output with external metadata
+3. **Build with Makefile** - Use project's Makefile (if present)
 
 **Other tasks:**
 1. **Run tests** - Run the pytest test suite
 2. **Clean outputs** - Remove generated PDF/HTML/TeX files
 
-**Note:** The default build task (Ctrl+Shift+B) is set to "multi-file project". If working on a single file, use **Ctrl+P** → `task Build PDF (current file)` instead.
-
 ### Preview
 - **Ctrl+K V** (Cmd+K V on Mac) → Open markdown preview side-by-side
-- Preview uses actual Pandoc with all filters, so linguistic examples render correctly!
-- **For multi-file projects:** Create `metadata.yaml` in the same directory as your markdown files
-  - Bibliography, title, author, and other metadata will be loaded automatically
-  - Citations and cross-references will resolve in preview
-- **For single-file projects:** Put metadata in YAML frontmatter (between `---` lines at file start)
-  - If no `metadata.yaml` exists, pandoc uses frontmatter only
+- Preview uses actual Pandoc with all filters AND custom CSS styling!
+  - Linguistic examples render correctly with pandoc-ling
+  - Glossing abbreviations show in smallcaps
+  - Citations and cross-references work
 
-**Note:** Preview looks for `metadata.yaml` in the file's directory. If it doesn't exist, you'll see a warning (safe to ignore for single-file projects).
+**For single-file projects:**
+- Put metadata (title, author, bibliography) in YAML frontmatter (between `---` lines)
+- Preview will use this metadata automatically
+
+**For multi-file projects with `metadata.yaml`:**
+- Citations in preview won't work by default (uses current file's frontmatter only)
+- To enable full metadata in preview, create `.vscode/settings.json` in your project:
+  ```json
+  {
+    "markdown-preview-enhanced.pandocArguments": [
+      "--defaults=pandoc/defaults.yaml",
+      "--metadata-file=metadata.yaml",
+      "--citeproc",
+      "--css=pandoc/style.css",
+      "--resource-path=.:pandoc"
+    ]
+  }
+  ```
+- This overrides the template's default settings for your project only
 
 ## Recommended Extensions
 

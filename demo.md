@@ -138,6 +138,44 @@ Table: Fricatives {#tbl:fricatives}
 | s         | Alveolar |
 :::
 
+## Tables Without Headers {#sec:tables-noheader}
+
+Test tables with empty header rows (these get stretched to full width):
+
+|        |                                          |
+|--------|------------------------------------------|
+| [ps]{.gl}  | privileged syntactic argument (primary argument) of the preceding clause |
+| [act]{.gl} | occurs in previous clause, but not as the PSA, including mentions as a possessor |
+| [old]{.gl} | does not occur in the previous clause, but earlier in the text |
+| [new]{.gl} | first occurrence in the text |
+
+: Information status categories {#tbl:infocategories}
+
+
+Another test:
+
+
+
+Table: Animacy categories {#tbl:animcategories}
+
+|                         |                                                |
+| ----------------------- | ---------------------------------------------- |
+| [hum]{.smallcaps}       | human or human-like                            |
+| [anim]{.smallcaps}      | animate, but not human-like                    |
+| [inan.agt]{.smallcaps}  | inanimate, but with some agent-like properties |
+| [inan.nagt]{.smallcaps} | inanimate with no agency                       |
+| [abs]{.smallcaps}       | abstract, immaterial concepts                  |
+
+
+Another test without header (short first column, long second column):
+
+|            |                                                                  |
+|------------|------------------------------------------------------------------|
+| [new]{.gl} | 430/452 (95.13%)                                                |
+| [given]{.gl} | 1480/3459 (42.79%)                                            |
+
+: Lexicality test table {#tbl:lextest}
+
 ## Figures
 
 ![Hypothetical syntactic tree](figures/tree.png){#fig:tree width=80%}
@@ -165,5 +203,3 @@ Voice construction comparison
 
 Newness and lexicality of S in 25 texts depending on IPQ
 </div>
-
-# References {-}

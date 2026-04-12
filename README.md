@@ -229,6 +229,21 @@ Reference: [@tbl:first] or [@tbl:second]
 
 **Note:** In PDF/LaTeX, subtables are rendered using `\subfloat` with a single parent table and caption. In HTML, tables are visually grouped but numbered separately - reference individual tables only (`[@tbl:first]`), not the parent div.
 
+**Tables without headers (auto-width):**
+
+For tables that are essentially lists (no meaningful column headers), use empty header rows to trigger auto-width columns:
+
+```markdown
+|     |                                                      |
+|-----|------------------------------------------------------|
+| [ps]{.gl}  | privileged syntactic argument of the preceding clause |
+| [act]{.gl} | occurs in previous clause, but not as the PSA |
+
+: Information status categories {#tbl:infocategories}
+```
+
+In LaTeX, these render as `tabular` with auto-width columns (`ll`) instead of full-width `longtable` with percentage-based columns. The relative width of spaces/dashes in the empty header row hints at the desired column proportions.
+
 ### Citations
 
 Add a `sources.bib` file and cite with:
@@ -328,9 +343,44 @@ Each abbreviation is formatted with the `.gl` class and gets tooltips in HTML ou
 
 ### Multi-File Projects
 
-For longer documents (theses, books, complex papers), organize your content across multiple markdown files:
+For longer documents (theses, books, complex papers), organize your content across multiple markdown files.
 
-**Recommended structure:**
+**Metadata options:**
+
+1. **YAML frontmatter** (default): Put metadata in the first markdown file
+2. **metadata.yaml file** (optional): For shared metadata across many files
+
+**Option 1: Frontmatter in first file**
+
+```
+my-thesis/
+├── 01-introduction.md   # Contains metadata frontmatter
+├── 02-background.md
+├── 03-method.md
+├── 04-results.md
+├── 05-conclusion.md
+├── sources.bib
+└── pandoc/
+    └── ...
+```
+
+In `01-introduction.md`:
+```markdown
+---
+title: "My Dissertation Title"
+author: "Your Name"
+date: "2026"
+bibliography: sources.bib
+---
+
+# Introduction {#sec:intro}
+
+...
+```
+
+Build with: **Ctrl+P** → `task Build PDF (all .md files)`
+
+**Option 2: Separate metadata.yaml file**
 
 ```
 my-thesis/
@@ -358,7 +408,7 @@ bibliography: sources.bib
 **Build all chapters together:**
 
 ```bash
-# List files in order
+# Using metadata.yaml file
 pandoc 01-introduction.md \
        02-background.md \
        03-method.md \
@@ -372,55 +422,32 @@ pandoc 01-introduction.md \
   -o thesis.pdf
 ```
 
-**Automate with a build script:**
-
-```python
-# tasks.py (using invoke)
-from invoke import task
-
-@task
-def thesis(c):
-    """Build the complete thesis."""
-    chapters = [
-        "01-introduction.md",
-        "02-background.md",
-        "03-method.md",
-        "04-results.md",
-        "05-conclusion.md"
-    ]
-    
-    command = (
-        f"pandoc {' '.join(chapters)} "
-        "--metadata-file=metadata.yaml "
-        "--defaults=pandoc/defaults.yaml "
-        "--citeproc "
-        "--template=pandoc/templates/default.latex "
-        "--pdf-engine=lualatex "
-        "-o thesis.pdf"
-    )
-    c.run(command)
-```
-
-Then simply run: `invoke thesis`
+Or in VS Code: **Ctrl+P** → `task Build PDF (with metadata.yaml)`
 
 **Or use a Makefile:**
+
+The template includes an example Makefile. Customize it for your project:
 
 ```makefile
 CHAPTERS := 01-introduction.md 02-background.md 03-method.md 04-results.md 05-conclusion.md
 
-thesis.pdf: metadata.yaml $(CHAPTERS) sources.bib
+thesis.pdf: $(CHAPTERS) metadata.yaml sources.bib
 	pandoc $(CHAPTERS) \
 	  --metadata-file=metadata.yaml \
 	  --defaults=pandoc/defaults.yaml \
 	  --citeproc \
 	  --template=pandoc/templates/default.latex \
 	  --pdf-engine=lualatex \
-	  -o $@
+	  -o thesis.pdf
 
 .PHONY: clean
 clean:
 	rm -f thesis.pdf
 ```
+
+Then simply run: `make thesis.pdf`
+
+Or in VS Code: **Ctrl+P** → `task Build with Makefile`
 
 **Cross-references work across files:**
 
@@ -431,11 +458,30 @@ clean:
 See [@sec:intro] for background.  # works from any file!
 ```
 
+**VS Code preview for multi-file projects:**
+
+To enable citations and metadata in preview (Ctrl+K V), create `.vscode/settings.json` in your project directory:
+
+```json
+{
+  "markdown-preview-enhanced.pandocArguments": [
+    "--defaults=pandoc/defaults.yaml",
+    "--metadata-file=metadata.yaml",
+    "--citeproc",
+    "--css=pandoc/style.css",
+    "--resource-path=.:pandoc"
+  ]
+}
+```
+
+This adds `--metadata-file=metadata.yaml` which loads your bibliography and other metadata for preview.
+
 ## File Structure
 
 ```
 md-ling-template/
 ├── README.md           # This file
+├── Makefile            # Example build automation (customize for your project)
 ├── demo.md             # Feature showcase document
 ├── demo.bib            # Example bibliography
 ├── .vscode/            # VS Code configuration
@@ -453,6 +499,7 @@ md-ling-template/
 │   │   ├── linguistic-markup.lua  # Semantic markup (.gl, .ob, .rc)
 │   │   ├── glossing-list.lua  # Abbreviations management
 │   │   ├── subtables.lua  # Subtable support (custom)
+│   │   ├── simple-tables.lua  # Auto-width tables for empty headers
 │   │   └── pandoc-ling.lua  # Bundled v1.6 (2026-03-19)
 │   └── templates/      # Output templates
 │       ├── default.html
@@ -465,6 +512,7 @@ md-ling-template/
 - `linguistic-markup.lua` - Converts semantic markup classes (`.gl`, `.ob`, `.rc`) to appropriate formatting in all output formats
 - `glossing-list.lua` - Auto-discovers and links glossing abbreviations, generates abbreviations table/list
 - `subtables.lua` - Custom filter for grouping related tables (like subfigures)
+- `simple-tables.lua` - Converts tables with empty headers to auto-width `tabular` (LaTeX), avoiding full-page stretching
 - `pandoc-ling.lua` - Version 1.6 from [Michael Cysouw's repository](https://github.com/cysouw/pandoc-ling) for professional linguistic examples
 
 ## Customization
@@ -486,13 +534,30 @@ Edit `pandoc/defaults.yaml` to customize:
 
 ### Language Settings
 
-For German documents, add to your YAML metadata:
+The template supports English (default) and German with language-specific labels:
+
+**English (default):**
+- Figure → "Figure", Table → "Table", Example → "Example"
+- References section → "References"
+- Uses `pandoc/crossref-en-US.yaml` (loaded by default in `defaults.yaml`)
+
+**German:**
+To switch to German, edit `pandoc/defaults.yaml` and change the metadata-files line:
+
+```yaml
+metadata-files:
+  - pandoc/crossref-de-DE.yaml  # Change from crossref-en-US.yaml
+```
+
+This provides:
+- Figure → "Abbildung", Table → "Tabelle", Example → "Beispiel"
+- References section → "Literatur"
+
+You can also set language in your document metadata:
 
 ```yaml
 ---
 lang: de-DE
-reference-section-title: "Literaturverzeichnis"
-crossrefYaml: crossref-de-DE.yaml
 ---
 ```
 
@@ -500,7 +565,7 @@ Or use the command line:
 ```bash
 pandoc content.md \
   --defaults=defaults.yaml \
-  --metadata-file=pandoc/lang-de.yaml \
+  --metadata-file=pandoc/crossref-de-DE.yaml \
   -o output.pdf
 ```
 
@@ -509,8 +574,14 @@ pandoc content.md \
 The template includes complete VS Code configuration with code snippets for all custom markdown features:
 
 ### Quick Start
-- **Ctrl+Shift+B** (Cmd+Shift+B on Mac) → Build PDF
+- **Ctrl+Shift+B** (Cmd+Shift+B on Mac) → Build PDF (current file)
+- **Ctrl+P** → `task` → Choose from available build tasks:
+  - **Build PDF (all .md files)** - Multi-file, uses frontmatter from first file
+  - **Build PDF (with metadata.yaml)** - Multi-file with external metadata
+  - **Build with Makefile** - Uses the example Makefile (customize for your project)
 - **Ctrl+K V** (Cmd+K V on Mac) → Live preview with Pandoc
+  - Uses YAML frontmatter by default
+  - For metadata.yaml: Create local `.vscode/settings.json` (see [VS Code docs](.vscode/README.md#preview))
 
 ### Code Snippets
 Type trigger + Tab for instant markdown templates:
