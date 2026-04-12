@@ -14,20 +14,20 @@ def soup():
     input_md = test_dir / "input.md"
     output_html = test_dir / "output.html"
     
-    pandoc_dir = test_dir.parent.parent / "pandoc"
+    workspace_root = test_dir.parent.parent
 
-    # Run pandoc to generate the output file
+    # Run pandoc to generate the output file (from workspace root, like users do)
     subprocess.run(
         [
             "pandoc", str(input_md),
-            "--defaults=defaults.yaml",
+            "--defaults=pandoc/defaults.yaml",
             f"--resource-path=.:{test_dir}",
-            "--template=templates/default.html",
-            "--css=style.css",
+            "--template=pandoc/templates/default.html",
+            "--css=pandoc/style.css",
             "-o", str(output_html)
         ],
         check=True,
-        cwd=pandoc_dir
+        cwd=workspace_root
     )
 
     # Now, read the generated file and return the soup
@@ -42,18 +42,18 @@ def latex_output():
     test_dir = Path(__file__).parent
     input_md = test_dir / "input.md"
     output_tex = test_dir / "output.tex"
-    pandoc_dir = test_dir.parent.parent / "pandoc"
+    workspace_root = test_dir.parent.parent
 
     subprocess.run(
         [
             "pandoc", str(input_md),
-            "--defaults=defaults.yaml",
+            "--defaults=pandoc/defaults.yaml",
             f"--resource-path=.:{test_dir}",
-            "--template=templates/default.latex",
+            "--template=pandoc/templates/default.latex",
             "-o", str(output_tex)
         ],
         check=True,
-        cwd=pandoc_dir
+        cwd=workspace_root
     )
 
     with open(output_tex, "r", encoding="utf-8") as f:

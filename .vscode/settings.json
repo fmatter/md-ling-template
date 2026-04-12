@@ -23,7 +23,6 @@
   "markdown-preview-enhanced.pandocArguments": [
     "--defaults=pandoc/defaults.yaml",
     // "--metadata-file=metadata.yaml",  // Uncomment for multi-file projects with metadata.yaml
-    "--citeproc",
     "--resource-path=.:pandoc"
   ],
   "markdown-preview-enhanced.previewTheme": "one-light.css",

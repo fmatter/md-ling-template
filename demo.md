@@ -4,6 +4,7 @@ author: "Template Demo"
 date: "2026-04-10"
 bibliography: demo.bib
 
+
 glossing-abbreviations:
   APPL: applicative
   INV: inverse voice

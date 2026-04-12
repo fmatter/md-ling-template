@@ -2,20 +2,24 @@ filters:
   - pandoc/filters/linguistic-markup.lua  # Semantic markup (.gl, .ob, .rc)
   - pandoc/filters/subtables.lua  # Subtable support
   - pandoc/filters/glossing-list.lua  # Auto-discover and link glossing abbreviations (must run before pandoc-ling)
-  - pandoc/filters/pandoc-ling.lua  # Path relative to workspace root
-  - pandoc-crossref
+  - pandoc/filters/pandoc-ling.lua  # Linguistic examples
+  - pandoc-crossref  # MUST come before citeproc
+  - citeproc  # Citations - runs after pandoc-crossref
   - pandoc/filters/simple-tables.lua  # Convert tables with empty headers to simple auto-width tabular
-  # - citeproc # This is now handled by the --citeproc flag
+
+# PDF engine (use LuaLaTeX for Unicode support)
+pdf-engine: lualatex
+
+# Pandoc-crossref configuration (English by default)
+# For German, use: --metadata-file=pandoc/crossref-de-DE.yaml
+metadata-files:
+  - pandoc/crossref-en-US.yaml
 
 # Default metadata values that can be overridden by documents
 metadata:
   link-citations: true
   linkReferences: true # For pandoc-crossref to link references
   codeBlockCaptions: true
-
-# Pandoc-crossref configuration
-metadata-files:
-  - pandoc/crossref-en-US.yaml
 
 # CSS for HTML output
 css: pandoc/style.css

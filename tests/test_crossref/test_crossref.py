@@ -24,20 +24,27 @@ def test_crossref_labels(lang, sec_label, tbl_label, tbl_title):
     pandoc_dir = test_dir.parent.parent / "pandoc"
 
     # Run pandoc, passing the current language as metadata
-    subprocess.run(
-        [
-            "pandoc", str(input_md),
-            "--defaults=defaults.yaml",
-            f"--resource-path=.:{test_dir}",
-            "--metadata", f"lang={lang}",
-            "--metadata", f"crossrefYaml=crossref-{lang}.yaml",
-            "--template=templates/default.html",
-            "--css=style.css",
-            "-o", str(output_html)
-        ],
-        check=True,
-        cwd=pandoc_dir
-    )
+    workspace_root = test_dir.parent.parent
+    
+    # For German, we need to override the default English crossref settings
+    pandoc_args = [
+        "pandoc", str(input_md),
+        "--defaults=pandoc/defaults.yaml",
+        f"--resource-path=.:{test_dir}",
+        "--metadata", f"lang={lang}",
+    ]
+    
+    # Override crossref language file for non-English
+    if lang != "en-US":
+        pandoc_args.extend(["--metadata-file", f"pandoc/crossref-{lang}.yaml"])
+    
+    pandoc_args.extend([
+        "--template=pandoc/templates/default.html",
+        "--css=pandoc/style.css",
+        "-o", str(output_html)
+    ])
+    
+    subprocess.run(pandoc_args, check=True, cwd=workspace_root)
 
     with open(output_html, "r", encoding="utf-8") as f:
         soup = BeautifulSoup(f, "lxml")
@@ -71,21 +78,25 @@ def test_crossref_in_latex(lang, sec_prefix, tbl_prefix):
     test_dir = Path(__file__).parent
     input_md = test_dir / "input.md"
     output_tex = test_dir / f"output_{lang}.tex"
-    pandoc_dir = test_dir.parent.parent / "pandoc"
+    workspace_root = test_dir.parent.parent
 
-    subprocess.run(
-        [
-            "pandoc", str(input_md),
-            "--defaults=defaults.yaml",
-            f"--resource-path=.:{test_dir}",
-            "--metadata", f"lang={lang}",
-            "--metadata", f"crossrefYaml=crossref-{lang}.yaml",
-            "--template=templates/default.latex",
-            "-o", str(output_tex)
-        ],
-        check=True,
-        cwd=pandoc_dir
-    )
+    pandoc_args = [
+        "pandoc", str(input_md),
+        "--defaults=pandoc/defaults.yaml",
+        f"--resource-path=.:{test_dir}",
+        "--metadata", f"lang={lang}",
+    ]
+    
+    # Override crossref language file for non-English
+    if lang != "en-US":
+        pandoc_args.extend(["--metadata-file", f"pandoc/crossref-{lang}.yaml"])
+    
+    pandoc_args.extend([
+        "--template=pandoc/templates/default.latex",
+        "-o", str(output_tex)
+    ])
+    
+    subprocess.run(pandoc_args, check=True, cwd=workspace_root)
 
     with open(output_tex, "r", encoding="utf-8") as f:
         content = f.read()

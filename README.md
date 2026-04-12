@@ -90,15 +90,12 @@ EOF
 # Build PDF
 pandoc content.md \
   --defaults=pandoc/defaults.yaml \
-  --citeproc \
   --template=pandoc/templates/default.latex \
-  --pdf-engine=lualatex \
   -o output.pdf
 
 # Build HTML
 pandoc content.md \
   --defaults=pandoc/defaults.yaml \
-  --citeproc \
   -o output.html
 ```
 
@@ -112,15 +109,12 @@ cd md-ling-template/
 # Build PDF
 pandoc demo.md \
   --defaults=pandoc/defaults.yaml \
-  --citeproc \
   --template=pandoc/templates/default.latex \
-  --pdf-engine=lualatex \
   -o demo.pdf
 
 # Build HTML
 pandoc demo.md \
   --defaults=pandoc/defaults.yaml \
-  --citeproc \
   -o demo.html
 ```
 
@@ -420,9 +414,7 @@ thesis.pdf: $(CHAPTERS) metadata.yaml sources.bib
 	pandoc $(CHAPTERS) \
 	  --metadata-file=metadata.yaml \
 	  --defaults=pandoc/defaults.yaml \
-	  --citeproc \
 	  --template=pandoc/templates/default.latex \
-	  --pdf-engine=lualatex \
 	  -o thesis.pdf
 
 .PHONY: clean
@@ -445,9 +437,7 @@ pandoc 01-introduction.md \
        05-conclusion.md \
   --metadata-file=metadata.yaml \
   --defaults=pandoc/defaults.yaml \
-  --citeproc \
   --template=pandoc/templates/default.latex \
-  --pdf-engine=lualatex \
   -o thesis.pdf
 ```
 
@@ -588,7 +578,6 @@ Edit `.vscode/settings.json` and uncomment the metadata-file line:
 "markdown-preview-enhanced.pandocArguments": [
   "--defaults=pandoc/defaults.yaml",
   "--metadata-file=metadata.yaml",  // ← Uncomment this line
-  "--citeproc",
   "--resource-path=.:pandoc"
 ]
 ```
