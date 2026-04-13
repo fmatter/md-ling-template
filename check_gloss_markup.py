@@ -80,29 +80,37 @@ class SmallCapsParser(HTMLParser):
             self.current_text.append(data)
 
 
-def is_leipzig_combo(abbrev, leipzig):
+def is_leipzig_combo(abbrev, leipzig, defined=None):
     """
-    Check if an abbreviation is a combination of Leipzig abbreviations.
+    Check if an abbreviation is a combination of Leipzig abbreviations
+    and/or defined custom abbreviations.
     
     Examples:
     - 2SG → 2 + SG (both Leipzig)
     - 3PL → 3 + PL (both Leipzig)
+    - 3ACT → 3 (Leipzig) + ACT (custom defined)
     - 1SG.NOM → 1SG + NOM → (1 + SG) + NOM (all Leipzig)
     """
-    # Check if starts with person marker (1/2/3) followed by another Leipzig abbrev
+    if defined is None:
+        defined = set()
+    
+    # Combine Leipzig and defined abbreviations for checking
+    known = leipzig | defined
+    
+    # Check if starts with person marker (1/2/3) followed by another known abbrev
     if abbrev[0] in '123' and len(abbrev) > 1:
         rest = abbrev[1:]
-        if rest in leipzig:
+        if rest in known:
             return True
         # Check if rest can be further decomposed
-        if is_leipzig_combo(rest, leipzig):
+        if is_leipzig_combo(rest, leipzig, defined):
             return True
     
-    # Check if contains separators (., -, etc.) and all parts are Leipzig
+    # Check if contains separators (., -, etc.) and all parts are known
     for sep in ['.', '-', '_']:
         if sep in abbrev:
             parts = abbrev.split(sep)
-            if all(part in leipzig or is_leipzig_combo(part, leipzig) for part in parts):
+            if all(part in known or is_leipzig_combo(part, leipzig, defined) for part in parts):
                 return True
     
     return False
@@ -193,14 +201,18 @@ def main():
     if metadata_yaml.exists():
         defined_abbrevs.update(extract_defined_abbreviations(metadata_yaml))
     
-    # Filter out Leipzig abbreviations and combinations
+    # Categorize abbreviations
     leipzig_used = set()
-    for abbrev in list(used_abbrevs):
-        if abbrev in LEIPZIG_ABBREVIATIONS or is_leipzig_combo(abbrev, LEIPZIG_ABBREVIATIONS):
+    combo_used = set()
+    
+    for abbrev in used_abbrevs:
+        if abbrev in LEIPZIG_ABBREVIATIONS:
             leipzig_used.add(abbrev)
+        elif is_leipzig_combo(abbrev, LEIPZIG_ABBREVIATIONS, defined_abbrevs):
+            combo_used.add(abbrev)
     
     # Calculate undefined abbreviations
-    undefined = used_abbrevs - defined_abbrevs - leipzig_used
+    undefined = used_abbrevs - defined_abbrevs - leipzig_used - combo_used
     custom_defined = defined_abbrevs - LEIPZIG_ABBREVIATIONS
     
     # Report findings
@@ -221,19 +233,21 @@ def main():
         if custom_defined:
             print(f"✓ Custom abbreviations defined: {', '.join(sorted(custom_defined))}")
         
-        if leipzig_used:
-            print(f"✓ Leipzig abbreviations used: {', '.join(sorted(leipzig_used))}")
+        all_leipzig = leipzig_used | combo_used
+        if all_leipzig:
+            print(f"✓ Leipzig/combos used: {', '.join(sorted(all_leipzig))}")
         
         print()
         
         sys.exit(1)
     else:
-        custom_used = used_abbrevs - leipzig_used
+        all_leipzig = leipzig_used | combo_used
+        custom_used = used_abbrevs - all_leipzig
         
         print(f"✓ All {len(used_abbrevs)} glossing abbreviations are defined")
         
-        if leipzig_used:
-            print(f"  Leipzig: {', '.join(sorted(leipzig_used))}")
+        if all_leipzig:
+            print(f"  Leipzig/combos: {', '.join(sorted(all_leipzig))}")
         if custom_used:
             print(f"  Custom: {', '.join(sorted(custom_used))}")
         
