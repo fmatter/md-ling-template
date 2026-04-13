@@ -51,6 +51,10 @@ slides-all: slides-pdf slides-html slides-pptx
 # 	  --template=pandoc/templates/default.latex \
 # 	  -o article.pdf
 
+.PHONY: check-gloss
+check-gloss: html
+	python3 check_gloss_markup.py demo.html demo.md
+
 .PHONY: clean
 clean:
 	rm -f demo.pdf demo.html demo.tex demo.docx demo_postprocessed.docx demo-print.docx

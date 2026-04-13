@@ -833,6 +833,24 @@ Without an explicitly specified font, the template may fall back to Latin Modern
 - This is configured via `subfigGrid: true` in crossref YAML files
 - If using custom pandoc-crossref settings, ensure subfigGrid is enabled
 
+**Check for undefined glossing abbreviations:**
+
+After building HTML output, check for abbreviations that appear in your examples but aren't defined in metadata:
+```bash
+make check-gloss
+# or directly: python3 check_gloss_markup.py demo.html demo.md
+```
+
+This scans the HTML output for small-caps abbreviations created by pandoc-ling and warns if any are missing from your `glossing-abbreviations` metadata. It provides a ready-to-copy YAML block with placeholders:
+```yaml
+glossing-abbreviations:
+  NOM: DEFINITION
+  ACC: DEFINITION
+  3SG: DEFINITION
+```
+
+The Lua filter already warns during build, but this post-processing check catches all missing abbreviations in one go and makes it easy to add them.
+
 ## License
 
 The template configuration files are provided as-is for educational use.
