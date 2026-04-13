@@ -16,26 +16,21 @@ input-files:
   - 02-analysis.md
   - 03-conclusion.md
 
-# Optional Metadata
-# -----------------
-# You can override any metadata here instead of putting it in every chapter file
+# Metadata
+# --------
+# For multi-file projects, use a metadata.yaml file (can be tracked in git for shared metadata)
+# Uncomment this line and create metadata.yaml with your title, author, bibliography, etc.
 
-# title: "Your Project Title"
-# author: "Your Name"
-# date: "2026"
-# bibliography: [sources.bib]
+# metadata-files:
+#   - metadata.yaml
 
 # Language/Crossref Overrides
 # ----------------------------
 # Uncomment to use German cross-reference labels instead of English
 
 # metadata-files:
+#   - metadata.yaml
 #   - pandoc/crossref-de-DE.yaml
-
-# PDF-specific settings
-# ---------------------
-# mainfont: "Noto Serif"
-# documentclass: book    # Use 'book' for longer works with chapters
 
 # Notes
 # -----
@@ -43,5 +38,6 @@ input-files:
 # - For multi-file projects: list files above and use "Build * (project)" tasks
 # - Output file name: Controlled by -o flag or defaults to output.pdf/html/docx
 #   VS Code tasks use -o output.{format}, justfile uses same, or specify: just pdf my-file.md
+# - Metadata: Create metadata.yaml for multi-file projects (see blueprints for examples)
 # - See blueprints/ for starter templates (article.md, book.md, slides.md)
 # - This file uses Pandoc defaults file syntax: https://pandoc.org/MANUAL.html#defaults-files

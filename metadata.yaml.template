@@ -1,0 +1,37 @@
+---
+# Metadata for Multi-File Projects
+# ==================================
+# This file contains document metadata shared across all chapter files.
+# Rename to metadata.yaml and reference it in project.yaml:
+#
+#   metadata-files:
+#     - metadata.yaml
+
+title: "Your Document Title"
+subtitle: "Optional Subtitle"
+author: "Your Name"
+date: "2026"
+
+# Bibliography
+bibliography: [sources.bib]
+
+# Glossing abbreviations (if using interlinear examples)
+# glossing-abbreviations:
+#   NOM: nominative
+#   ACC: accusative
+#   DEF: definite
+#   IND: indicative
+
+# PDF-specific settings
+# mainfont: "Noto Serif"
+# documentclass: book    # Use 'book' for longer works with chapters
+# geometry: margin=1in
+
+# Cross-reference settings (uncomment to override defaults)
+# linkReferences: true
+# nameInLink: false
+# figureTitle: "Figure"
+# tableTitle: "Table"
+# listingTitle: "Listing"
+
+---

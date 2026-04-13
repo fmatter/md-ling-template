@@ -90,15 +90,20 @@ python3 pandoc/build.py my-article.md
 **Multi-file mode** (for books, theses, multi-chapter works):
 
 1. Copy `project.yaml.template` to `project.yaml`
-2. List your chapter files in order:
+2. Copy `metadata.yaml.template` to `metadata.yaml` (for shared metadata)
+3. List your chapter files in `project.yaml`:
    ```yaml
    input-files:
      - 01-introduction.md
      - 02-analysis.md
      - 03-conclusion.md
+   
+   metadata-files:
+     - metadata.yaml
    ```
-3. Build with VS Code: "Build PDF (project)" task
-4. Or command line: `just pdf` (auto-detects project.yaml)
+4. Edit your metadata in `metadata.yaml`
+5. Build with VS Code: "Build PDF (project)" task
+6. Or command line: `just pdf` (auto-detects project.yaml)
 
 **Other formats:**
 ```bash
@@ -402,6 +407,14 @@ my-thesis/
 ├── project.yaml        # Your config (gitignored)
 ├── 01-introduction.md
 ├── 02-background.md
+**Example project structure:**
+
+```
+my-thesis/
+├── project.yaml        # Your config (gitignored)
+├── metadata.yaml       # Shared metadata (can be tracked in git)
+├── 01-introduction.md
+├── 02-background.md
 ├── 03-method.md
 ├── 04-results.md
 ├── 05-conclusion.md
@@ -419,12 +432,18 @@ input-files:
   - 04-results.md
   - 05-conclusion.md
 
-# Optional: Override template defaults
-metadata:
-  title: "My Dissertation Title"
-  author: "Your Name"
-  date: "2026"
-  bibliography: [sources.bib]
+metadata-files:
+  - metadata.yaml
+```
+
+**metadata.yaml:**
+```yaml
+---
+title: "My Dissertation Title"
+author: "Your Name"
+date: "2026"
+bibliography: [sources.bib]
+---
 ```
 
 **Build with:**
@@ -436,9 +455,9 @@ metadata:
 
 **Metadata options:**
 
-1. **In project.yaml** (shown above): Cleanest for multi-file projects
+1. **Separate metadata.yaml** (shown above): Recommended for multi-file projects
 2. **In first markdown file**: Put YAML frontmatter in `01-introduction.md`
-3. **Mixed**: Frontmatter in first file, override specific values in project.yaml
+3. **Mixed**: Frontmatter in first file + metadata.yaml for shared settings
 
 **Cross-references work across files:**
 
@@ -457,6 +476,7 @@ See [@sec:intro] for background.  # works from any file!
 md-ling-template/
 ├── README.md              # This file
 ├── project.yaml.template  # Template for multi-file projects (copy to project.yaml)
+├── metadata.yaml.template # Template for multi-file metadata (copy to metadata.yaml)
 ├── justfile               # CLI build commands (cross-platform, like Make)
 ├── Makefile               # Legacy build automation (optional, still works)
 ├── demo.md                # Feature showcase document
