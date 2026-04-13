@@ -10,33 +10,33 @@ This directory contains VS Code configuration for the md-ling-template workflow.
 
 ### Available Tasks
 
-**Default task** (Ctrl+Shift+B):
-- **Build PDF (current file)** - Builds current file with its frontmatter metadata
+**Single-file projects** (Ctrl+Shift+B on current file):
+1. **Build PDF (current file)** - Default build task
+2. **Build HTML (current file)** - HTML output
+3. **Build LaTeX (current file)** - Generate .tex for debugging
+4. **Build DOCX (current file)** - DOCX with automatic post-processing
 
-**Single-file projects:**
-1. **Build PDF (current file)** - Uses metadata from YAML frontmatter
-2. **Build HTML (current file)** - HTML output from current file
-3. **Build DOCX (current file)** - DOCX output for sharing/editing in Word
-4. **Build LaTeX (current file)** - Generate .tex for debugging
+**Multi-file projects** (uses project.yaml):
+1. **Build PDF (project)** - Compile all files listed in project.yaml
+2. **Build HTML (project)** - HTML output from project  
+3. **Build DOCX (project)** - DOCX with automatic post-processing
 
-**Multi-file projects** (metadata in frontmatter):
-1. **Build PDF (all .md files)** - Compile all `*.md` files, uses frontmatter from first file
-2. **Build HTML (all .md files)** - HTML output combining all markdown files
+To use project mode:
+1. Copy `project.yaml.template` to `project.yaml`
+2. List your chapter files in order
+3. Run a "Build * (project)" task
 
-**Multi-file projects with metadata.yaml:**
-1. **Build PDF (with metadata.yaml)** - Compile all `*.md` files + `metadata.yaml`
-2. **Build HTML (with metadata.yaml)** - HTML output with external metadata
-3. **Build DOCX (with metadata.yaml)** - DOCX output with external metadata
-4. **Build with Makefile** - Use project's Makefile (if present)
+**Presentation slides** (copy blueprints/slides.md, then open your copy):
+1. **Build Slides (PDF/Beamer from current file)** - Professional LaTeX-based slides
+2. **Build Slides (HTML/Slidy from current file)** - Web-based slides (W3C standard, works well for linguistics)
+3. **Build Slides (PPTX from current file)** - PowerPoint slides for collaboration
 
-**Presentation slides** (edit blueprints/slides.md):
-1. **Build Slides (PDF/Beamer)** - Professional LaTeX-based slides
-2. **Build Slides (HTML/Slidy)** - Web-based slides (W3C standard, works well for linguistics)
-3. **Build Slides (PPTX)** - PowerPoint slides for collaboration
+Workflow: `cp blueprints/slides.md my-talk.md` → open my-talk.md → Ctrl+Shift+B → pick a slides task
 
-**Other tasks:**
-1. **Run tests** - Run the pytest test suite
-2. **Clean outputs** - Remove generated PDF/HTML/TeX/DOCX files
+**Utility tasks:**
+1. **Check glossing abbreviations** - Verify all abbreviations are defined
+2. **Run tests** - Run the pytest test suite
+3. **Clean outputs** - Remove generated files
 
 **Note on DOCX output:**
 - Useful for sharing drafts and collaborative editing

@@ -25,73 +25,6 @@
       "problemMatcher": []
     },
     {
-      "label": "Build PDF (multi-file with metadata.yaml)",
-      "type": "shell",
-      "command": "pandoc",
-      "args": [
-        "01-intro.md",
-        "02-chapter.md",
-        "03-conclusion.md",
-        "--defaults=pandoc/defaults.yaml",
-        "--metadata-file=metadata.yaml",
-        "--template=pandoc/templates/default.latex",
-        "-o",
-        "article.pdf"
-      ],
-      "group": "build",
-      "options": {
-        "cwd": "${fileDirname}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Build with Makefile",
-      "type": "shell",
-      "command": "make",
-      "args": [
-        "pdf"
-      ],
-      "group": "build",
-      "options": {
-        "cwd": "${fileDirname}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Build HTML (multi-file with metadata.yaml)",
-      "type": "shell",
-      "command": "pandoc",
-      "args": [
-        "01-intro.md",
-        "02-chapter.md",
-        "03-conclusion.md",
-        "--defaults=pandoc/defaults.yaml",
-        "--metadata-file=metadata.yaml",
-        "-o",
-        "article.html"
-      ],
-      "group": "build",
-      "options": {
-        "cwd": "${fileDirname}"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
       "label": "Build HTML (current file)",
       "type": "shell",
       "command": "pandoc",
@@ -135,10 +68,10 @@
     {
       "label": "Build DOCX (current file)",
       "type": "shell",
-      "command": "bash",
+      "command": "python3",
       "args": [
-        "-c",
-        "pandoc '${file}' --defaults=pandoc/defaults.yaml --resource-path=.:${fileDirname} -o '${fileDirname}/${fileBasenameNoExtension}.docx' && python3 pandoc/filters/fix_docx.py '${fileDirname}/${fileBasenameNoExtension}.docx'"
+        "pandoc/build.py",
+        "${file}"
       ],
       "group": "build",
       "presentation": {
@@ -149,17 +82,16 @@
       "problemMatcher": []
     },
     {
-      "label": "Build DOCX (multi-file with metadata.yaml)",
+      "label": "Build PDF (project)",
       "type": "shell",
-      "command": "bash",
+      "command": "python3",
       "args": [
-        "-c",
-        "pandoc 01-intro.md 02-chapter.md 03-conclusion.md --defaults=pandoc/defaults.yaml --metadata-file=metadata.yaml -o article.docx && python3 ../pandoc/filters/fix_docx.py article.docx"
+        "pandoc/build.py",
+        "--project",
+        "-o",
+        "output.pdf"
       ],
       "group": "build",
-      "options": {
-        "cwd": "${fileDirname}"
-      },
       "presentation": {
         "reveal": "always",
         "panel": "shared",
@@ -168,17 +100,53 @@
       "problemMatcher": []
     },
     {
-      "label": "Build Slides (PDF/Beamer)",
+      "label": "Build HTML (project)",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "pandoc/build.py",
+        "--project",
+        "-o",
+        "output.html"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build DOCX (project)",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "pandoc/build.py",
+        "--project",
+        "-o",
+        "output.docx"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Slides (PDF/Beamer from current file)",
       "type": "shell",
       "command": "pandoc",
       "args": [
-        "blueprints/slides.md",
+        "${file}",
         "--defaults=pandoc/defaults.yaml",
         "-t",
         "beamer",
         "--pdf-engine=lualatex",
         "-o",
-        "slides.pdf"
+        "${fileDirname}/${fileBasenameNoExtension}.pdf"
       ],
       "group": "build",
       "presentation": {
@@ -189,18 +157,18 @@
       "problemMatcher": []
     },
     {
-      "label": "Build Slides (HTML/Slidy)",
+      "label": "Build Slides (HTML/Slidy from current file)",
       "type": "shell",
       "command": "pandoc",
       "args": [
-        "blueprints/slides.md",
+        "${file}",
         "--defaults=pandoc/defaults.yaml",
         "-t",
         "slidy",
         "--embed-resources",
         "--standalone",
         "-o",
-        "slides.html"
+        "${fileDirname}/${fileBasenameNoExtension}.html"
       ],
       "group": "build",
       "presentation": {
@@ -211,16 +179,32 @@
       "problemMatcher": []
     },
     {
-      "label": "Build Slides (PPTX)",
+      "label": "Build Slides (PPTX from current file)",
       "type": "shell",
       "command": "pandoc",
       "args": [
-        "blueprints/slides.md",
+        "${file}",
         "--defaults=pandoc/defaults.yaml",
         "-o",
-        "slides.pptx"
+        "${fileDirname}/${fileBasenameNoExtension}.pptx"
       ],
       "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Check glossing abbreviations",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "check_gloss_markup.py",
+        "output.html"
+      ],
+      "group": "test",
       "presentation": {
         "reveal": "always",
         "panel": "shared",
@@ -245,31 +229,20 @@
     {
       "label": "Clean outputs",
       "type": "shell",
-      "command": "find",
+      "command": "rm",
       "args": [
-        ".",
-        "-type",
-        "f",
-        "(",
-        "-name",
-        "*.pdf",
-        "-o",
-        "-name",
-        "*.html",
-        "-o",
-        "-name",
-        "*.tex",
-        "-o",
-        "-name",
-        "*.docx",
-        ")",
-        "-not",
-        "-path",
-        "*/pandoc/*",
-        "-not",
-        "-path",
-        "*/tests/*",
-        "-delete"
+        "-f",
+        "output.pdf",
+        "output.html",
+        "output.docx",
+        "output.tex",
+        "demo.pdf",
+        "demo.html",
+        "demo.docx",
+        "demo.tex",
+        "slides.pdf",
+        "slides.html",
+        "slides.pptx"
       ],
       "presentation": {
         "reveal": "always",

@@ -9,6 +9,8 @@ A complete Pandoc template for writing linguistic articles and books with profes
 - [`blueprints/book.md`](blueprints/book.md) - Starter template for books/theses
 - [`blueprints/slides.md`](blueprints/slides.md) - Starter template for presentations
 
+**Copy a blueprint to start your work** (don't edit them directly - they're under version control).
+
 ## Quick Start
 
 ### 1. Install Dependencies
@@ -41,37 +43,20 @@ mainfont: "Noto Serif"
 ---
 ```
 
-### 2. Create Your Document
+### 2. Start Your Document
 
+**Copy a blueprint:**
 ```bash
 # Copy the template to your project
 cp -r md-ling-template my-article/
 cd my-article/
 
-# Create your content
-cat > content.md << 'EOF'
----
-title: My Linguistic Paper
-author: Your Name
-mainfont: "Noto Serif"
-bibliography: sources.bib
----
+# Copy a blueprint as your starting point
+cp blueprints/article.md content.md
+# Or: cp blueprints/book.md content.md
+# Or: cp blueprints/slides.md my-slides.md
 
-# Introduction {#sec:intro}
-
-This paper examines Mapudungun inverse constructions.
-
-::: ex
-| Mapudungun (Isolate)
-| küpatueyew chi ḻuan
-| come-APPL-INV-IND-3-3ACT DEF guanaco
-| 'The guanaco came to him.'
-:::
-
-See [@sec:intro] for details.
-EOF
-
-# Create a minimal sources.bib in your project root
+# Create a bibliography file
 cat > sources.bib << 'EOF'
 @article{example2024,
   author  = {Smith, John},
@@ -82,58 +67,55 @@ cat > sources.bib << 'EOF'
 EOF
 ```
 
+The blueprints contain starter content showing how to use all features. Edit and customize them for your work.
+
 ### 3. Build Your Document
 
-**To build a PDF in VS Code:**
+**Single-file mode** (simplest - edit one .md file):
+
+In VS Code:
 1. Open your markdown file
 2. Press **Ctrl+Shift+B** (Cmd+Shift+B on Mac)
 3. PDF appears next to your markdown file
 
-**To preview while writing:**
-1. Open your markdown file
-2. Press **Ctrl+K V** (Cmd+K V on Mac)
-3. Preview pane opens and updates as you type
-
-**To build HTML:**
-1. Press **Ctrl+Shift+P** (Cmd+Shift+P on Mac)
-2. Type "run task" and press Enter
-3. Choose "Build HTML (current file)"
-4. HTML appears next to your markdown file
-
-**To build DOCX (for sharing/editing in Word):**
-1. Press **Ctrl+Shift+P** (Cmd+Shift+P on Mac)
-2. Type "run task" and press Enter
-3. Choose "Build DOCX (current file)"
-4. DOCX appears next to your markdown file
-
-**Note on DOCX output:** DOCX is useful for sharing drafts and collaborative editing, but has limitations:
-- Interlinear examples use tables that don't break across pages (manual intervention needed for long examples)
-- Table column widths may need manual optimization in Word (select table → AutoFit → AutoFit to Contents)
-- Use PDF for final typesetting and publication
-
-**For multi-file projects:**
-- See the [Multi-File Projects](#multi-file-projects) section below
-- Quick answer: Customize the included Makefile with your file list
-
-**Command line alternative:**
-
+Command line:
 ```bash
-# Build PDF
-pandoc content.md \
-  --defaults=pandoc/defaults.yaml \
-  --template=pandoc/templates/default.latex \
-  -o output.pdf
+# If you created content.md (from Quick Start above):
+just pdf      # Auto-detects content.md and builds output.pdf
 
-# Build HTML
-pandoc content.md \
-  --defaults=pandoc/defaults.yaml \
-  -o output.html
-
-# Build DOCX
-pandoc content.md \
-  --defaults=pandoc/defaults.yaml \
-  -o output.docx
+# Or build any markdown file directly:
+python3 pandoc/build.py my-article.md
 ```
+
+**Multi-file mode** (for books, theses, multi-chapter works):
+
+1. Copy `project.yaml.template` to `project.yaml`
+2. List your chapter files in order:
+   ```yaml
+   input-files:
+     - 01-introduction.md
+     - 02-analysis.md
+     - 03-conclusion.md
+   ```
+3. Build with VS Code: "Build PDF (project)" task
+4. Or command line: `just pdf` (auto-detects project.yaml)
+
+**Other formats:**
+```bash
+just html     # Build HTML (auto-detects project.yaml or content.md)
+just docx     # Build DOCX with auto-formatting
+just tex      # Generate LaTeX source
+```
+
+**Note:** `just` is a modern, cross-platform build tool (like Make but better).
+- Install: `brew install just` (macOS) | `apt install just` (Linux) | `winget install Casey.Just` (Windows)
+- Or use `python3 pandoc/build.py` directly (no `just` needed)
+- `just pdf/html/docx` auto-detect whether to use `project.yaml` or `content.md`
+
+**To preview while writing:**
+1. Open your markdown file  
+2. Press **Ctrl+K V** (Cmd+Shift+P on Mac)
+3. Preview pane opens and updates as you type
 
 ### 4. Explore the Demo
 
@@ -165,30 +147,33 @@ The demo showcases interlinear glossing, cross-references, citations, semantic m
 
 ### Presentation Slides
 
-Create professional presentation slides from the same markdown source:
+Create professional presentation slides from your markdown:
+
+**Quick start:**
+```bash
+# Copy the slides blueprint
+cp blueprints/slides.md my-talk.md
+
+# Edit my-talk.md, then build:
+pandoc my-talk.md --defaults=pandoc/defaults.yaml -t beamer --pdf-engine=lualatex -o my-talk.pdf
+pandoc my-talk.md --defaults=pandoc/defaults.yaml -t slidy --embed-resources --standalone -o my-talk.html
+pandoc my-talk.md --defaults=pandoc/defaults.yaml -o my-talk.pptx
+```
 
 **Supported formats:**
 - **PDF (Beamer)** - LaTeX-based slides with excellent linguistic support
 - **HTML (Slidy)** - W3C standard, customizable, works well for linguistics
 - **PPTX (PowerPoint)** - Editable slides for collaboration
 
-**Quick start:**
-```bash
-# Edit blueprints/slides.md, then build:
-make slides-pdf       # PDF slides (Beamer) - ★ Best quality
-make slides-html      # HTML slides (Slidy) - ★ Web delivery
-make slides-pptx      # PowerPoint slides
-make slides-all       # Build all formats
-```
-
 **Features:**
 - ✓ Full support for interlinear glossing and linguistic examples
 - ✓ Cross-references and citations work
 - ✓ Incremental lists, two-column layouts
 - ✓ Customizable styling via CSS (for Slidy) or themes (for Beamer)
-- ✓ Configuration in metadata, not command-line flags
 
 **See [SLIDES.md](SLIDES.md) for complete documentation**
+
+**Note:** Don't edit `blueprints/slides.md` directly - copy it to your own file first!
 
 ### Linguistic Examples with pandoc-ling
 
@@ -244,20 +229,20 @@ See [@fig:tree] for the structure.
 
 **Subfigures and subtables:**
 
-Subfigures (use div wrapper, each subfigure in separate paragraph):
+Subfigures (use Pandoc div notation, each subfigure in separate paragraph):
 ```markdown
-<div id="fig:trees">
+::: {#fig:trees}
 ![Subfigure A](tree-a.png){#fig:a width=45%}
 
 ![Subfigure B](tree-b.png){#fig:b width=45%}
 
 Main caption for both
-</div>
+:::
 
 Reference: [@fig:trees] or individual [@fig:a]
 
 Note: For 2x2 grids, put images on separate lines (blank line = new row):
-<div id="fig:grid">
+::: {#fig:grid}
 ![Image 1](a.png){#fig:a width=45%}
 
 ![Image 2](b.png){#fig:b width=45%}
@@ -267,7 +252,7 @@ Note: For 2x2 grids, put images on separate lines (blank line = new row):
 ![Image 4](d.png){#fig:d width=45%}
 
 Grid caption
-</div>
+:::
 ```
 
 Subtables (custom filter):
@@ -314,12 +299,14 @@ Add a `sources.bib` file and cite with:
 
 ```markdown
 ---
-bibliography: sources.bib
+bibliography: [sources.bib]
 ---
 
 According to @smith2020, we find that...
 Previous work [@jones2019; @doe2021] shows...
 ```
+
+(Use array format `[sources.bib]` for compatibility with pandoc-citer extension.)
 
 ### Semantic Markup for Object Language
 
@@ -381,27 +368,20 @@ glossing-list:
 **Inline abbreviation list:**
 You can insert a comma-separated inline list of all abbreviations anywhere in your document:
 
-```markdown
-This paper uses the following abbreviations:
-
-::: glossing-abbreviations-inline
-:::
-```
-
 For use inside footnotes or other inline contexts (where blank lines aren't allowed):
 
 ```markdown
 Examples use Leipzig Glossing Rules.^[Abbreviations: [...]{.glossing-abbreviations-inline}]
 ```
 
-Both render as: "appl (applicative), def (definite), ind (indicative), nom (nominative), ..."
+This renders as: "appl (applicative), def (definite), ind (indicative), nom (nominative), ..."
 
 Each abbreviation is formatted with the `.gl` class and gets tooltips in HTML output.
 
 **Best practices:**
 - Include ALL abbreviations you use, including those only in interlinear examples
 - Define abbreviations you deviate from or those not in Leipzig Glossing Rules
-- Test with `make html` to see tooltips (hover over `[nom]{.gl}` in running text)
+- Test with `just html` to see tooltips (hover over `[nom]{.gl}` in running text)
 - Use `warn-undefined: true` to catch missing definitions in running text
 - Use inline list for space-constrained documents (no full table needed)
 
@@ -409,46 +389,17 @@ Each abbreviation is formatted with the `.gl` class and gets tooltips in HTML ou
 
 For longer documents (theses, books, complex papers), organize your content across multiple markdown files.
 
-**Metadata options:**
+**Setup:**
 
-1. **YAML frontmatter** (default): Put metadata in the first markdown file
-2. **metadata.yaml file** (optional): For shared metadata across many files
+1. Copy `project.yaml.template` to `project.yaml` (gitignored - your personal config)
+2. List your chapter files in order
+3. Build using VS Code "Build * (project)" tasks or `just` commands
 
-**Option 1: Frontmatter in first file**
-
-```
-my-thesis/
-├── 01-introduction.md   # Contains metadata frontmatter
-├── 02-background.md
-├── 03-method.md
-├── 04-results.md
-├── 05-conclusion.md
-├── sources.bib
-└── pandoc/
-    └── ...
-```
-
-In `01-introduction.md`:
-```markdown
----
-title: "My Dissertation Title"
-author: "Your Name"
-date: "2026"
-bibliography: sources.bib
----
-
-# Introduction {#sec:intro}
-
-...
-```
-
-Build with: Customize Makefile or VS Code task (see below)
-
-**Option 2: Separate metadata.yaml file**
+**Example project structure:**
 
 ```
 my-thesis/
-├── metadata.yaml       # Shared metadata
+├── project.yaml        # Your config (gitignored)
 ├── 01-introduction.md
 ├── 02-background.md
 ├── 03-method.md
@@ -459,60 +410,35 @@ my-thesis/
     └── ...
 ```
 
-**metadata.yaml:**
+**project.yaml:**
 ```yaml
----
-title: "My Dissertation Title"
-author: "Your Name"
-date: "2026"
-bibliography: sources.bib
----
+input-files:
+  - 01-introduction.md
+  - 02-background.md
+  - 03-method.md
+  - 04-results.md
+  - 05-conclusion.md
+
+# Optional: Override template defaults
+metadata:
+  title: "My Dissertation Title"
+  author: "Your Name"
+  date: "2026"
+  bibliography: [sources.bib]
 ```
 
-**Build all chapters together:**
+**Build with:**
 
-**Recommended: Use a Makefile to specify file order explicitly**
+- **VS Code**: Press **Ctrl+Shift+B** → "Build PDF (project)"
+- **Command line**: `just pdf` (auto-detects project.yaml)
+- **Or directly**: `python3 pandoc/build.py --project`
+- **Other formats**: `just html`, `just docx`, `just tex`
 
-The template includes an example Makefile. Customize it for your project:
+**Metadata options:**
 
-```makefile
-CHAPTERS := 01-introduction.md 02-background.md 03-method.md 04-results.md 05-conclusion.md
-
-thesis.pdf: $(CHAPTERS) metadata.yaml sources.bib
-	pandoc $(CHAPTERS) \
-	  --defaults=pandoc/defaults.yaml \
-	  --metadata-file=metadata.yaml \
-	  --template=pandoc/templates/default.latex \
-	  -o thesis.pdf
-
-.PHONY: clean
-clean:
-	rm -f thesis.pdf
-```
-
-Then simply run: `make thesis.pdf`
-
-Or in VS Code: **Ctrl+Shift+P** → type "run task" → **Build with Makefile**
-
-**Alternative: Command line with explicit file list**
-
-```bash
-# Using metadata.yaml file - list files in desired order
-pandoc 01-introduction.md \
-       02-background.md \
-       03-method.md \
-       04-results.md \
-       05-conclusion.md \
-  --defaults=pandoc/defaults.yaml \
-  --metadata-file=metadata.yaml \
-  --template=pandoc/templates/default.latex \
-  -o thesis.pdf
-```
-
-**Important: Argument order matters!** Pandoc processes arguments in order, so later values override earlier ones. Always put `--defaults` before `--metadata-file` to allow your metadata.yaml to override template defaults (e.g., font selection).
-
-**Or customize the VS Code task:**
-Edit `.vscode/tasks.json` and update the "Build PDF (multi-file with metadata.yaml)" task to list your actual filenames in the desired order.
+1. **In project.yaml** (shown above): Cleanest for multi-file projects
+2. **In first markdown file**: Put YAML frontmatter in `01-introduction.md`
+3. **Mixed**: Frontmatter in first file, override specific values in project.yaml
 
 **Cross-references work across files:**
 
@@ -523,36 +449,42 @@ Edit `.vscode/tasks.json` and update the "Build PDF (multi-file with metadata.ya
 See [@sec:intro] for background.  # works from any file!
 ```
 
+**Note:** `project.yaml` is gitignored so your personal config (file lists, custom fonts, etc.) doesn't conflict with other users. The template infrastructure (`pandoc/defaults.yaml`, filters, etc.) stays under version control.
+
 ## File Structure
 
 ```
 md-ling-template/
-├── README.md           # This file
-├── Makefile            # Example build automation (customize for your project)
-├── demo.md             # Feature showcase document
-├── demo.bib            # Example bibliography
-├── .vscode/            # VS Code configuration
-│   ├── settings.json   # Editor settings
-│   ├── tasks.json      # Build tasks (Ctrl+Shift+B)
-│   ├── extensions.json # Recommended extensions
+├── README.md              # This file
+├── project.yaml.template  # Template for multi-file projects (copy to project.yaml)
+├── justfile               # CLI build commands (cross-platform, like Make)
+├── Makefile               # Legacy build automation (optional, still works)
+├── demo.md                # Feature showcase document
+├── demo.bib               # Example bibliography
+├── .vscode/               # VS Code configuration
+│   ├── settings.json      # Editor settings
+│   ├── tasks.json         # Build tasks (Ctrl+Shift+B)
+│   ├── extensions.json    # Recommended extensions
 │   ├── markdown.code-snippets  # Markdown snippets (ex, gl, ob, etc.)
-│   └── README.md       # VS Code usage guide
-├── pandoc/             # Pandoc configuration
-│   ├── defaults.yaml   # Default pandoc settings
-│   ├── crossref-*.yaml # Language-specific labels
-│   ├── lang-de.yaml    # German language settings
-│   ├── style.css       # HTML styling
-│   ├── filters/        # Lua filters
+│   └── README.md          # VS Code usage guide
+├── pandoc/                # Pandoc configuration
+│   ├── defaults.yaml      # Default pandoc settings
+│   ├── build.py           # Cross-platform build helper (Python)
+│   ├── crossref-*.yaml    # Language-specific labels
+│   ├── lang-de.yaml       # German language settings
+│   ├── style.css          # HTML styling
+│   ├── slidy-style.css    # HTML slides styling
+│   ├── filters/           # Lua filters
 │   │   ├── linguistic-markup.lua  # Semantic markup (.gl, .ob, .rc)
 │   │   ├── glossing-list.lua  # Abbreviations management
 │   │   ├── subtables.lua  # Subtable support (custom)
 │   │   ├── simple-tables.lua  # Auto-width tables for empty headers
 │   │   └── pandoc-ling.lua  # Bundled v1.6 (2026-03-19)
-│   └── templates/      # Output templates
+│   └── templates/         # Output templates
 │       ├── default.html
 │       └── default.latex
-├── tests/              # Test suite with examples
-└── requirements.txt    # Python dependencies for tests
+├── tests/                 # Test suite with examples
+└── requirements.txt       # Python dependencies for tests
 ```
 
 **Bundled Filters:**
@@ -629,10 +561,11 @@ The template includes complete VS Code configuration with code snippets for all 
 **All build options:**
 - Press **Ctrl+Shift+P** (Cmd+Shift+P on Mac) → type "run task" → choose:
   - **Build PDF (current file)** - Single file with frontmatter metadata
-  - **Build PDF (multi-file with metadata.yaml)** - Customize file list in task, uses external metadata.yaml
-  - **Build HTML (current file)** - HTML from single file
-  - **Build HTML (multi-file with metadata.yaml)** - Customize file list in task, uses external metadata.yaml
-  - **Build with Makefile** - Recommended for multi-file projects (see below)
+  - **Build PDF (project)** - Multi-file using project.yaml configuration
+  - **Build HTML (current file)** / **Build HTML (project)**
+  - **Build DOCX (current file)** / **Build DOCX (project)**
+  - **Build Slides (PDF/Beamer)**, **Build Slides (HTML/Slidy)**
+  - **Check glossing abbreviations** - Validate HTML output
 
 **Live preview:**
 - Press **Ctrl+K V** (Cmd+K V on Mac)
@@ -640,7 +573,7 @@ The template includes complete VS Code configuration with code snippets for all 
 - Shows linguistic examples, citations, and cross-references
 
 **For multi-file projects:**
-The multi-file tasks include placeholder filenames (`01-intro.md`, `02-chapter.md`, `03-conclusion.md`). **Edit [.vscode/tasks.json](.vscode/tasks.json) to match your actual files**, or better yet, use a Makefile (see [Multi-File Projects](#multi-file-projects) section).
+Copy `project.yaml.template` to `project.yaml`, list your chapter files, then use "Build * (project)" tasks or `just` commands (see [Multi-File Projects](#multi-file-projects) section).
 
 **For multi-file preview with metadata.yaml:**
 Edit `.vscode/settings.json` and uncomment the metadata-file line:
@@ -714,7 +647,8 @@ All DOCX builds automatically run a post-processing script that:
 
 The script runs automatically when using:
 - VS Code build tasks
-- The Makefile (`make docx`)
+- `just docx` command
+- `pandoc/build.py` script
 
 **Manual usage:**
 ```bash
@@ -744,20 +678,22 @@ pip install -r requirements.txt
 
 ### Building DOCX
 
-**VS Code:** Press Ctrl+Shift+P → "Run Task" → "Build DOCX (current file)"
+**VS Code:** 
+- Single file: Ctrl+Shift+P → "Run Task" → "Build DOCX (current file)"
+- Multi-file: Ctrl+Shift+P → "Run Task" → "Build DOCX (project)" (uses project.yaml)
 
 **Command line:**
 ```bash
-# Single file
+# Recommended: Use 'just'
+just docx             # Single file or project.yaml
+
+# Or directly with build.py
+python3 pandoc/build.py content.md  # Single file
+python3 pandoc/build.py --project   # Multi-file (reads project.yaml)
+
+# Or raw pandoc (no auto-post-processing)
 pandoc content.md --defaults=pandoc/defaults.yaml -o output.docx
-
-# Multi-file with metadata.yaml
-pandoc *.md --defaults=pandoc/defaults.yaml --metadata-file=metadata.yaml -o article.docx
-```
-
-**Makefile:**
-```bash
-make docx  # If using the template's Makefile
+python3 pandoc/filters/fix_docx.py output.docx  # Manual post-processing
 ```
 
 ### Print-Quality DOCX Output
@@ -837,8 +773,9 @@ Without an explicitly specified font, the template may fall back to Latin Modern
 
 After building HTML output, check for abbreviations that appear in your examples but aren't defined in metadata:
 ```bash
-make check-gloss
-# or directly: python3 check_gloss_markup.py demo.html demo.md
+just check              # Check output.html (default)
+just check my-file.html # Check a specific HTML file
+# or directly: python3 check_gloss_markup.py my-file.html
 ```
 
 This scans the HTML output for small-caps abbreviations created by pandoc-ling and warns if any are missing from your `glossing-abbreviations` metadata. It provides a ready-to-copy YAML block with placeholders:

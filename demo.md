@@ -32,7 +32,6 @@ glossing-list:
 
 This document demonstrates the template's capabilities for linguistic writing: interlinear glossing, cross-references, citations, and semantic markup.^[Glossing abbreviations used: [...]{.glossing-abbreviations-inline}]
 
-
 ## Semantic Markup {#sec:markup}
 
 **Gloss abbreviations (`.gl`):** The word has [nom]{.gl} case and [3sg]{.gl} agreement.
@@ -57,7 +56,6 @@ The cat sat on the mat.
 ::: ex
 *The cat sitted on the mat.
 :::
-
 
 
 ## Interlinear Glossing {#sec:glossing}

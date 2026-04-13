@@ -1,5 +1,13 @@
 *.html
 *.tex
+
+# Project configuration (user-owned, gitignored to avoid conflicts)
+project.yaml
+output.pdf
+output.html
+output.docx
+output.tex
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

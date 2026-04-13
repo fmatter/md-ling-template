@@ -19,7 +19,12 @@ Starter template for journal articles, conference papers, and shorter academic w
 cp blueprints/article.md my-article.md
 
 # Edit the content
-# Build with: make pdf (or Ctrl+Shift+B in VS Code)
+# Build with: Ctrl+Shift+B (single-file mode)
+
+# OR for multi-file projects:
+# 1. Copy project.yaml.template to project.yaml
+# 2. List your files: input-files: [my-article.md, appendix.md]
+# 3. Use "Build * (project)" tasks in VS Code
 ```
 
 ### [book.md](book.md)
@@ -36,6 +41,11 @@ Starter template for books, theses, dissertations, and longer multi-chapter work
 ```bash
 # Copy to your project
 cp blueprints/book.md my-thesis.md
+
+# Configure multi-file build:
+# 1. Copy project.yaml.template to project.yaml  
+# 2. List chapters: input-files: [ch1-intro.md, ch2-theory.md, ...]
+# 3. Use "Build * (project)" tasks
 
 # Or for multi-file projects:
 mkdir my-thesis
@@ -95,19 +105,32 @@ glossing-list:
 ```
 my-project/
 ├── content.md           # Your main document (copied from blueprints/)
-├── sources.bib          # Bibliography file
-├── figures/             # Images and figures
-└── pandoc/              # Template files (if using md-ling-template)
-    ├── defaults.yaml
-    ├── crossref-en-US.yaml
-    └── filters/
+├──project/
+├── project.yaml         # Central configuration (gitignored)
+├── ch1-intro.md
+├── ch2-theory.md
+├── ch3-analysis.md
+├── ch4-conclusion.md
+├── sources.bib
+└── figures/
 ```
 
-**For multi-file projects:**
+Configure in `project.yaml`:
+```yaml
+input-files:
+  - ch1-intro.md
+  - ch2-theory.md
+  - ch3-analysis.md
+  - ch4-conclusion.md
+
+output-file: output.pdf
 ```
-my-book/
-├── metadata.yaml        # Central metadata file
-├── ch1-intro.md
+
+Then build with:
+```bash
+# VS Code: "Build * (project)" tasks
+# Command line: just pdf  (or just html, just docx)
+# Or directly: python3 pandoc/build.py --project
 ├── ch2-theory.md
 ├── ch3-analysis.md
 ├── ch4-conclusion.md
