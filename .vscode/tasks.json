@@ -133,6 +133,102 @@
       "problemMatcher": []
     },
     {
+      "label": "Build DOCX (current file)",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "pandoc '${file}' --defaults=pandoc/defaults.yaml --resource-path=.:${fileDirname} -o '${fileDirname}/${fileBasenameNoExtension}.docx' && python3 pandoc/filters/fix_docx.py '${fileDirname}/${fileBasenameNoExtension}.docx'"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build DOCX (multi-file with metadata.yaml)",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "pandoc 01-intro.md 02-chapter.md 03-conclusion.md --defaults=pandoc/defaults.yaml --metadata-file=metadata.yaml -o article.docx && python3 ../pandoc/filters/fix_docx.py article.docx"
+      ],
+      "group": "build",
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Slides (PDF/Beamer)",
+      "type": "shell",
+      "command": "pandoc",
+      "args": [
+        "blueprints/slides.md",
+        "--defaults=pandoc/defaults.yaml",
+        "-t",
+        "beamer",
+        "--pdf-engine=lualatex",
+        "-o",
+        "slides.pdf"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Slides (HTML/Slidy)",
+      "type": "shell",
+      "command": "pandoc",
+      "args": [
+        "blueprints/slides.md",
+        "--defaults=pandoc/defaults.yaml",
+        "-t",
+        "slidy",
+        "--embed-resources",
+        "--standalone",
+        "-o",
+        "slides.html"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Slides (PPTX)",
+      "type": "shell",
+      "command": "pandoc",
+      "args": [
+        "blueprints/slides.md",
+        "--defaults=pandoc/defaults.yaml",
+        "-o",
+        "slides.pptx"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Run tests",
       "type": "shell",
       "command": "pytest",
@@ -163,6 +259,9 @@
         "-o",
         "-name",
         "*.tex",
+        "-o",
+        "-name",
+        "*.docx",
         ")",
         "-not",
         "-path",

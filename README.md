@@ -4,6 +4,11 @@ A complete Pandoc template for writing linguistic articles and books with profes
 
 **See [`demo.md`](demo.md) for a comprehensive showcase of all features.**
 
+**Template blueprints** in the `blueprints/` folder:
+- [`blueprints/article.md`](blueprints/article.md) - Starter template for journal articles
+- [`blueprints/book.md`](blueprints/book.md) - Starter template for books/theses
+- [`blueprints/slides.md`](blueprints/slides.md) - Starter template for presentations
+
 ## Quick Start
 
 ### 1. Install Dependencies
@@ -95,6 +100,17 @@ EOF
 3. Choose "Build HTML (current file)"
 4. HTML appears next to your markdown file
 
+**To build DOCX (for sharing/editing in Word):**
+1. Press **Ctrl+Shift+P** (Cmd+Shift+P on Mac)
+2. Type "run task" and press Enter
+3. Choose "Build DOCX (current file)"
+4. DOCX appears next to your markdown file
+
+**Note on DOCX output:** DOCX is useful for sharing drafts and collaborative editing, but has limitations:
+- Interlinear examples use tables that don't break across pages (manual intervention needed for long examples)
+- Table column widths may need manual optimization in Word (select table → AutoFit → AutoFit to Contents)
+- Use PDF for final typesetting and publication
+
 **For multi-file projects:**
 - See the [Multi-File Projects](#multi-file-projects) section below
 - Quick answer: Customize the included Makefile with your file list
@@ -112,6 +128,11 @@ pandoc content.md \
 pandoc content.md \
   --defaults=pandoc/defaults.yaml \
   -o output.html
+
+# Build DOCX
+pandoc content.md \
+  --defaults=pandoc/defaults.yaml \
+  -o output.docx
 ```
 
 ### 4. Explore the Demo
@@ -131,11 +152,43 @@ pandoc demo.md \
 pandoc demo.md \
   --defaults=pandoc/defaults.yaml \
   -o demo.html
+
+# Build DOCX
+pandoc demo.md \
+  --defaults=pandoc/defaults.yaml \
+  -o demo.docx
 ```
 
 The demo showcases interlinear glossing, cross-references, citations, semantic markup, tables, and more.
 
 ## Features
+
+### Presentation Slides
+
+Create professional presentation slides from the same markdown source:
+
+**Supported formats:**
+- **PDF (Beamer)** - LaTeX-based slides with excellent linguistic support
+- **HTML (Slidy)** - W3C standard, customizable, works well for linguistics
+- **PPTX (PowerPoint)** - Editable slides for collaboration
+
+**Quick start:**
+```bash
+# Edit blueprints/slides.md, then build:
+make slides-pdf       # PDF slides (Beamer) - ★ Best quality
+make slides-html      # HTML slides (Slidy) - ★ Web delivery
+make slides-pptx      # PowerPoint slides
+make slides-all       # Build all formats
+```
+
+**Features:**
+- ✓ Full support for interlinear glossing and linguistic examples
+- ✓ Cross-references and citations work
+- ✓ Incremental lists, two-column layouts
+- ✓ Customizable styling via CSS (for Slidy) or themes (for Beamer)
+- ✓ Configuration in metadata, not command-line flags
+
+**See [SLIDES.md](SLIDES.md) for complete documentation**
 
 ### Linguistic Examples with pandoc-ling
 
@@ -329,7 +382,7 @@ glossing-list:
 You can insert a comma-separated inline list of all abbreviations anywhere in your document:
 
 ```markdown
-This paper uses the following abbreviations: 
+This paper uses the following abbreviations:
 
 ::: glossing-abbreviations-inline
 :::
@@ -602,11 +655,8 @@ Edit `.vscode/settings.json` and uncomment the metadata-file line:
 ### Code Snippets
 Type trigger + Tab for instant markdown templates:
 
-**Examples:** `ex`, `exgloss`, `exsub`  
-**Markup:** `gl`, `ob`, `rc`  
-**Tables/Figures:** `tbl`, `fig`, `subfigs`, `subtables`  
-**References:** `refsec`, `reffig`, `reftbl`, `refex`  
-**Citations:** `cite`, `citep`, `citepage`
+**Examples:** `ex`, `mex`
+**Tables/Figures:** `tbl`, `fig`, `subfigs`, `subtables`
 
 See [`.vscode/README.md`](.vscode/README.md) for complete documentation and all available shortcuts.
 
@@ -627,6 +677,121 @@ Tests verify:
 - Cross-reference labels (English/German)
 - Section numbering
 - Small caps formatting
+
+## DOCX Output for Collaborative Editing
+
+While PDF (via LaTeX) is recommended for final typesetting, DOCX output is useful for:
+- Sharing drafts with collaborators
+- Getting feedback from non-LaTeX users
+- Submission to journals that require Word format
+
+### Known Limitations
+
+**Interlinear examples don't break across pages:**
+- Pandoc-ling uses tables for interlinear glosses
+- DOCX tables cannot intelligently break across pages like LaTeX can
+- **Workaround:** Keep examples reasonably short, or manually split long examples in Word
+
+**Table column widths need optimization:**
+- Default table behavior may not look optimal
+- **Solution:** The template includes automatic post-processing! All DOCX build tasks automatically run `fix_docx.py` to optimize table columns and apply custom styles.
+- **Note:** The autofit setting enables Word's automatic column adjustment. The visual effect may not be immediately obvious, but it ensures columns will resize properly when you edit content in Word.
+
+**Extra spacing between examples:**
+- Word inserts paragraphs after tables by design
+- **Workaround:** In Word, select the paragraph mark after a table → Format → Font → Size: 1pt
+
+### Automatic Post-Processing
+
+All DOCX builds automatically run a post-processing script that:
+1. **Sets all tables to autofit (minimal column width)** - Enables automatic column width adjustment in Word
+2. **Ensures custom character styles are defined** - Makes [text]{.gl}, [text]{.ob}, [text]{.rc} markup work with proper formatting:
+   - `.gl` (gloss abbreviations) → small caps
+   - `.ob` (object language) → italic
+   - `.rc` (reconstructed forms) → *italic (with asterisk prefix)
+
+**How it works:** Lua filters apply formatting during conversion → Python post-processor ensures styles exist and tables are configured properly. For print-quality output with serif fonts and professional styling, also use a reference.docx template (see below).
+
+The script runs automatically when using:
+- VS Code build tasks
+- The Makefile (`make docx`)
+
+**Manual usage:**
+```bash
+# Build DOCX
+pandoc content.md --defaults=pandoc/defaults.yaml -o output.docx
+
+# Post-process to fix tables and styles
+python3 pandoc/filters/fix_docx.py output.docx
+
+# Or in one command:
+pandoc content.md --defaults=pandoc/defaults.yaml -o output.docx && \
+  python3 pandoc/filters/fix_docx.py output.docx
+```
+
+**Dependencies:**
+The post-processing script requires `python-docx`:
+```bash
+pip install -r requirements.txt
+```
+
+### Best Practices for DOCX Output
+
+1. **Use DOCX for drafts and sharing only** - Use PDF for final publication
+2. **Keep examples reasonably short** - Very long interlinear examples may need manual breaking
+3. **Build frequently** - Check output as you write to catch issues early
+4. **Provide both formats** - Share both PDF and DOCX so readers can choose
+
+### Building DOCX
+
+**VS Code:** Press Ctrl+Shift+P → "Run Task" → "Build DOCX (current file)"
+
+**Command line:**
+```bash
+# Single file
+pandoc content.md --defaults=pandoc/defaults.yaml -o output.docx
+
+# Multi-file with metadata.yaml
+pandoc *.md --defaults=pandoc/defaults.yaml --metadata-file=metadata.yaml -o article.docx
+```
+
+**Makefile:**
+```bash
+make docx  # If using the template's Makefile
+```
+
+### Print-Quality DOCX Output
+
+For **print-quality** DOCX with serif fonts and professional formatting:
+
+1. **Generate a reference template:**
+   ```bash
+   cd pandoc/
+   ./generate_reference_docx.sh
+   ```
+
+2. **Customize in Word:**
+   - Open `pandoc/reference.docx` in Microsoft Word
+   - Set Normal text to serif font (Libertinus Serif, Times New Roman, etc.)
+   - Change heading colors from blue to black
+   - Configure table styles with minimal borders (top/mid/bottom only)
+   - Save and close
+
+3. **Build with reference:**
+   ```bash
+   pandoc content.md \
+     --defaults=pandoc/defaults.yaml \
+     --reference-doc=pandoc/reference.docx \
+     -o output.docx && \
+     python3 pandoc/filters/fix_docx.py output.docx
+   ```
+
+**See [pandoc/DOCX-WORKFLOW.md](pandoc/DOCX-WORKFLOW.md) for complete documentation:**
+- Why post-processing is necessary
+- Detailed reference.docx setup instructions
+- Recommended fonts for linguistics
+- Table formatting (booktabs-style borders)
+- Troubleshooting common issues
 
 ## Troubleshooting
 

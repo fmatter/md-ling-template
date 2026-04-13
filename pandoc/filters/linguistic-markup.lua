@@ -44,7 +44,16 @@ function Span(el)
     if FORMAT:match 'latex' then
       return pandoc.RawInline('latex', '\\rc{' .. pandoc.utils.stringify(el.content) .. '}')
     else
-      return el
+      -- For non-LaTeX formats, prepend asterisk and set to italic
+      local content = pandoc.List:new(el.content)
+      local text = pandoc.utils.stringify(content)
+      -- Check if content already starts with asterisk
+      if not text:match('^%*') then
+        -- Prepend asterisk to the content list
+        content:insert(1, pandoc.Str('*'))
+      end
+      -- Return span with italic emph
+      return pandoc.Emph(content)
     end
   end
   

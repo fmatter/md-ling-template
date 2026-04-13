@@ -16,7 +16,8 @@ This directory contains VS Code configuration for the md-ling-template workflow.
 **Single-file projects:**
 1. **Build PDF (current file)** - Uses metadata from YAML frontmatter
 2. **Build HTML (current file)** - HTML output from current file
-3. **Build LaTeX (current file)** - Generate .tex for debugging
+3. **Build DOCX (current file)** - DOCX output for sharing/editing in Word
+4. **Build LaTeX (current file)** - Generate .tex for debugging
 
 **Multi-file projects** (metadata in frontmatter):
 1. **Build PDF (all .md files)** - Compile all `*.md` files, uses frontmatter from first file
@@ -25,11 +26,24 @@ This directory contains VS Code configuration for the md-ling-template workflow.
 **Multi-file projects with metadata.yaml:**
 1. **Build PDF (with metadata.yaml)** - Compile all `*.md` files + `metadata.yaml`
 2. **Build HTML (with metadata.yaml)** - HTML output with external metadata
-3. **Build with Makefile** - Use project's Makefile (if present)
+3. **Build DOCX (with metadata.yaml)** - DOCX output with external metadata
+4. **Build with Makefile** - Use project's Makefile (if present)
+
+**Presentation slides** (edit blueprints/slides.md):
+1. **Build Slides (PDF/Beamer)** - Professional LaTeX-based slides
+2. **Build Slides (HTML/Slidy)** - Web-based slides (W3C standard, works well for linguistics)
+3. **Build Slides (PPTX)** - PowerPoint slides for collaboration
 
 **Other tasks:**
 1. **Run tests** - Run the pytest test suite
-2. **Clean outputs** - Remove generated PDF/HTML/TeX files
+2. **Clean outputs** - Remove generated PDF/HTML/TeX/DOCX files
+
+**Note on DOCX output:**
+- Useful for sharing drafts and collaborative editing
+- **Tables are automatically optimized!** All DOCX builds run post-processing to set minimal column widths
+- **Custom styles work:** [text]{.gl}, [text]{.ob}, [text]{.rc} are formatted properly (small caps, italic)
+- Limitation: Tables don't break across pages (keep examples reasonably short)
+- Use PDF for final typesetting and publication
 
 ### Preview
 - **Ctrl+K V** (Cmd+K V on Mac) → Open markdown preview side-by-side

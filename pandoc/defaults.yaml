@@ -6,6 +6,7 @@ filters:
   - pandoc-crossref  # MUST come before citeproc
   - citeproc  # Citations - runs after pandoc-crossref
   - pandoc/filters/simple-tables.lua  # Convert tables with empty headers to simple auto-width tabular
+  - pandoc/filters/docx-styles.lua  # Ensure custom styles work in DOCX output
 
 # PDF engine (use LuaLaTeX for Unicode support)
 pdf-engine: lualatex
