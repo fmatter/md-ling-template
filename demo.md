@@ -66,8 +66,8 @@ The cat sat on the mat.
 a.
 | Mapudungun 1
 | amuymi
-| amu-i-m-i
-| go-IND-2-SG
+| amu-imi
+| go-IND.2SG
 | 'You went' (Smeets 2007, 39)
 b.
 | Mapudungun 2

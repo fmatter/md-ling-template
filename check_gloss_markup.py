@@ -18,13 +18,22 @@ Usage: python3 check_gloss_markup.py output.html [source.md]
 
 import sys
 import re
-import csv
 from pathlib import Path
 from html.parser import HTMLParser
 
 
-# Path to Leipzig Glossing Rules abbreviations
-LEIPZIG_CSV = Path(__file__).parent.parent.parent / "dev/cldf/lgr/cldf/abbreviations.csv"
+# Standard Leipzig Glossing Rules abbreviations (hardcoded)
+LEIPZIG_ABBREVIATIONS = {
+    '1', '2', '3', 'A', 'ABL', 'ABS', 'ACC', 'ADJ', 'ADV', 'AGR', 'ALL',
+    'ANTIP', 'APPL', 'ART', 'AUX', 'BEN', 'CAUS', 'CLF', 'COM', 'COMP',
+    'COMPL', 'COND', 'COP', 'CVB', 'DAT', 'DECL', 'DEF', 'DEM', 'DET',
+    'DIST', 'DISTR', 'DU', 'DUR', 'ERG', 'EXCL', 'F', 'FOC', 'FUT', 'GEN',
+    'IMP', 'INCL', 'IND', 'INDF', 'INF', 'INS', 'INTR', 'IPFV', 'IRR',
+    'LOC', 'M', 'N', 'NEG', 'NMLZ', 'NOM', 'OBJ', 'OBL', 'P', 'PASS',
+    'PFV', 'PL', 'POSS', 'PRED', 'PRF', 'PRS', 'PROG', 'PROH', 'PROX',
+    'PST', 'PTCP', 'PURP', 'Q', 'QUOT', 'RECP', 'REFL', 'REL', 'RES',
+    'S', 'SBJ', 'SBJV', 'SG', 'TOP', 'TR', 'VOC'
+}
 
 
 class SmallCapsParser(HTMLParser):
@@ -71,35 +80,32 @@ class SmallCapsParser(HTMLParser):
             self.current_text.append(data)
 
 
-def load_leipzig_abbreviations():
-    """Load Leipzig Glossing Rules abbreviations from CSV."""
-    leipzig = set()
+def is_leipzig_combo(abbrev, leipzig):
+    """
+    Check if an abbreviation is a combination of Leipzig abbreviations.
     
-    if not LEIPZIG_CSV.exists():
-        # Fallback: use a hardcoded list of common Leipzig abbreviations
-        return {
-            '1', '2', '3', 'A', 'ABL', 'ABS', 'ACC', 'ADJ', 'ADV', 'AGR', 'ALL',
-            'ANTIP', 'APPL', 'ART', 'AUX', 'BEN', 'CAUS', 'CLF', 'COM', 'COMP',
-            'COMPL', 'COND', 'COP', 'CVB', 'DAT', 'DECL', 'DEF', 'DEM', 'DET',
-            'DIST', 'DISTR', 'DU', 'DUR', 'ERG', 'EXCL', 'F', 'FOC', 'FUT', 'GEN',
-            'IMP', 'INCL', 'IND', 'INDF', 'INF', 'INS', 'INTR', 'IPFV', 'IRR',
-            'LOC', 'M', 'N', 'NEG', 'NMLZ', 'NOM', 'OBJ', 'OBL', 'P', 'PASS',
-            'PFV', 'PL', 'POSS', 'PRED', 'PRF', 'PRS', 'PROG', 'PROH', 'PROX',
-            'PST', 'PTCP', 'PURP', 'Q', 'QUOT', 'RECP', 'REFL', 'REL', 'RES',
-            'S', 'SBJ', 'SBJV', 'SG', 'TOP', 'TR', 'VOC'
-        }
+    Examples:
+    - 2SG → 2 + SG (both Leipzig)
+    - 3PL → 3 + PL (both Leipzig)
+    - 1SG.NOM → 1SG + NOM → (1 + SG) + NOM (all Leipzig)
+    """
+    # Check if starts with person marker (1/2/3) followed by another Leipzig abbrev
+    if abbrev[0] in '123' and len(abbrev) > 1:
+        rest = abbrev[1:]
+        if rest in leipzig:
+            return True
+        # Check if rest can be further decomposed
+        if is_leipzig_combo(rest, leipzig):
+            return True
     
-    try:
-        with open(LEIPZIG_CSV, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                leipzig.add(row['ID'].upper())
-    except Exception as e:
-        print(f"Warning: Could not load Leipzig abbreviations from {LEIPZIG_CSV}: {e}", file=sys.stderr)
-        print("Using fallback list of common abbreviations.", file=sys.stderr)
-        return load_leipzig_abbreviations()  # Use fallback
+    # Check if contains separators (., -, etc.) and all parts are Leipzig
+    for sep in ['.', '-', '_']:
+        if sep in abbrev:
+            parts = abbrev.split(sep)
+            if all(part in leipzig or is_leipzig_combo(part, leipzig) for part in parts):
+                return True
     
-    return leipzig
+    return False
 
 
 def extract_smallcaps_from_html(html_file):
@@ -109,26 +115,26 @@ def extract_smallcaps_from_html(html_file):
     return set(parser.abbreviations)
 
 
-def extract_defined_abbreviations(md_file):
-    """Extract glossing-abbreviations from YAML frontmatter."""
-    content = md_file.read_text()
+def extract_defined_abbreviations(yaml_file):
+    """Extract glossing-abbreviations from YAML file (frontmatter or metadata.yaml)."""
+    content = yaml_file.read_text()
     
-    # Find YAML frontmatter
-    if not content.startswith('---'):
-        return set()
-    
-    # Extract frontmatter
-    parts = content.split('---', 2)
-    if len(parts) < 3:
-        return set()
-    
-    frontmatter = parts[1]
+    # For regular markdown files with frontmatter
+    if content.startswith('---'):
+        parts = content.split('---', 2)
+        if len(parts) >= 3:
+            yaml_content = parts[1]
+        else:
+            return set()
+    else:
+        # For metadata.yaml files
+        yaml_content = content
     
     # Find glossing-abbreviations section
     defined = set()
     in_glossing = False
     
-    for line in frontmatter.split('\n'):
+    for line in yaml_content.split('\n'):
         stripped = line.strip()
         
         # Start of glossing-abbreviations section
@@ -168,9 +174,6 @@ def main():
         print(f"Error: HTML file not found: {html_file}", file=sys.stderr)
         sys.exit(1)
     
-    # Load Leipzig abbreviations
-    leipzig = load_leipzig_abbreviations()
-    
     # Extract abbreviations from HTML
     used_abbrevs = extract_smallcaps_from_html(html_file)
     
@@ -178,18 +181,27 @@ def main():
         print("✓ No glossing abbreviations found in HTML output")
         sys.exit(0)
     
-    # Extract defined abbreviations from source
+    # Extract defined abbreviations from source file(s)
+    defined_abbrevs = set()
+    
+    # Check source markdown file
     if md_file.exists():
-        defined_abbrevs = extract_defined_abbreviations(md_file)
-        
-        # Filter out Leipzig abbreviations and defined ones
-        undefined = used_abbrevs - defined_abbrevs - leipzig
-        custom_defined = defined_abbrevs - leipzig
-    else:
-        # If no source file, report all abbreviations minus Leipzig
-        undefined = used_abbrevs - leipzig
-        defined_abbrevs = set()
-        custom_defined = set()
+        defined_abbrevs.update(extract_defined_abbreviations(md_file))
+    
+    # Check metadata.yaml in same directory
+    metadata_yaml = html_file.parent / 'metadata.yaml'
+    if metadata_yaml.exists():
+        defined_abbrevs.update(extract_defined_abbreviations(metadata_yaml))
+    
+    # Filter out Leipzig abbreviations and combinations
+    leipzig_used = set()
+    for abbrev in list(used_abbrevs):
+        if abbrev in LEIPZIG_ABBREVIATIONS or is_leipzig_combo(abbrev, LEIPZIG_ABBREVIATIONS):
+            leipzig_used.add(abbrev)
+    
+    # Calculate undefined abbreviations
+    undefined = used_abbrevs - defined_abbrevs - leipzig_used
+    custom_defined = defined_abbrevs - LEIPZIG_ABBREVIATIONS
     
     # Report findings
     if undefined:
@@ -209,7 +221,6 @@ def main():
         if custom_defined:
             print(f"✓ Custom abbreviations defined: {', '.join(sorted(custom_defined))}")
         
-        leipzig_used = used_abbrevs & leipzig
         if leipzig_used:
             print(f"✓ Leipzig abbreviations used: {', '.join(sorted(leipzig_used))}")
         
@@ -217,8 +228,7 @@ def main():
         
         sys.exit(1)
     else:
-        leipzig_used = used_abbrevs & leipzig
-        custom_used = used_abbrevs - leipzig
+        custom_used = used_abbrevs - leipzig_used
         
         print(f"✓ All {len(used_abbrevs)} glossing abbreviations are defined")
         
