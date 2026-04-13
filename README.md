@@ -180,6 +180,8 @@ pandoc my-talk.md --defaults=pandoc/defaults.yaml -o my-talk.pptx
 
 **Note:** Don't edit `blueprints/slides.md` directly - copy it to your own file first!
 
+**Note on Beamer/PDF slides:** the template uses the [Metropolis](https://github.com/matze/mtheme) theme. If you installed a minimal LaTeX distribution (TinyTeX or BasicTeX), you may need to install it manually: `tlmgr install beamer metropolis pgfopts`.
+
 ### Linguistic Examples with pandoc-ling
 
 The template includes Michael Cysouw's [pandoc-ling](https://github.com/cysouw/pandoc-ling) filter for professional typesetting of linguistic examples.

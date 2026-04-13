@@ -32,6 +32,9 @@ glossing-list:
 
 This document demonstrates the template's capabilities for linguistic writing: interlinear glossing, cross-references, citations, and semantic markup.^[Glossing abbreviations used: [...]{.glossing-abbreviations-inline}]
 
+
+[hyperlink](https://www.example.com) and [internal link to section 2](#sec:examples)
+
 ## Semantic Markup {#sec:markup}
 
 **Gloss abbreviations (`.gl`):** The word has [nom]{.gl} case and [3sg]{.gl} agreement.
@@ -189,6 +192,9 @@ Another test without header (short first column, long second column):
 ## Figures
 
 ![Hypothetical syntactic tree](figures/tree.png){#fig:tree width=80%}
+
+> This is a blockquote. It can be used to highlight important information or to quote someone.
+
 
 ## Subfigures {#sec:subfigures}
 
