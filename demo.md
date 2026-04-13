@@ -62,18 +62,19 @@ The cat sat on the mat.
 
 ## Interlinear Glossing {#sec:glossing}
 
-::: {.ex formatGloss=true}
-| Mapudungun (Isolate)
-| amuy chi weñi
-| go.IND.3 DEF man
-| 'The man went.'
-:::
-
-::: {.ex formatGloss=true}
-| Mapudungun (Isolate)
-| küpatueyew chi ḻuan
-| come-APPL-INV-IND-3-3ACT DEF guanaco
-| 'The guanaco came to him.'
+::: {#ex:mapudungunS .ex formatGloss=true}
+a.
+| Mapudungun 1
+| amuymi
+| amu-i-m-i
+| go-IND-2-SG
+| 'You went' (Smeets 2007, 39)
+b.
+| Mapudungun 2
+| feymew fütra amuy Antonio
+| fejmew fɨt͡ʂa amu-i-Ø antonjo
+| then far go-IND-3 Antonio
+| 'Then, Antonio went far away.' ([antonio]{.smallcaps}: 61)
 :::
 
 ## Sub-examples
@@ -155,10 +156,10 @@ Test tables with empty header rows (these get stretched to full width):
 
 |        |                                          |
 |--------|------------------------------------------|
-| [ps]{.gl}  | privileged syntactic argument (primary argument) of the preceding clause |
-| [act]{.gl} | occurs in previous clause, but not as the PSA, including mentions as a possessor |
-| [old]{.gl} | does not occur in the previous clause, but earlier in the text |
-| [new]{.gl} | first occurrence in the text |
+| [ps]{.smallcaps}  | privileged syntactic argument (primary argument) of the preceding clause |
+| [act]{.smallcaps} | occurs in previous clause, but not as the PSA, including mentions as a possessor |
+| [old]{.smallcaps} | does not occur in the previous clause, but earlier in the text |
+| [new]{.smallcaps} | first occurrence in the text |
 
 : Information status categories {#tbl:infocategories}
 
@@ -182,8 +183,8 @@ Another test without header (short first column, long second column):
 
 |            |                                                                  |
 |------------|------------------------------------------------------------------|
-| [new]{.gl} | 430/452 (95.13%)                                                |
-| [given]{.gl} | 1480/3459 (42.79%)                                            |
+| [new]{.smallcaps} | 430/452 (95.13%)                                                |
+| [given]{.smallcaps} | 1480/3459 (42.79%)                                            |
 
 : Lexicality test table {#tbl:lextest}
 
