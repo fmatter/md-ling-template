@@ -436,25 +436,63 @@ end
 function parseInterlinear (block)
 
   local interlinear = {}
-  local judgement, source = splitJudgement( block[2] )
-
-  -- header
-  local header = block[1]
-  for i=1,#header do
-    if header[i].text == "\\" then
-      header[i] = pandoc.LineBreak()
+  local judgement, source
+  
+  -- Detect structure based on number of lines
+  if #block == 5 then
+    -- 5 lines: header1, header2, source, gloss, translation
+    -- header1
+    local header = block[1]
+    for i=1,#header do
+      if header[i].text == "\\" then
+        header[i] = pandoc.LineBreak()
+      end
     end
+    interlinear["header"] = pandoc.Plain(header)
+    
+    -- header2
+    local header2 = block[2]
+    for i=1,#header2 do
+      if header2[i].text == "\\" then
+        header2[i] = pandoc.LineBreak()
+      end
+    end
+    interlinear["header2"] = pandoc.Plain(header2)
+    
+    -- source (with judgement)
+    judgement, source = splitJudgement( block[3] )
+    interlinear["source"] = splitSource(source)
+    
+    -- gloss
+    interlinear["gloss"] = splitGloss( block[4] )
+    
+    -- translation
+    interlinear["trans"] = getTrans( block[5] )
+    
+  else
+    -- 3-4 lines: [header], source, gloss, translation
+    judgement, source = splitJudgement( block[2] )
+    
+    -- header
+    local header = block[1]
+    for i=1,#header do
+      if header[i].text == "\\" then
+        header[i] = pandoc.LineBreak()
+      end
+    end
+    interlinear["header"] = pandoc.Plain(header)
+    interlinear["header2"] = nil
+    
+    -- source
+    interlinear["source"] = splitSource(source)
+    -- gloss
+    interlinear["gloss"] = splitGloss( block[3] )
+    -- translation
+    interlinear["trans"] = getTrans( block[#block] )
   end
-  interlinear["header"] = pandoc.Plain(header)
-  -- source
-  interlinear["source"] = splitSource(source)
-  -- gloss
-  interlinear["gloss"] = splitGloss( block[3] )
-  -- translation
-  interlinear["trans"] = getTrans( block[#block] )
 
   -- judgement is Str
-  -- (header, trans) in interlinear is Plain
+  -- (header, header2, trans) in interlinear is Plain
   -- (source, gloss) in interlinear is list of Plain
   return judgement, interlinear
 end
@@ -787,6 +825,8 @@ function pandocMakeInterlinear (parsedDiv, label, forceJudge)
     local headerText = pandoc.utils.stringify(interlinear.header)
     headerPresent = headerText:match("%S") ~= nil  -- has non-whitespace
   end
+  local header2 = interlinear.header2 and {{ interlinear.header2 }} or nil
+  local header2Present = header2 ~= nil and interlinear.header2.content[1] ~= nil
   local source = interlinear.source 
   for i=1,#source do source[i] = { source[i] } end
   local gloss =  interlinear.gloss 
@@ -796,6 +836,9 @@ function pandocMakeInterlinear (parsedDiv, label, forceJudge)
   local rowContent = { trans }
     table.insert(rowContent, 1, gloss )
     table.insert(rowContent, 1, source )
+  if header2Present then
+    table.insert(rowContent, 1, header2 )
+  end
   if headerPresent then
     table.insert(rowContent, 1, header )
   end
@@ -810,11 +853,11 @@ function pandocMakeInterlinear (parsedDiv, label, forceJudge)
       nCols =  nCols + 1
       judgeCol = judgeCol + 2
       if judgement == nil then judgement = "" end
-      if headerPresent then
-        rowContent[2][1][1] = pandoc.Plain(judgement)
-      else
-        rowContent[1][1][1] = pandoc.Plain(judgement)
-      end
+      -- Place judgement on the source row
+      local sourceRow = 1
+      if headerPresent then sourceRow = sourceRow + 1 end
+      if header2Present then sourceRow = sourceRow + 1 end
+      rowContent[sourceRow][1][1] = pandoc.Plain(judgement)
     end
   -- add labels
   if label ~= nil then
@@ -842,6 +885,7 @@ function pandocMakeInterlinear (parsedDiv, label, forceJudge)
   local ps = 0 --preambleshift
   local ls = 0 --labelshift
   local hs = 0 --headershift
+  local h2s = 0 --header2shift
   local js = 0 --judgementshift
   if judgeCol > 1 then js = 1 end
 
@@ -866,16 +910,22 @@ function pandocMakeInterlinear (parsedDiv, label, forceJudge)
     example.bodies[1].body[1+ps].cells[2+ls+js].attr = {class =  "linguistic-example-header linguistic-example-content"}
     example.bodies[1].body[1+ps].cells[2+ls+js].col_span = nCols-1-ls-js
   end
+  -- set class of header2 and extend cell
+  if header2Present then
+    h2s = 1
+    example.bodies[1].body[1+ps+hs].cells[2+ls+js].attr = {class =  "linguistic-example-header linguistic-example-content"}
+    example.bodies[1].body[1+ps+hs].cells[2+ls+js].col_span = nCols-1-ls-js
+  end
   -- set class of translation and extend cell
   example.bodies[1].body[nRows].cells[2+ls+js].attr = {class = "linguistic-example-translation linguistic-example-content"}
   example.bodies[1].body[nRows].cells[2+ls+js].col_span = nCols-1-ls-js
   -- set class of judgment
   if judgeCol > 1 then
-    example.bodies[1].body[1+hs+ps].cells[2+ls].attr = {class = "linguistic-example-judgement"}
+    example.bodies[1].body[1+hs+h2s+ps].cells[2+ls].attr = {class = "linguistic-example-judgement"}
   end
   -- set class of source and gloss
   local ssCol = 3 + ls -- sourcestart columns
-  local ssRow = 1 + hs + ps -- sourcestart row
+  local ssRow = 1 + hs + h2s + ps -- sourcestart row
   for i=ssCol,nCols do
     example.bodies[1].body[ssRow].cells[i].attr = {class = "linguistic-example-source linguistic-example-content"}
     example.bodies[1].body[ssRow+1].cells[i].attr = {class = "linguistic-example-gloss linguistic-example-content"}
