@@ -2,6 +2,19 @@
 
 A complete Pandoc template for writing linguistic articles and books with professional typesetting of interlinear glosses, cross-references, and citations.
 
+**What this template provides:**
+- Pre-configured LaTeX template with linguistics-friendly defaults
+- Custom Lua filters for semantic markup (`.gl`, `.ob`, `.rc`), glossing lists, and table formatting
+- Bundled [pandoc-ling](https://github.com/cysouw/pandoc-ling) for interlinear examples
+- Build system (`justfile`, VS Code tasks, Python helper script)
+- Multi-file project support via `project.yaml`
+- DOCX post-processing for proper formatting
+- Example documents and blueprints
+
+**For general Pandoc help** (metadata options, citations, LaTeX customization), see [pandoc-notes.md](pandoc-notes.md).
+
+---
+
 **See [`demo.md`](demo.md) for a comprehensive showcase of all features.**
 
 **Template blueprints** in the `blueprints/` folder:
@@ -300,30 +313,21 @@ For tables that are essentially lists (no meaningful column headers), use empty 
 
 In LaTeX, these render as `tabular` with auto-width columns (`ll`) instead of full-width `longtable` with percentage-based columns. The relative width of spaces/dashes in the empty header row hints at the desired column proportions.
 
-### Citations
-
-Add a `sources.bib` file and cite with:
+### Citations and Bibliography
 
 ```markdown
 ---
 bibliography: [sources.bib]
+csl: https://www.zotero.org/styles/unified-style-sheet-for-linguistics  # Optional
 ---
 
 According to @smith2020, we find that...
 Previous work [@jones2019; @doe2021] shows...
 ```
 
-(Use array format `[sources.bib]` for compatibility with pandoc-citer extension.)
+The template uses Pandoc's `citeproc` for citations. Common linguistics CSL styles: `unified-style-sheet-for-linguistics`, `language`, `linguistic-inquiry`, `glossa`. 
 
-**Customize citation style:**
-```yaml
----
-bibliography: [sources.bib]
-csl: https://www.zotero.org/styles/unified-style-sheet-for-linguistics
----
-```
-
-Common linguistics styles: `unified-style-sheet-for-linguistics`, `language`, `linguistic-inquiry`, `glossa`. Download from [Zotero Style Repository](https://www.zotero.org/styles) or use URLs directly. See [Citation and Bibliography Formatting](#citation-and-bibliography-formatting) for more options.
+**See [pandoc-notes.md](pandoc-notes.md)** for CSL configuration, citation options, and BibLaTeX usage.
 
 ### Semantic Markup for Object Language
 
@@ -487,12 +491,19 @@ See [@sec:intro] for background.  # works from any file!
 ```
 md-ling-template/
 ├── README.md              # This file
+├── pandoc-notes.md        # General Pandoc reference (metadata, citations, LaTeX)
 ├── project.yaml.template  # Template for multi-file projects (copy to project.yaml)
 ├── metadata.yaml.template # Template for multi-file metadata (copy to metadata.yaml)
 ├── justfile               # CLI build commands (cross-platform, like Make)
 ├── Makefile               # Legacy build automation (optional, still works)
 ├── demo.md                # Feature showcase document
 ├── demo.bib               # Example bibliography
+├── blueprints/            # Starter templates (copy and customize)
+│   ├── article.md         # Journal article template
+│   ├── book.md            # Book/thesis template
+│   └── slides.md          # Presentation slides template
+├── examples/              # Example documents
+│   └── custom-formatting.md  # Production-grade formatting example
 ├── .vscode/               # VS Code configuration
 │   ├── settings.json      # Editor settings
 │   ├── tasks.json         # Build tasks (Ctrl+Shift+B)
@@ -528,248 +539,79 @@ md-ling-template/
 
 ## Customization
 
-### Document Formatting via Metadata
+### Template-Specific Configuration
 
-The template supports extensive customization through document metadata without editing the template itself. Add these to your YAML frontmatter or `metadata.yaml`:
-
-**Page layout:**
+**Glossing abbreviations** (custom filter):
 ```yaml
-# Margins and paper size
-geometry:
-  - left=2.4cm
-  - right=2.4cm
-  - top=2.5cm
-  - bottom=2.4cm
-papersize: a4         # or: letter
-fontsize: 11pt        # or: 10pt, 12pt
+glossing-abbreviations:
+  APPL: applicative
+  NOM: nominative
 
-# Two-sided printing with alternating headers
-classoption:
-  - twoside
+glossing-list:
+  position: after  # 'before' or 'after' or null
+  warn-undefined: true
 ```
+See [Glossing Abbreviations List](#glossing-abbreviations-list) section above for details.
 
-**Fonts:**
+**Lua filters** - Add custom filters to `pandoc/defaults.yaml`:
 ```yaml
-mainfont: "Linux Libertine"    # or: "Noto Serif", "Charis SIL"
-# Template will auto-detect common linguistics fonts if not specified
+filters:
+  - pandoc/filters/linguistic-markup.lua
+  - pandoc/filters/my-custom-filter.lua  # Your filter here
+  - pandoc/filters/pandoc-ling.lua
+  # ... rest
 ```
+**Note:** Filter order matters! Most custom filters should run before `pandoc-crossref` and `citeproc`.
 
-**Headers and footers:**
-```yaml
-header-includes:
-  - |
-    ```{=latex}
-    \usepackage{fancyhdr}
-    \pagestyle{fancy}
-    \lhead[\thepage]{Short Title}
-    \rhead[Short Title]{\thepage}
-    \cfoot{}
-    ```
-```
+**Multi-file projects** - See [Multi-File Projects](#multi-file-projects) section for `project.yaml` and `metadata.yaml` setup.
 
-**Line spacing:**
-```yaml
-header-includes:
-  - |
-    ```{=latex}
-    \usepackage{setspace}
-    \onehalfspacing
-    ```
-```
+### Standard Pandoc Customization
 
-**Custom LaTeX packages and commands:**
-```yaml
-header-includes:
-  - |
-    ```{=latex}
-    \usepackage{lineno}
-    \usepackage{draftwatermark}
-    \SetWatermarkLightness{0.95}
-    \newcommand{\mycommand}[1]{\textbf{#1}}
-    ```
-```
+The template works with standard Pandoc metadata fields. Put these in your YAML frontmatter or `metadata.yaml`:
 
-**Including external LaTeX configuration files:**
-```yaml
-header-includes:
-  - |
-    ```{=latex}
-    \input{my-custom-config.tex}
-    ```
-```
-(Put `my-custom-config.tex` in the same directory as your markdown file, or use a relative path like `\input{stuff/config.tex}`)
+- **Page layout:** `geometry`, `papersize`, `fontsize`, `classoption`
+- **Fonts:** `mainfont`, `sansfont`, `monofont`
+- **Custom LaTeX:** `header-includes` with ````{=latex}` blocks
+- **Citations:** `bibliography`, `csl`, `link-citations`
+- **Language:** `lang` (e.g., `de-DE` for German)
 
-**Important:** Use ````{=latex}` code blocks to mark raw LaTeX content (requires `raw_attribute` extension, enabled by default). This prevents Pandoc from interpreting backslashes and braces as Markdown.
+**See [examples/custom-formatting.md](examples/custom-formatting.md)** for a production-grade example with custom headers, spacing, and commands.
 
-**Complete example** (single-file document):
-```yaml
----
-title: "My Article"
-author: "Your Name"
-date: "2026"
-bibliography: [sources.bib]
-
-# Layout
-geometry: [left=2.4cm, right=2.4cm, top=2.5cm, bottom=2.4cm]
-fontsize: 11pt
-papersize: a4
-classoption: [twoside]
-
-# Typography
-mainfont: "Linux Libertine"
-
-# Custom LaTeX
-header-includes:
-  - |
-    ```{=latex}
-    \usepackage{fancyhdr}
-    \pagestyle{fancy}
-    \lhead[\thepage]{My Article}
-    \rhead[My Article]{\thepage}
-    \cfoot{}
-    
-    \usepackage{lineno}
-    % \linenumbers  % Uncomment for draft mode
-    ```
----
-
-# Introduction
-
-Your content here...
-```
-
-**See [examples/custom-formatting.md](examples/custom-formatting.md) for a complete production-grade example** with headers, spacing, custom commands, and more.
-
-**For multi-file projects,** put customizations in `metadata.yaml`:
-```yaml
----
-title: "My Dissertation"
-author: "Your Name"
-mainfont: "Linux Libertine"
-geometry: [margin=1in]
-fontsize: 12pt
-documentclass: book     # For chapters instead of sections
----
-```
-
-### Adding Custom Lua Filters
-
-To add your own filters:
-
-1. Place your `.lua` file in `pandoc/filters/`
-2. Add it to `pandoc/defaults.yaml`:
-   ```yaml
-   filters:
-     - pandoc/filters/linguistic-markup.lua
-     - pandoc/filters/my-custom-filter.lua  # Add your filter
-     - pandoc/filters/pandoc-ling.lua
-     # ... rest of filters
-   ```
-
-**Note:** Filter order matters! Filters that modify AST should typically run before `pandoc-crossref` and `citeproc`.
+**See [pandoc-notes.md](pandoc-notes.md)** for comprehensive Pandoc reference including all metadata options, LaTeX customization, citation styles, and more.
 
 ### LaTeX Template Customization
 
-For major structural changes, edit `pandoc/templates/default.latex`:
-- Document class (line 18: `scrartcl` → `article`)
-- Fonts (lines 33-66)
-- Linguex spacing (lines 83-87)
-- Page geometry, margins, line spacing
+For deep structural changes, edit these files:
 
-### Pandoc Defaults
+- **`pandoc/templates/default.latex`** - LaTeX template (document class, package loading, etc.)
+- **`pandoc/defaults.yaml`** - Default settings (filters, PDF engine, crossref config)
+- **`pandoc/style.css`** - HTML styling
+- **`pandoc/filters/*.lua`** - Custom filters for linguistic markup, glossing, etc.
 
-Edit `pandoc/defaults.yaml` to customize:
-- Filters and their order
-- Section numbering
-- Cross-reference settings
+Most users won't need to edit these—standard Pandoc metadata (see [pandoc-notes.md](pandoc-notes.md)) handles typical customization needs.
 
 ### Language Settings
 
-The template supports English (default) and German with language-specific labels:
+The template provides crossref labels in English (default) and German:
 
 **English (default):**
 - Figure → "Figure", Table → "Table", Example → "Example"
-- References section → "References"
-- Uses `pandoc/crossref-en-US.yaml` (loaded by default in `defaults.yaml`)
+- References → "References"
+- Uses `pandoc/crossref-en-US.yaml`
 
 **German:**
-To switch to German, edit `pandoc/defaults.yaml` and change the metadata-files line:
+Edit `pandoc/defaults.yaml` and change:
 
 ```yaml
 metadata-files:
-  - pandoc/crossref-de-DE.yaml  # Change from crossref-en-US.yaml
+  - pandoc/crossref-de-DE.yaml  # Change from en-US
 ```
 
-This provides:
-- Figure → "Abbildung", Table → "Tabelle", Example → "Beispiel"
-- References section → "Literatur"
+This provides German labels: "Abbildung", "Tabelle", "Beispiel", "Literatur".
 
-You can also set language in your document metadata:
+**Note:** Also set `lang: de-DE` in your metadata for German hyphenation/typography (see [pandoc-notes.md](pandoc-notes.md)).
 
-```yaml
----
-lang: de-DE
----
-```
-
-Or use the command line:
-```bash
-pandoc content.md \
-  --defaults=defaults.yaml \
-  --metadata-file=pandoc/crossref-de-DE.yaml \
-  -o output.pdf
-```
-
-### Citation and Bibliography Formatting
-
-The template uses Pandoc's `citeproc` for citations. Customize via metadata:
-
-**Citation style (CSL):**
-```yaml
----
-bibliography: [sources.bib]
-csl: https://www.zotero.org/styles/unified-style-sheet-for-linguistics
-# Or use a local file:
-# csl: my-style.csl
----
-```
-
-**Common linguistics citation styles:**
-- Unified Style Sheet for Linguistics: `unified-style-sheet-for-linguistics`
-- Language (journal): `language`  
-- Linguistic Inquiry: `linguistic-inquiry`
-- Glossa: `glossa`
-
-Download CSL files from the [Zotero Style Repository](https://www.zotero.org/styles) and place them in your project directory, or use URLs directly.
-
-**Citation format options:**
-```yaml
----
-link-citations: true        # Make citations clickable (default: true in template)
-citation-abbreviations: abbreviations.json  # Define abbreviations
-suppress-bibliography: false  # Set to true to hide bibliography
-reference-section-title: "References"  # Customize bibliography heading
----
-```
-
-**Bibliography formatting in LaTeX/PDF:**
-
-For more advanced control (BibLaTeX features), use `header-includes`:
-```yaml
-header-includes:
-  - |
-    ```{=latex}
-    % Override citeproc with biblatex (advanced users only)
-    % \usepackage[backend=biber,
-    %             style=authoryear-comp,
-    %             maxcitenames=2]{biblatex}
-    % \addbibresource{sources.bib}
-    ```
-```
-
-**Note:** The template defaults to `citeproc` (works for all output formats). For LaTeX-only projects needing advanced bibliography features, you can switch to BibLaTeX, but this will break HTML/DOCX output.
-
-## VS Code Integration
+### Template Modifications
 
 The template includes complete VS Code configuration with code snippets for all custom markdown features:
 
@@ -1020,7 +862,7 @@ The template configuration files are provided as-is for educational use.
 
 ## Resources
 
-- [Pandoc User's Guide](https://pandoc.org/MANUAL.html)
-- [pandoc-ling documentation](https://github.com/cysouw/pandoc-ling)
-- [pandoc-crossref documentation](https://github.com/lierdakil/pandoc-crossref)
-- [Linguex package documentation](docs/linguex-doc.pdf)
+**Template-specific:**
+- [pandoc-ling documentation](https://github.com/cysouw/pandoc-ling) - Linguistic examples filter (bundled in template)
+- [pandoc-notes.md](pandoc-notes.md) - General Pandoc reference (metadata, citations, LaTeX, etc.)
+- [examples/custom-formatting.md](examples/custom-formatting.md) - Production-grade formatting example
