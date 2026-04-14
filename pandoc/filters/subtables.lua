@@ -70,9 +70,9 @@ function Div(el)
         :gsub("(\\end{tabular})", "\\bottomrule\n%1")
 
       local subtable = "\\begin{subtable}{" .. subtable_width .. "}\n"
+        .. "\\caption{" .. caption .. "}" .. label .. "\n"
         .. "\\centering\n"
         .. table_latex .. "\n"
-        .. "\\caption{" .. caption .. "}" .. label .. "\n"
         .. "\\end{subtable}"
 
       table.insert(latex_subfloats, subtable)
@@ -80,10 +80,10 @@ function Div(el)
 
     -- Wrap in table float
     local output = "\\begin{table}[ht]\n"
-      .. "\\centering\n"
-      .. table.concat(latex_subfloats, separator) .. "\n"
       .. "\\caption{" .. (overall_caption or "Subtables") .. "}"
       .. "\\label{" .. id .. "}\n"
+      .. "\\centering\n"
+      .. table.concat(latex_subfloats, separator) .. "\n"
       .. "\\end{table}"
 
     return pandoc.RawBlock("latex", output)
