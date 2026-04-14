@@ -15,6 +15,19 @@ date: "2026"
 # Bibliography
 bibliography: [sources.bib]
 
+# Citation style (CSL) - uncomment and customize
+# See: https://www.zotero.org/styles
+# csl: https://www.zotero.org/styles/unified-style-sheet-for-linguistics
+# Common linguistics styles:
+#   - unified-style-sheet-for-linguistics
+#   - language
+#   - linguistic-inquiry
+#   - glossa
+
+# Citation options
+# link-citations: true        # Make citations clickable (template default)
+# reference-section-title: "References"
+
 # Glossing abbreviations (if using interlinear examples)
 # glossing-abbreviations:
 #   NOM: nominative
