@@ -504,10 +504,31 @@ end
 function splitSource (line)
   local splitSource = splitPara(line)
   if formatGloss then
-    -- remove format and make emph throughout
+    -- make emph throughout, but preserve Span{.normal} elements
     for i=1,#splitSource do 
-      local string = pandoc.utils.stringify(splitSource[i])
-      splitSource[i] = pandoc.Plain(pandoc.Emph(string))
+      local content = splitSource[i].content
+      local newContent = pandoc.List()
+      for j=1,#content do
+        local elem = content[j]
+        if elem.tag == "Str" then
+          -- Wrap Str elements in Emph for italics
+          newContent:insert(pandoc.Emph({elem}))
+        elseif elem.tag == "Span" and elem.classes:includes("normal") then
+          -- For Span with class "normal", emit content without Emph
+          if FORMAT:match 'latex' then
+            -- Wrap in \textnormal{} for LaTeX
+            local spanContent = pandoc.utils.stringify(elem.content)
+            newContent:insert(pandoc.RawInline('latex', '\\textnormal{' .. spanContent .. '}'))
+          else
+            -- For HTML, just add the content without emphasis
+            newContent:extend(elem.content)
+          end
+        else
+          -- Preserve other inline elements (Space, etc.)
+          newContent:insert(elem)
+        end
+      end
+      splitSource[i] = pandoc.Plain(newContent)
     end
   end
   -- list of Plain
@@ -1393,7 +1414,8 @@ function texMakeLinguex (parsedDiv)
       source = texCombine(source)
       gloss  = texCombine(gloss)
 
-      if pandoc.utils.stringify(header) == "" then
+      local headerEmpty = pandoc.utils.stringify(header) == ""
+      if headerEmpty then
         header = pandoc.List()
       end
       
@@ -1409,8 +1431,8 @@ function texMakeLinguex (parsedDiv)
       --  texFront("\n  ", header)
       end
       
-      -- Add line break after first header if there's a second header
-      if header2 then
+      -- Add line break after first header if there's a second header AND header is not empty
+      if header2 and not headerEmpty then
         texEnd("\\\\", header)
       end
 
