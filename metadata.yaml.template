@@ -10,7 +10,19 @@
 title: "Your Document Title"
 subtitle: "Optional Subtitle"
 author: "Your Name"
+# Multiple authors:
+# author:
+#   - Your Name
+#   - Co-Author Name
+# With affiliations (inline):
+# author: "Your Name (Your University), Co-Author (Their University)"
 date: "2026"
+
+# Abstract and keywords (keywords auto-display below abstract in PDF)
+# abstract: |
+#   Your abstract text here.
+#   Can span multiple lines.
+# keywords: [keyword1, keyword2, keyword3]
 
 # Bibliography
 bibliography: [sources.bib]

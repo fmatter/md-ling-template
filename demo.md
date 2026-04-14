@@ -1,12 +1,15 @@
 ---
 title: "Linguistic Markdown Template"
 subtitle: "Feature Demonstration"
-author: "Florian Matter"
+author:
+  - Florian Matter
+  - Another Author
 date: "2026-04-10"
 bibliography: [demo.bib]
 mainfont: Linux Libertine
 abstract: |
   This document serves as a demonstration of the capabilities of a Markdown template designed for linguistic writing. It includes examples of interlinear glossing, cross-references, citations, and semantic markup.
+keywords: [markdown, linguistics, template, demonstration]
 
 glossing-abbreviations:
   APPL: applicative
@@ -107,9 +110,20 @@ word
 # Crossreferences
 You can manually refer to [any label in the same document](#sec:basic), could be [a figure](#fig:id) or [a table](#tbl:table-1).
 With [pandoc-crossref](https://github.com/lierdakil/pandoc-crossref), you can also do things like @sec:basic or @fig:id or @tbl:table-1.
+It also allows subfigures -- @fig:subfigures, @fig:tree2.
+
+
+::: {#fig:subfigures}
+![A tree](figures/pekodiantree.svg){#fig:tree1 width=40%}
+
+![The same tree again](figures/pekodiantree.svg){#fig:tree2 width=40%}
+
+The same tree twice.
+
+:::
 
 # Bibliography
-@Croft2003
+@Croft2003, [@Croft2003], @Croft2003[12-32], [@Croft2003, 12-32], Croft's -@Croft2003 idea, Croft's -@Croft2003[23-34] idea.
 
 # Linguistic stuff
 
@@ -177,7 +191,9 @@ c. The bird sang.
 Who do you think will come?
 :::
 
-# Subtables {#sec:subtables}
+# More on tables {#sec:moretables}
+The template supports subtables (@tbl:arapers) and tables without headers (@tbl:animcategories).
+
 
 ::: {#tbl:arapers}
 **The Arara person marking system**
@@ -202,34 +218,6 @@ Table: Intransitive {#tbl:arapers-intrans}
 
 :::
 
-# Data {#sec:data}
-
-## Tables
-
-| Phoneme | IPA | Example            |
-| ------- | --- | ------------------ |
-| /p/     | p   | [pun]{.ob} 'night' |
-| /t/     | t   | [tun]{.ob} 'many'  |
-| /k/     | k   | [kuy]{.ob} 'sand'  |
-
-: Consonant inventory {#tbl:inventory}
-
-
-
-## Tables Without Headers {#sec:tables-noheader}
-
-Test tables with empty header rows (these get stretched to full width):
-
-|                   |                                                                                  |
-| ----------------- | -------------------------------------------------------------------------------- |
-| [ps]{.smallcaps}  | privileged syntactic argument (primary argument) of the preceding clause         |
-| [act]{.smallcaps} | occurs in previous clause, but not as the PSA, including mentions as a possessor |
-| [old]{.smallcaps} | does not occur in the previous clause, but earlier in the text                   |
-| [new]{.smallcaps} | first occurrence in the text                                                     |
-
-: Information status categories {#tbl:infocategories}
-
-Another test:
 
 Table: Animacy categories {#tbl:animcategories}
 
@@ -240,44 +228,3 @@ Table: Animacy categories {#tbl:animcategories}
 | [inan.agt]{.smallcaps}  | inanimate, but with some agent-like properties |
 | [inan.nagt]{.smallcaps} | inanimate with no agency                       |
 | [abs]{.smallcaps}       | abstract, immaterial concepts                  |
-
-Another test without header (short first column, long second column):
-
-|                     |                    |
-| ------------------- | ------------------ |
-| [new]{.smallcaps}   | 430/452 (95.13%)   |
-| [given]{.smallcaps} | 1480/3459 (42.79%) |
-
-: Lexicality test table {#tbl:lextest}
-
-## Figures
-
-![Hypothetical syntactic tree](figures/tree.png){#fig:tree width=80%}
-
-> This is a blockquote. It can be used to highlight important information or to quote someone.
-
-## Subfigures {#sec:subfigures}
-
-<div id="fig:comparison">
-![Direct construction](figures/tree.png){#fig:direct width=45%}
-
-![Inverse construction](figures/tree.png){#fig:inverse width=45%}
-
-Voice construction comparison
-
-</div>
-
-### Four-subfigure grid (testing larger grid)
-
-<div id="fig:IPQ">
-![Newness and IPQ based on all new referents (r^2^ = 0.76, SE = 0.05)](figures/2a.png){#fig:IPQallnew width=45%}
-
-![Lexicality and IPQ based on all new referents (r^2^ = 0.05, SE = 0.12)](figures/2b.png){#fig:IPQalllex width=45%}
-
-![Newness and IPQ based on new human referents (r^2^ = 0.84, SE = 0.04)](figures/2c.png){#fig:IPQhumnew width=45%}
-
-![Lexicality and IPQ based on new human referents (r^2^ = 0.08, SE = 0.12)](figures/2d.png){#fig:IPQhumlex width=45%}
-
-Newness and lexicality of S in 25 texts depending on IPQ
-
-</div>

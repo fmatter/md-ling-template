@@ -88,6 +88,7 @@ tex file="":
 
 # Build demo.md to all formats and check glossing
 demo:
+    python3 pandoc/build.py demo.md -o demo.tex
     python3 pandoc/build.py demo.md -o demo.pdf
     python3 pandoc/build.py demo.md -o demo.html
     python3 pandoc/build.py demo.md -o demo.docx

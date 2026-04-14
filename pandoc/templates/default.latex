@@ -146,6 +146,9 @@ $if(abstract)$
 $abstract$
 \end{abstract}
 $endif$
+$if(keywords)$
+\noindent\textbf{Keywords:} $for(keywords)$$keywords$$sep$, $endfor$
+$endif$
 $endif$
 
 $for(include-before)$
