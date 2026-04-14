@@ -10,11 +10,31 @@ For LaTeX output, these are converted to semantic commands (\gl, \ob, \rc)
 which are defined in the template and can be customized by users.
 ]]
 
+-- Helper function to convert inlines to LaTeX, preserving subscripts/superscripts
+local function inlines_to_latex(inlines)
+  local result = {}
+  for _, inline in ipairs(inlines) do
+    if inline.t == 'Str' then
+      table.insert(result, inline.text)
+    elseif inline.t == 'Space' then
+      table.insert(result, ' ')
+    elseif inline.t == 'Subscript' then
+      table.insert(result, '\\textsubscript{' .. inlines_to_latex(inline.content) .. '}')
+    elseif inline.t == 'Superscript' then
+      table.insert(result, '\\textsuperscript{' .. inlines_to_latex(inline.content) .. '}')
+    else
+      -- For other inline types, just stringify
+      table.insert(result, pandoc.utils.stringify({inline}))
+    end
+  end
+  return table.concat(result)
+end
+
 function Span(el)
   -- Convert .gl and .gloss to smallcaps (for grammatical glosses)
   if el.classes:includes('gl') or el.classes:includes('gloss') then
     if FORMAT:match 'latex' then
-      return pandoc.RawInline('latex', '\\gl{' .. pandoc.utils.stringify(el.content) .. '}')
+      return pandoc.RawInline('latex', '\\gl{' .. inlines_to_latex(el.content) .. '}')
     else
       -- For HTML/other formats, let CSS handle it
       return el
@@ -33,7 +53,7 @@ function Span(el)
   -- Convert .ob to object language markup
   if el.classes:includes('ob') then
     if FORMAT:match 'latex' then
-      return pandoc.RawInline('latex', '\\ob{' .. pandoc.utils.stringify(el.content) .. '}')
+      return pandoc.RawInline('latex', '\\ob{' .. inlines_to_latex(el.content) .. '}')
     else
       return el
     end
@@ -42,7 +62,7 @@ function Span(el)
   -- Convert .rc to reconstructed form markup
   if el.classes:includes('rc') then
     if FORMAT:match 'latex' then
-      return pandoc.RawInline('latex', '\\rc{' .. pandoc.utils.stringify(el.content) .. '}')
+      return pandoc.RawInline('latex', '\\rc{' .. inlines_to_latex(el.content) .. '}')
     else
       -- For non-LaTeX formats, prepend asterisk and set to italic
       local content = pandoc.List:new(el.content)

@@ -336,8 +336,9 @@ The template provides CSS classes for semantic markup of linguistic data. These 
 **Gloss abbreviations (smallcaps):**
 ```markdown
 The word has [nom]{.gl} case marking.
+Use [S~A~]{.gl} for subscripted glosses (e.g., S with subscript A).
 ```
-Shorthand for the more verbose `.gloss` class from pandoc-ling.
+Shorthand for the more verbose `.gloss` class from pandoc-ling. Subscripts (`~text~`) and superscripts (`^text^`) are preserved in all output formats.
 
 **Object language (italics):**
 ```markdown
