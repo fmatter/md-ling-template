@@ -5,8 +5,7 @@ filters:
   - pandoc/filters/pandoc-ling.lua  # Linguistic examples
   - pandoc-crossref  # MUST come before citeproc
   - citeproc  # Citations - runs after pandoc-crossref
-  # - pandoc/filters/auto-width-tables.lua  # Convert percentage-width columns to auto-width (l/c/r)
-  - pandoc/filters/simple-tables.lua  # Convert tables with empty headers to simple auto-width tabular
+  - pandoc/filters/simple-tables.lua  # Render all tables with auto-width columns and captions above
   - pandoc/filters/docx-styles.lua  # Ensure custom styles work in DOCX output
 
 # PDF engine (use LuaLaTeX for Unicode support)

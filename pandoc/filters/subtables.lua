@@ -55,6 +55,17 @@ function Div(el)
         and ("\\label{" .. tbl.identifier .. "}")
         or ""
 
+      -- Strip column widths to force auto-width columns (l/c/r instead of p{...})
+      if tbl.colspecs then
+        local new_colspecs = {}
+        for _, spec in ipairs(tbl.colspecs) do
+          local align = spec[1]  -- Keep alignment
+          -- Set width to nil (not 0) to get auto-width columns
+          table.insert(new_colspecs, {align, nil})
+        end
+        tbl.colspecs = new_colspecs
+      end
+
       -- Render table to LaTeX
       local subdoc = pandoc.Pandoc({tbl})
       local table_latex = pandoc.write(subdoc, "latex")

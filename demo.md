@@ -21,11 +21,6 @@ glossing-abbreviations:
   NOM: nominative
   3SG: third person singular
 
-abbreviations:
-  e.g.: for example
-  i.e.: that is
-  cf.: compare
-
 glossing-list:
   position: after
   title: "List of Glossing Abbreviations"
@@ -123,7 +118,12 @@ The same tree twice.
 :::
 
 # Bibliography
-@Croft2003, [@Croft2003], @Croft2003[12-32], [@Croft2003, 12-32], Croft's -@Croft2003 idea, Croft's -@Croft2003[23-34] idea.
+- @Croft2003
+- [@Bickel_Nichols2013]
+- @Lehmann1982[321]
+- [@Croft2003, 12-32]
+- Croft's -@Croft2003 idea
+- Croft's -@Croft2003[23-34] idea.
 
 # Linguistic stuff
 

@@ -26,6 +26,7 @@ $if(geometry)$
 \usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
 $endif$
 \usepackage{amsmath,amssymb}
+\usepackage{booktabs} % Professional table rules (toprule, midrule, bottomrule)
 $if(cancel)$
 \usepackage{cancel}
 $endif$

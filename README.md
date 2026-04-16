@@ -4,7 +4,10 @@ A complete Pandoc template for writing linguistic articles and books with profes
 
 **What this template provides:**
 - Pre-configured LaTeX template with linguistics-friendly defaults
-- Custom Lua filters for semantic markup (`.gl`, `.ob`, `.rc`), glossing lists, and table formatting
+- Custom Lua filters for semantic markup (`.gl`, `.ob`, `.rc`), glossing lists, and professional table formatting
+- Subtable support for side-by-side tables with unified captions
+- Auto-width table columns sized to content (no forced full-width stretching)
+- Captions above tables following standard linguistics conventions
 - Bundled [pandoc-ling](https://github.com/cysouw/pandoc-ling) for interlinear examples
 - Build system (`justfile`, VS Code tasks, Python helper script)
 - Multi-file project support via `project.yaml`
@@ -312,6 +315,18 @@ For tables that are essentially lists (no meaningful column headers), use empty 
 ```
 
 In LaTeX, these render as `tabular` with auto-width columns (`ll`) instead of full-width `longtable` with percentage-based columns. The relative width of spaces/dashes in the empty header row hints at the desired column proportions.
+
+**Table formatting details:**
+
+All tables in this template are configured to:
+- **Caption above the table** (not below) - follows standard linguistics formatting
+- **Auto-width columns** - sized to content, not stretched to full page width
+- **Centered on page** - with appropriate margins
+- **Proper booktabs styling** - professional horizontal rules (no vertical lines)
+
+Both simple tables and subtables use auto-width columns. If you see excessive whitespace or squeezed columns, check that your Markdown tables don't have explicit width specifications.
+
+**Testing:** See [`tests/test_tables.md`](tests/test_tables.md) for comprehensive table test cases covering all scenarios (simple tables, subtables, various layouts).
 
 ### Citations and Bibliography
 
