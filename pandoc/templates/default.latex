@@ -86,6 +86,23 @@ $header-includes$
 $endfor$
 $after-header-includes.latex()$
 
+% --- Fix for Pandoc 3.9+ xmpquote issue ---
+\providecommand{\xmpquote}[1]{``#1''}
+% --- End xmpquote fix ---
+
+% --- Subtable environment (only if not already defined by subcaption) ---
+\makeatletter
+\@ifundefined{subtable}{%
+  \newenvironment{subtable}[1]{%
+    \begin{minipage}{#1}%
+    \centering%
+  }{%
+    \end{minipage}%
+  }%
+}{}
+\makeatother
+% --- End subtable fix ---
+
 % --- LINGUEX CUSTOMIZATIONS ---
 % Fix unwanted vspace when gloss appears after preamble text
 % (see linguex doc section on cgloss4e.sty)
