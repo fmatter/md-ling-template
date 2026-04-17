@@ -86,17 +86,17 @@ tex file="":
         exit 1; \
     fi
 
-# Build demo.md to all formats and check glossing
+# Build blueprints/article.md to all formats and check glossing
 demo:
-    python3 pandoc/build.py demo.md -o demo.tex
-    python3 pandoc/build.py demo.md -o demo.pdf
-    python3 pandoc/build.py demo.md -o demo.html
-    python3 pandoc/build.py demo.md -o demo.docx
-    python3 check_gloss_markup.py demo.html demo.md
+    python3 pandoc/build.py blueprints/article.md -o article.tex
+    python3 pandoc/build.py blueprints/article.md -o article.pdf
+    python3 pandoc/build.py blueprints/article.md -o article.html
+    python3 pandoc/build.py blueprints/article.md -o article.docx
+    python3 pandoc/check_gloss_markup.py article.html blueprints/article.md
 
 # Check HTML file for undefined glossing abbreviations (defaults to output.html)
 check htmlfile="output.html":
-    python3 check_gloss_markup.py {{htmlfile}}
+    python3 pandoc/check_gloss_markup.py {{htmlfile}}
 
 # Sync MPE CSS (run after editing pandoc/style.css)
 sync-css:
@@ -109,7 +109,7 @@ sync-css:
 # Clean generated files
 clean:
     rm -f output.pdf output.html output.docx output.tex
-    rm -f demo.pdf demo.html demo.docx demo.tex demo_postprocessed.docx
+    rm -f article.pdf article.html article.docx article.tex article_postprocessed.docx
 
 # Show template version info
 info:

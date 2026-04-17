@@ -18,8 +18,6 @@ A complete Pandoc template for writing linguistic articles and books with profes
 
 ---
 
-**See [`demo.md`](demo.md) for a comprehensive showcase of all features.**
-
 **Template blueprints** in the `blueprints/` folder:
 - [`blueprints/article.md`](blueprints/article.md) - Starter template for journal articles
 - [`blueprints/book.md`](blueprints/book.md) - Starter template for books/theses
@@ -138,31 +136,22 @@ just tex      # Generate LaTeX source
 2. Press **Ctrl+K V** (Cmd+Shift+P on Mac)
 3. Preview pane opens and updates as you type
 
-### 4. Explore the Demo
+### 4. Explore the Example
 
-Build the included demo to see all features:
+Build the included article blueprint to see all features:
 
 ```bash
-cd md-ling-template/
+# Build all formats to see examples
+just demo
 
-# Build PDF
-pandoc demo.md \
+# Or build individually:
+pandoc blueprints/article.md \
   --defaults=pandoc/defaults.yaml \
   --template=pandoc/templates/default.latex \
-  -o demo.pdf
-
-# Build HTML
-pandoc demo.md \
-  --defaults=pandoc/defaults.yaml \
-  -o demo.html
-
-# Build DOCX
-pandoc demo.md \
-  --defaults=pandoc/defaults.yaml \
-  -o demo.docx
+  -o article.pdf
 ```
 
-The demo showcases interlinear glossing, cross-references, citations, semantic markup, tables, and more.
+The article blueprint showcases interlinear glossing, cross-references, citations, semantic markup, tables, and more.
 
 ## Features
 
@@ -854,7 +843,7 @@ After building HTML output, check for abbreviations that appear in your examples
 ```bash
 just check              # Check output.html (default)
 just check my-file.html # Check a specific HTML file
-# or directly: python3 check_gloss_markup.py my-file.html
+# or directly: python3 pandoc/check_gloss_markup.py my-file.html
 ```
 
 This scans the HTML output for small-caps abbreviations created by pandoc-ling and warns if any are missing from your `glossing-abbreviations` metadata. It provides a ready-to-copy YAML block with placeholders:
@@ -866,6 +855,43 @@ glossing-abbreviations:
 ```
 
 The Lua filter already warns during build, but this post-processing check catches all missing abbreviations in one go and makes it easy to add them.
+
+## Updating the Template
+
+If you created your article from this template and want to pull in updates (new features, bug fixes), you can manually sync changes:
+
+### One-time setup
+
+Add the template as a git remote in your article repository:
+
+```bash
+cd your-article/
+git remote add template https://github.com/fmatter/md-ling-template.git
+git fetch template
+```
+
+### Updating to a new version
+
+When a new template version is released (e.g., v1.0.17):
+
+```bash
+# Fetch the latest template changes
+git fetch template
+
+# Option 1: Merge all changes (recommended)
+git merge template/v1.0.17 --allow-unrelated-histories
+# Resolve any conflicts (keep your content, update template files)
+
+# Option 2: Cherry-pick specific files only
+git checkout template/v1.0.17 -- pandoc/filters/ pandoc/templates/ .github/
+git commit -m "Update template to v1.0.17"
+```
+
+**Files to update:** `pandoc/filters/`, `pandoc/templates/`, `.github/workflows/`, `justfile`
+
+**Files to keep yours:** `content.md`, `sources.bib`, `README.md`, `.vscode/`
+
+See [CHANGELOG.md](CHANGELOG.md) for version history and breaking changes.
 
 ## License
 

@@ -201,7 +201,7 @@
       "type": "shell",
       "command": "python3",
       "args": [
-        "check_gloss_markup.py",
+        "pandoc/check_gloss_markup.py",
         "output.html"
       ],
       "group": "test",
