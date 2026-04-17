@@ -3,7 +3,7 @@ title: "Linguistic Presentations with Pandoc"
 author: "Your Name"
 date: "April 2026"
 mainfont: Noto Sans
-bibliography: [demo.bib]
+bibliography: [blueprints/sources.bib]
 
 # Slide-specific settings
 slide-level: 2  # Level 2 headings (##) create individual slides

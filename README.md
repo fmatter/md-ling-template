@@ -40,7 +40,6 @@ sudo apt install pandoc pandoc-crossref just texlive-full
 
 # Copy a blueprint as your starting point
 cp blueprints/article.md content.md
-cp blueprints/sources.bib sources.bib
 
 # Build PDF
 just pdf
@@ -55,6 +54,12 @@ Build the article example to see all features:
 
 ```bash
 just demo  # Builds blueprints/article.md to PDF, HTML, DOCX
+
+# Or with pandoc directly:
+pandoc blueprints/article.md \
+  --defaults=pandoc/defaults.yaml \
+  --template=pandoc/templates/default.latex \
+  -o article.pdf
 ```
 
 ---
@@ -172,6 +177,50 @@ Bundled enhanced fork of [pandoc-ling](https://github.com/cysouw/pandoc-ling) wi
 | 'The man went.'
 :::
 ```
+
+### Multi-File Projects
+
+For longer documents (theses, books, complex papers), organize content across multiple markdown files using `project.yaml`.
+
+**Setup:**
+
+```bash
+# Copy template files
+cp project.yaml.template project.yaml
+cp metadata.yaml.template metadata.yaml
+```
+
+**project.yaml** - lists your chapter files:
+
+```yaml
+input-files:
+  - 01-introduction.md
+  - 02-background.md
+  - 03-analysis.md
+  - 04-conclusion.md
+
+metadata-files:
+  - metadata.yaml
+```
+
+**metadata.yaml** - shared frontmatter:
+
+```yaml
+---
+title: "My Thesis"
+author: "Your Name"
+bibliography: [sources.bib]
+---
+```
+
+**Build:**
+
+```bash
+just pdf              # Auto-detects project.yaml
+python3 pandoc/build.py --project -o output.pdf
+```
+
+Cross-references work across all files. The template configuration (filters, defaults) stays the same.
 
 ### LaTeX template
 

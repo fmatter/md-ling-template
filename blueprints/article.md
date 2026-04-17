@@ -5,7 +5,7 @@ author:
   - Florian Matter
   - Another Author
 date: "2026-04-10"
-bibliography: [demo.bib]
+bibliography: [blueprints/sources.bib]
 mainfont: Linux Libertine
 abstract: |
   This document serves as a demonstration of the capabilities of a Markdown template designed for linguistic writing. It includes examples of interlinear glossing, cross-references, citations, and semantic markup.
