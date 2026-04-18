@@ -115,6 +115,8 @@ $after-header-includes.latex()$
 \newcommand{\gl}[1]{\textsc{#1}}          % gloss abbreviations (smallcaps)
 \newcommand{\ob}[1]{\textit{#1}}          % object language (italics)
 \newcommand{\rc}[1]{*\textit{#1}}         % reconstructed forms (asterisk + italics)
+\newcommand{\pnt}[1]{[#1]}                % phonetic notation (brackets)
+\newcommand{\pnm}[1]{/#1/}                % phonemic notation (slashes)
 % --- END LINGUISTIC MARKUP COMMANDS ---
 
 % --- DESCRIPTION LIST CUSTOMIZATION ---

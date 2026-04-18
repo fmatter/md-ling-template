@@ -191,6 +191,26 @@ c. The bird sang.
 Who do you think will come?
 :::
 
+::: {#ex:mawetooth .ex}
+
+Sateré-Mawé 'tooth' (Citation)
+
+::: {.extable}
+
+| [1]{.gl} | [u-hãj]{.ob} |
+|---|---|
+| [2]{.gl} | [e-jãj]{.ob} |
+| [3]{.gl} | [hãj]{.ob} |
+| [1+2]{.gl} | [a-hãj]{.ob} |
+| [1+3]{.gl} | [uru-hãj]{.ob} |
+| [2]{.gl}[pl]{.gl} | [e-hãj]{.ob} |
+| [3]{.gl}[pl]{.gl} | [iʔatu-jãj]{.ob} |
+| [np]{.gl} | [jãj]{.ob} |
+
+:::
+
+:::
+
 # More on tables {#sec:moretables}
 The template supports subtables (@tbl:arapers) and tables without headers (@tbl:animcategories).
 

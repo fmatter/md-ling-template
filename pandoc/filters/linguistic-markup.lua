@@ -5,8 +5,10 @@ Converts span classes to appropriate formatting:
 - .gl or .gloss → smallcaps (for grammatical glosses)
 - .ob → italics (for object language)
 - .rc → asterisk + italics (for reconstructed forms)
+- .pnt → [content] (for phonetic notation)
+- .pnm → /content/ (for phonemic notation)
 
-For LaTeX output, these are converted to semantic commands (\gl, \ob, \rc)
+For LaTeX output, these are converted to semantic commands (\gl, \ob, \rc, \pnt, \pnm)
 which are defined in the template and can be customized by users.
 ]]
 
@@ -74,6 +76,32 @@ function Span(el)
       end
       -- Return span with italic emph
       return pandoc.Emph(content)
+    end
+  end
+  
+  -- Convert .pnt to phonetic notation [content]
+  if el.classes:includes('pnt') then
+    if FORMAT:match 'latex' then
+      return pandoc.RawInline('latex', '\\pnt{' .. inlines_to_latex(el.content) .. '}')
+    else
+      -- For HTML/other formats, wrap with [ ]
+      local content = pandoc.List:new(el.content)
+      content:insert(1, pandoc.Str('['))
+      content:insert(pandoc.Str(']'))
+      return pandoc.Span(content)
+    end
+  end
+  
+  -- Convert .pnm to phonemic notation /content/
+  if el.classes:includes('pnm') then
+    if FORMAT:match 'latex' then
+      return pandoc.RawInline('latex', '\\pnm{' .. inlines_to_latex(el.content) .. '}')
+    else
+      -- For HTML/other formats, wrap with / /
+      local content = pandoc.List:new(el.content)
+      content:insert(1, pandoc.Str('/'))
+      content:insert(pandoc.Str('/'))
+      return pandoc.Span(content)
     end
   end
   
