@@ -135,6 +135,10 @@ The same tree twice.
 
 **Reconstructed forms (`.rc`):** PIE [bʰer-]{.rc} became Latin [ferre]{.ob}.
 
+**Phonetic transcription:** [ˈkʰæt]{.pnt}.
+
+**Phonemic transcription:** [kæt]{.pnm}.
+
 **Inline abbreviations list:**
 
 ::: glossing-abbreviations-inline
