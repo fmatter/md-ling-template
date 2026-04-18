@@ -31,6 +31,13 @@ $if(cancel)$
 \usepackage{cancel}
 $endif$
 
+% --- UNDERLINE SUPPORT ---
+% Load packages for \ul{} command (used by .underline class)
+% Since this template requires LuaLaTeX (uses fontspec), always load lua-ul
+\usepackage{luacolor}
+\usepackage[soul]{lua-ul}
+% --- END UNDERLINE SUPPORT ---
+
 % --- CUSTOMIZATIONS FOR LUALATEX ---
 \usepackage{fontspec}
 $if(mainfont)$
