@@ -18,9 +18,57 @@ Usage:
 """
 
 import argparse
+import re
 import subprocess
 import sys
 from pathlib import Path
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
+
+def extract_yaml_frontmatter(markdown_file):
+    """
+    Extract and parse YAML frontmatter from a markdown file.
+    Returns a dict with the metadata, or None if no frontmatter or parsing fails.
+    """
+    try:
+        content = Path(markdown_file).read_text(encoding='utf-8')
+        
+        # Check for YAML frontmatter (--- at start, --- after metadata)
+        if not content.startswith('---'):
+            return None
+        
+        # Find the closing ---
+        lines = content.split('\n')
+        end_idx = None
+        for i in range(1, len(lines)):
+            if lines[i].strip() in ('---', '...'):
+                end_idx = i
+                break
+        
+        if end_idx is None:
+            return None
+        
+        # Extract YAML content
+        yaml_content = '\n'.join(lines[1:end_idx])
+        
+        # Parse YAML if pyyaml is available
+        if yaml:
+            try:
+                return yaml.safe_load(yaml_content)
+            except yaml.YAMLError:
+                return None
+        else:
+            # Fallback: simple regex-based extraction for documentclass
+            match = re.search(r'^\s*documentclass:\s*(\S+)', yaml_content, re.MULTILINE)
+            if match:
+                return {'documentclass': match.group(1)}
+            return {}
+    except Exception:
+        return None
 
 
 def run_pandoc(args_list):
@@ -69,15 +117,32 @@ def build_single_file(input_file, output_file):
     
     output_path = Path(output_file)
     
+    # Check if this is a Beamer presentation
+    metadata = extract_yaml_frontmatter(input_path)
+    is_beamer = metadata and metadata.get('documentclass') == 'beamer'
+    has_documentclass = metadata and 'documentclass' in metadata
+    
     # Build pandoc arguments
     pandoc_args = [
         str(input_path),
         "--defaults=pandoc/defaults.yaml"
     ]
     
-    # Add template for LaTeX/PDF output
+    # Set default documentclass to scrartcl if not specified in document
+    if not has_documentclass:
+        pandoc_args.append("--metadata=documentclass:scrartcl")
+    
+    # Add format-specific flags
     if output_path.suffix in ['.pdf', '.tex']:
-        pandoc_args.append("--template=pandoc/templates/default.latex")
+        if is_beamer:
+            # Beamer presentations need -t beamer
+            pandoc_args.extend(["-t", "beamer"])
+        else:
+            # Regular documents use the custom template
+            pandoc_args.append("--template=pandoc/templates/default.latex")
+    elif output_path.suffix == '.html' and is_beamer:
+        # Beamer presentations to HTML use slidy
+        pandoc_args.extend(["-t", "slidy", "--embed-resources", "--standalone"])
     
     pandoc_args.extend(["-o", str(output_path)])
     

@@ -88,15 +88,26 @@ tex file="":
 
 # Build blueprints/{article/book/slides}.md to all formats and check glossing
 blueprints:
-    for TYPE in article book slides; do \
-        echo "Building $TYPE.md to PDF, HTML, DOCX, and LaTeX..."; \
-        python3 pandoc/build.py blueprints/$TYPE.md -o blueprints/${TYPE}.pdf; \
-        python3 pandoc/build.py blueprints/$TYPE.md -o blueprints/${TYPE}.html; \
-        python3 pandoc/build.py blueprints/$TYPE.md -o blueprints/${TYPE}.docx; \
-        pandoc blueprints/$TYPE.md --defaults=pandoc/defaults.yaml --template=pandoc/templates/default.latex -o blueprints/${TYPE}.tex; \
-        echo "Checking glossing abbreviations in blueprints/${TYPE}.html..."; \
-        python3 pandoc/check_gloss_markup.py blueprints/${TYPE}.html; \
-    done
+    @echo "Building article.md..."
+    python3 pandoc/build.py blueprints/article.md -o blueprints/article.pdf
+    python3 pandoc/build.py blueprints/article.md -o blueprints/article.html
+    python3 pandoc/build.py blueprints/article.md -o blueprints/article.docx
+    python3 pandoc/build.py blueprints/article.md -o blueprints/article.tex
+    python3 pandoc/check_gloss_markup.py blueprints/article.html
+    @echo ""
+    @echo "Building book.md..."
+    python3 pandoc/build.py blueprints/book.md -o blueprints/book.pdf
+    python3 pandoc/build.py blueprints/book.md -o blueprints/book.html
+    python3 pandoc/build.py blueprints/book.md -o blueprints/book.docx
+    python3 pandoc/build.py blueprints/book.md -o blueprints/book.tex
+    python3 pandoc/check_gloss_markup.py blueprints/book.html
+    @echo ""
+    @echo "Building slides.md (Beamer)..."
+    python3 pandoc/build.py blueprints/slides.md -o blueprints/slides.pdf
+    python3 pandoc/build.py blueprints/slides.md -o blueprints/slides.html
+    python3 pandoc/build.py blueprints/slides.md -o blueprints/slides.docx
+    python3 pandoc/build.py blueprints/slides.md -o blueprints/slides.tex
+    python3 pandoc/check_gloss_markup.py blueprints/slides.html
 
 # Check HTML file for undefined glossing abbreviations (defaults to output.html)
 check htmlfile="output.html":

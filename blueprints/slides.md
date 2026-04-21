@@ -2,6 +2,7 @@
 title: "Linguistic Presentations with Pandoc"
 author: "Your Name"
 date: "April 2026"
+documentclass: beamer
 mainfont: Noto Sans
 bibliography: [blueprints/sources.bib]
 
