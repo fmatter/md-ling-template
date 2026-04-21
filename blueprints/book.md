@@ -46,6 +46,18 @@ abbreviations:
   viz.: namely
 ---
 
+<!-- 
+NOTE: This is a simplified single-file book blueprint for testing purposes.
+
+For real book projects, you should use the multi-file structure with project.yaml:
+1. Create a directory for your book (e.g., my-book/)
+2. Copy project.yaml.template to your-book/project.yaml
+3. Split content into separate .md files (chapters/, intro.md, conclusion.md, etc.)
+4. Build with: just pdf (when in the book directory)
+
+See the README section on "Multi-File Projects" for details.
+-->
+
 # Preface {-}
 
 The preface is unnumbered (note the `{-}` after the heading).

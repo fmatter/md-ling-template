@@ -62,10 +62,10 @@ To allow Beamer slides to break across multiple frames (if content is too long):
 ## Why Markdown for Slides?
 
 ::: incremental
-- **Write once, present anywhere**: Same source → PDF, HTML, PPTX
-- **Version control friendly**: Plain text, easy to diff
-- **Focus on content**: Separation of content and presentation
-- **Linguistic examples**: Full support for glossing and examples
+- **write once, present anywhere**: Same source → PDF, HTML, PPTX
+- **version control friendly**: Plain text, easy to diff
+- **focus on content**: Separation of content and presentation
+- **linguistic examples**: Full support for glossing and examples
 :::
 
 # Linguistic Examples
