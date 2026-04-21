@@ -177,6 +177,54 @@ Table: Set II {#tbl:set2}
 
 **Implementation:** [`pandoc/filters/simple-tables.lua`](pandoc/filters/simple-tables.lua), [`pandoc/filters/subtables.lua`](pandoc/filters/subtables.lua)
 
+### LaTeX Figures and Diagrams
+
+Create complex linguistic diagrams (syntax trees, autosegmental representations, etc.) as standalone LaTeX files and compile them to SVG for inclusion in your documents.
+
+**1. Create a LaTeX figure** in `figures/`:
+
+```latex
+% figures/my-tree.tex
+\documentclass[dvisvgm]{standalone}
+\usepackage{forest}
+
+\begin{document}
+\begin{forest}
+  [TP
+    [DP [John]]
+    [VP [slept]]
+  ]
+\end{forest}
+\end{document}
+```
+
+**2. Compile to SVG:**
+
+```bash
+just figures  # Compiles all .tex files in figures/ to SVG
+
+# Or manually:
+cd figures && dvilualatex my-tree.tex && dvisvgm --no-fonts my-tree
+```
+
+**3. Include in your document:**
+
+```markdown
+The structure is shown in @fig:tree.
+
+![Sentence structure](figures/my-tree.svg){#fig:tree width=60%}
+```
+
+**Supported packages:**
+
+- **forest** - Modern syntax trees (recommended)
+- **tikz-qtree** - Alternative tree package
+- **tikz** - General diagrams, autosegmental representations
+- **pst-asr** - Autosegmental representations (use with `latex` instead of `lualatex`)
+- **gb4e** / **linguex** - Example numbering with trees
+
+See [`figures/README.md`](figures/README.md) and [`figures/example-tree.tex`](figures/example-tree.tex) for more details.
+
 ### Interlinear Glossing with pandoc-ling
 
 Bundled enhanced fork of [pandoc-ling](https://github.com/cysouw/pandoc-ling) with additional functionality for professional linguistic examples:
@@ -272,6 +320,7 @@ Multiple ways to build your documents:
 just pdf      # Auto-detects content.md or project.yaml
 just html
 just tex
+just figures  # Compile .tex files in figures/ to SVG
 just demo     # Build blueprints/article.md to all formats
 ```
 

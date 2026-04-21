@@ -13,6 +13,7 @@
 #   just pdf my.md    # Build specific file to PDF
 #   just html         # Build to HTML
 #   just docx my.md   # Build specific file to DOCX
+#   just figures      # Compile LaTeX figures in figures/ to SVG
 #   just check        # Check for undefined glossing abbreviations in output.html
 
 # Display available recipes
@@ -112,6 +113,39 @@ blueprints:
 # Check HTML file for undefined glossing abbreviations (defaults to output.html)
 check htmlfile="output.html":
     python3 pandoc/check_gloss_markup.py {{htmlfile}}
+
+# Compile all LaTeX figures to SVG (requires dvilualatex and dvisvgm)
+figures:
+    #!/usr/bin/env bash
+    if [ ! -d figures ]; then \
+        echo "No figures/ directory found"; \
+        exit 0; \
+    fi
+    cd figures
+    TEX_FILES=(*.tex)
+    if [ ! -e "${TEX_FILES[0]}" ]; then \
+        echo "No .tex files found in figures/"; \
+        exit 0; \
+    fi
+    echo "Compiling LaTeX figures to SVG..."
+    for tex_file in *.tex; do \
+        base="${tex_file%.tex}"; \
+        echo "  Processing $tex_file..."; \
+        dvilualatex -interaction=nonstopmode "$tex_file" >/dev/null 2>&1; \
+        if [ $? -eq 0 ]; then \
+            dvisvgm --no-fonts "$base" >/dev/null 2>&1; \
+            if [ $? -eq 0 ]; then \
+                echo "    ✓ Created $base.svg"; \
+            else \
+                echo "    ✗ dvisvgm failed for $base"; \
+            fi; \
+        else \
+            echo "    ✗ LaTeX compilation failed for $tex_file"; \
+        fi; \
+    done
+    echo "Done. Cleaning up auxiliary files..."
+    rm -f *.aux *.log *.dvi
+    echo "✓ All figures compiled"
 
 # Sync MPE CSS (run after editing pandoc/style.css)
 sync-css:
