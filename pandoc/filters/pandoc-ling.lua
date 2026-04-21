@@ -230,7 +230,7 @@ function processDiv (div)
 
   -- keep track of chapters (header == 1)
   -- included in this loop by trick "addDivToHeader"
-  if div.content[1].tag == "Header" and div.content[1].classes[1] == "restart"  then
+  if div.content[1] and div.content[1].tag == "Header" and div.content[1].classes[1] == "restart"  then
     chapter = chapter + 1
     counterInChapter = 0
     div.content[1].attr = {id = div.content[1].identifier, class = ""}
@@ -425,9 +425,22 @@ function parseExample (data)
   elseif data.tag == "LineBlock" then
     judgement, example = parseInterlinear(data.content)
     kind = "interlinear"
+  
+  -- or a table (tabular) example
+  elseif data.tag == "Div" and data.classes:includes("extable") then
+    example = data.content[1]  -- should be a Table
+    if example and example.tag == "Table" then
+      kind = "table"
+      judgement = nil  -- tables don't have judgements
+    else
+      -- fallback if there's no table inside
+      judgement, example = splitJudgement(data.content)
+      example = pandoc.Plain(example)
+      kind = "single"
+    end
   end
 
-  -- judgement is Str, example is (list of) Plain
+  -- judgement is Str, example is (list of) Plain (or Table for table kind)
   return judgement, example, kind
 end
 
@@ -752,6 +765,8 @@ function pandocMakeExample (parsedDiv)
     if parsedDiv.subExIDs and parsedDiv.subExIDs[1] then
       example[1].attr = pandoc.Attr(parsedDiv.subExIDs[1], {"linguistic-example"})
     end
+  elseif #kind == 1 and kind[1] == "table" then
+    example[1] = pandocMakeTable(parsedDiv)
   elseif #kind > 1 and onlySingle then
     example[1] = pandocMakeList(parsedDiv)
   else
@@ -825,6 +840,40 @@ function pandocMakeSingle (parsedDiv)
   -- set class of judgment
   if judgeCol > 1 then
     example.bodies[1].body[nRows].cells[judgeCol].attr = {class = "linguistic-example-judgement"}
+  end
+
+  return example
+end
+
+function pandocMakeTable (parsedDiv)
+
+  -- The user's table is in parsedDiv.examples[1]
+  local userTable = parsedDiv.examples[1]
+  
+  -- Create a wrapper structure: we'll put the table in a cell
+  local nCols = 1
+  local nRows = 1
+  local rowContent = { {{ userTable }} }
+  
+  -- add preamble if present
+  local preamble = parsedDiv.preamble
+  if preamble ~= nil then
+    table.insert(rowContent, 1, {{ preamble }} )
+    nRows = nRows + 1
+  end
+  
+  -- add number column
+  rowContent = addCol(rowContent)
+  nCols = nCols + 1
+
+  -- make into table
+  local example = turnIntoTable(rowContent, nCols, 0)
+
+  -- set class of content
+  example.bodies[1].body[nRows].cells[nCols].attr = {class = "linguistic-example-table-content"}
+  -- set class of preamble
+  if preamble ~= nil then
+    example.bodies[1].body[1].cells[nCols].attr = {class = "linguistic-example-preamble"}
   end
 
   return example
@@ -1204,6 +1253,88 @@ function texSquashMulti (multi)
   return result
 end
 
+function texMakeTabular (tbl)
+  -- Convert a Pandoc Table to simple LaTeX tabular environment
+  -- No borders, no rules, just alignment
+  
+  local result = pandoc.List()
+  
+  -- Determine column alignments from table spec
+  local colSpec = "@{}"
+  for i = 1, #tbl.colspecs do
+    local align = tbl.colspecs[i][1]
+    if align == "AlignLeft" then
+      colSpec = colSpec .. "l"
+    elseif align == "AlignRight" then
+      colSpec = colSpec .. "r"
+    elseif align == "AlignCenter" then
+      colSpec = colSpec .. "c"
+    else
+      colSpec = colSpec .. "l"  -- default to left
+    end
+  end
+  colSpec = colSpec .. "@{}"
+  
+  -- Start tabular with column specification
+  result:insert(pandoc.RawInline('latex', '\\begin{tabular}[t]{' .. colSpec .. '}\n'))
+  
+  -- Process header if present
+  if tbl.head and tbl.head.rows and #tbl.head.rows > 0 then
+    for _, row in ipairs(tbl.head.rows) do
+      local cells = {}
+      for _, cell in ipairs(row.cells) do
+        -- Extract cell content as plain text/inlines
+        local cellContent = pandoc.List()
+        for _, block in ipairs(cell.contents) do
+          if block.content then
+            cellContent:extend(block.content)
+          end
+        end
+        table.insert(cells, cellContent)
+      end
+      -- Build row
+      for i, cell in ipairs(cells) do
+        result:extend(cell)
+        if i < #cells then
+          result:insert(pandoc.RawInline('latex', ' & '))
+        end
+      end
+      result:insert(pandoc.RawInline('latex', '\\\\\n'))
+    end
+  end
+  
+  -- Process body rows
+  if tbl.bodies and #tbl.bodies > 0 then
+    for _, body in ipairs(tbl.bodies) do
+      for _, row in ipairs(body.body) do
+        local cells = {}
+        for _, cell in ipairs(row.cells) do
+          local cellContent = pandoc.List()
+          for _, block in ipairs(cell.contents) do
+            if block.content then
+              cellContent:extend(block.content)
+            end
+          end
+          table.insert(cells, cellContent)
+        end
+        -- Build row
+        for i, cell in ipairs(cells) do
+          result:extend(cell)
+          if i < #cells then
+            result:insert(pandoc.RawInline('latex', ' & '))
+          end
+        end
+        result:insert(pandoc.RawInline('latex', '\\\\\n'))
+      end
+    end
+  end
+  
+  -- End tabular
+  result:insert(pandoc.RawInline('latex', '\\end{tabular}'))
+  
+  return result
+end
+
 -- send request to different packages
 
 function texMakeExample (parsedDiv)
@@ -1340,6 +1471,15 @@ function texMakeExpex (parsedDiv)
       preamble:extend(trans)
       texEnd("\n  \\endgl", preamble)
 
+    elseif kind[i] == "table" then
+      -- Convert the Pandoc Table to simple tabular
+      local tabular = texMakeTabular(parsedDiv.examples[i])
+      if #kind > 1 then
+        texEnd("\n  \\a ", preamble)
+      else
+        texEnd("\n  ", preamble)
+      end
+      preamble:extend(tabular)
     end
   end
   if samePage == true then
@@ -1454,6 +1594,16 @@ function texMakeLinguex (parsedDiv)
       texFront("\n  \\glt ", trans)
       preamble:extend(trans)
 
+    elseif kind[i] == "table" then
+      -- Convert the Pandoc Table to simple tabular
+      local tabular = texMakeTabular(parsedDiv.examples[i])
+      -- Add line break after preamble if present
+      if parsedDiv.preamble then
+        texEnd("\\\\", preamble)
+      end
+      -- Add the tabular to preamble
+      texEnd("\n  ", preamble)
+      preamble:extend(tabular)
     end
   end
   if samePage == true then
@@ -1580,6 +1730,15 @@ function texMakeGb4e (parsedDiv)
       preamble:extend(trans)
       texEnd(" }", preamble)
 
+    elseif kind[i] == "table" then
+      -- Convert the Pandoc Table to simple tabular
+      local tabular = texMakeTabular(parsedDiv.examples[i])
+      -- Add line break after preamble if present
+      if parsedDiv.preamble then
+        texEnd("\\\\", preamble)
+      end
+      texEnd("\n  ", preamble)
+      preamble:extend(tabular)
     end
   end
   if #kind > 1 then texEnd("\n  \\end{xlist}", preamble) end
@@ -1725,6 +1884,21 @@ function texMakeLangsci (parsedDiv)
       preamble:extend(trans)
       texEnd(" }", preamble)
 
+    elseif kind[i] == "table" then
+      -- Convert the Pandoc Table to simple tabular
+      local tabular = texMakeTabular(parsedDiv.examples[i])
+      -- Add line break after preamble if present
+      if parsedDiv.preamble then
+        texEnd("\\\\", preamble)
+      end
+      if #kind > 1 and i == 1 then
+        texEnd("\n  \\ea ", preamble)
+      elseif #kind > 1 and i > 1 then
+        texEnd("\n  \\ex ", preamble)
+      else
+        texEnd("\n  ", preamble)
+      end
+      preamble:extend(tabular)
     end
   end
   if #kind > 1 then texEnd("\n  \\z", preamble) end

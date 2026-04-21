@@ -89,6 +89,18 @@ Use [s~a~]{.gl} for subscripted glosses.
 [qalejaw]{.rc} 'day'
 ```
 
+**Phonetic notation (brackets):**
+
+```markdown
+The pronunciation is [ˈfɹiːdəm]{.pnt}.
+```
+
+**Phonemic notation (slashes):**
+
+```markdown
+The phoneme [θ]{.pnm} is rare cross-linguistically.
+```
+
 **Implementation:** [`pandoc/filters/linguistic-markup.lua`](pandoc/filters/linguistic-markup.lua)
 
 ### Glossing Abbreviations Management
