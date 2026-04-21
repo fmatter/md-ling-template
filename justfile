@@ -86,13 +86,17 @@ tex file="":
         exit 1; \
     fi
 
-# Build blueprints/article.md to all formats and check glossing
-demo:
-    python3 pandoc/build.py blueprints/article.md -o article.tex
-    python3 pandoc/build.py blueprints/article.md -o article.pdf
-    python3 pandoc/build.py blueprints/article.md -o article.html
-    python3 pandoc/build.py blueprints/article.md -o article.docx
-    python3 pandoc/check_gloss_markup.py article.html blueprints/article.md
+# Build blueprints/{article/book/slides}.md to all formats and check glossing
+blueprints:
+    for TYPE in article book slides; do \
+        echo "Building $TYPE.md to PDF, HTML, DOCX, and LaTeX..."; \
+        python3 pandoc/build.py blueprints/$TYPE.md -o blueprints/${TYPE}.pdf; \
+        python3 pandoc/build.py blueprints/$TYPE.md -o blueprints/${TYPE}.html; \
+        python3 pandoc/build.py blueprints/$TYPE.md -o blueprints/${TYPE}.docx; \
+        pandoc blueprints/$TYPE.md --defaults=pandoc/defaults.yaml --template=pandoc/templates/default.latex -o blueprints/${TYPE}.tex; \
+        echo "Checking glossing abbreviations in blueprints/${TYPE}.html..."; \
+        python3 pandoc/check_gloss_markup.py blueprints/${TYPE}.html; \
+    done
 
 # Check HTML file for undefined glossing abbreviations (defaults to output.html)
 check htmlfile="output.html":

@@ -31,10 +31,10 @@ SLIDE STRUCTURE GUIDE:
 
 # Level 1 Headings → Section headers (title slides)
   Creates a section divider in Beamer, a full-screen title in reveal.js
-  
+
 ## Level 2 Headings → Individual slides
   Each ## creates a NEW slide with that heading as the title
-  
+
 Content under ## appears ON THAT SLIDE.
 
 Example:
@@ -43,7 +43,7 @@ Example:
   Content for simple examples
   ## Interlinear Glossing      ← Slide 2: "Interlinear Glossing"
   Content for interlinear examples
-  
+
 To allow Beamer slides to break across multiple frames (if content is too long):
   ## Long Slide {.allowframebreaks}
   lots of content...
@@ -130,12 +130,12 @@ You can refer to examples:
 - [@ex:zero] illustrates zero marking
 
 ## Citations
-
-Pandoc-style citations work:
-
-- Basic: @comrie1989 proposes a framework
-- Parenthetical: Previous work [@bickel2005; @dubois1987]
-- With pages: @dubois1987 [p. 805] notes constraints
+- @Croft2003
+- [@Bickel_Nichols2013]
+- @Lehmann1982[321]
+- [@Croft2003, 12-32]
+- Croft's -@Croft2003 idea
+- Croft's -@Croft2003[23-34] idea.
 
 # Tables and Figures
 

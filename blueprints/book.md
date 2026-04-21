@@ -3,7 +3,7 @@ title: "Book Title"
 subtitle: "A Subtitle if Needed"
 author: "Your Name"
 date: "2026"
-bibliography: [sources.bib]
+bibliography: [blueprints/sources.bib]
 
 # Book-specific settings
 documentclass: book
