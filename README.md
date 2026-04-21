@@ -234,14 +234,29 @@ python3 pandoc/build.py --project -o output.pdf
 
 Cross-references work across all files. The template configuration (filters, defaults) stays the same.
 
-### LaTeX template
+### LaTeX Template
 
-The [`pandoc/templates/default.latex`](pandoc/templates/default.latex) template includes:
+The [`pandoc/templates/default.latex`](pandoc/templates/default.latex) template provides:
 
-- KOMA-Script article class (linguistics-friendly)
-- unicode font support via LuaLaTeX
-- automatic font fallback (Noto Serif → Linux Libertine → Charis SIL → Latin Modern)
-- keywords display below abstract
+**Essential features:**
+- Linguistic markup commands (`\gl`, `\ob`, `\rc`, `\pnt`, `\pnm`) - required by filters
+- Underline support (lua-ul) for `.underline` in tables
+- Pandoc 3.9+ xmpquote fix
+- Subtable environment fallback
+- Keywords display below abstract
+
+**Default document class:**
+- Uses standard LaTeX `article` class by default
+- Recommended: KOMA-Script classes (`scrartcl`, `scrreprt`, `scrbook`) for better typography
+- Customizable via metadata:
+
+```yaml
+---
+documentclass: scrartcl  # or: article, report, book, etc.
+---
+```
+
+The template is compatible with both standard and KOMA-Script classes.
 
 ### Build System
 

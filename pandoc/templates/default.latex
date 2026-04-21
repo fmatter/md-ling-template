@@ -16,11 +16,16 @@ $endif$
 $for(classoption)$
   $classoption$$sep$,
 $endfor$
-]{scrartcl}
+]{$documentclass$}
 $if(beamerarticle)$
 \usepackage{beamerarticle} % needs to be loaded first
 $endif$
-\addtokomafont{disposition}{\rmfamily} % Use serif for headings
+% Use serif for headings in KOMA-Script classes
+\makeatletter
+\@ifundefined{addtokomafont}{}{%
+  \addtokomafont{disposition}{\rmfamily}%
+}
+\makeatother
 \usepackage{xcolor}
 $if(geometry)$
 \usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
@@ -126,10 +131,14 @@ $after-header-includes.latex()$
 \newcommand{\pnm}[1]{/#1/}                % phonemic notation (slashes)
 % --- END LINGUISTIC MARKUP COMMANDS ---
 
-% --- DESCRIPTION LIST CUSTOMIZATION ---
+% --- DESCRIPTION LIST CUSTOMIZATION (KOMA-Script) ---
 % Make description labels use serif font so \gl{} small caps work properly
 % (KOMA-Script default is bold sans-serif which doesn't support small caps well)
-\setkomafont{descriptionlabel}{\normalfont}
+\makeatletter
+\@ifundefined{setkomafont}{}{%
+  \setkomafont{descriptionlabel}{\normalfont}%
+}
+\makeatother
 % --- END DESCRIPTION LIST CUSTOMIZATION ---
 
 $hypersetup.latex()$
