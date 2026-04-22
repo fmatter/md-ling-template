@@ -4,123 +4,240 @@ A Pandoc template for writing linguistic articles with professional typesetting 
 
 ---
 
-## Quick Start
+## Quick start
 
-1. install dependencies
+1. Install pandoc-crossref: <https://github.com/lierdakil/pandoc-crossref/releases>
+2. Install matching Pandoc version: <https://github.com/jgm/pandoc/releases>
+3. Click "Use this template" on GitHub ([link](https://github.com/new?template_name=md-ling-template&template_owner=fmatter))
+4. Clone your new repository
+5. Create `content.md` (see [`blueprints/article.md`](blueprints/article.md) for examples)
+6. Build HTML: `pandoc content.md --defaults=pandoc/defaults.yaml -o output.html`
 
-```bash
-# macOS (Homebrew)
-brew install pandoc pandoc-crossref just
-# Linux (Debian/Ubuntu)
-sudo apt install pandoc pandoc-crossref just
-# Windows: Use WSL or install via Chocolatey:
-choco install pandoc pandoc-crossref just
+For easier building and PDF support, continue with full installation below.
 
-# Or download from:
-# - Pandoc: https://pandoc.org/installing.html
-# - pandoc-crossref: https://github.com/lierdakil/pandoc-crossref/releases
-# - just: https://github.com/casey/just
-```
+---
 
-2. click on the "Use this template" button on github ([Link](https://github.com/new?template_name=md-ling-template&template_owner=fmatter)) and clone the repo to your computer
-   - alternatively, fork or clone the repo directly
-3. add a file `content.md`; see [`blueprints/article.md`](blueprints/article.md) for an example
-4. run `just html` to generate `output.html`
+## Installation
 
-## Full installation
+### Minimal installation (HTML output only)
 
-### Local PDF generation
+**1. pandoc-crossref** (install first - determines which Pandoc version you need)
 
-For PDF output, you also need a LaTeX distribution with LuaLaTeX support:
+Download from releases: <https://github.com/lierdakil/pandoc-crossref/releases>
+
+- macOS: Download `pandoc-crossref-macOS.tar.xz`
+- Linux: Download `pandoc-crossref-Linux.tar.xz`
+- Windows: Download `pandoc-crossref-Windows.7z`
+
+Extract and move to your PATH, then check which Pandoc version it expects:
 
 ```bash
-# macOS
-brew install --cask mactex
-# Linux
-sudo apt install texlive-full
-# Windows
-choco install miktex
+pandoc-crossref --version
+# Shows e.g.: pandoc-crossref v0.3.23 git commit ... built with pandoc 3.9, v1.23.1.1 and GHC 9.8.4
 ```
 
-### Fonts
+**2. pandoc** (must match pandoc-crossref version)
 
-Some suggestions:
+Download matching version from: <https://github.com/jgm/pandoc/releases>
 
-- [Noto Serif](https://fonts.google.com/noto/specimen/Noto+Serif)
-- [Linux Libertine](https://libertine-fonts.org/)
+- macOS: `.pkg` installer or via Homebrew
+- Linux: `.deb` or `.tar.gz`
+- Windows: `.msi` installer
+
+Verify versions match:
+
+```bash
+pandoc --version
+pandoc-crossref --version
+```
+
+With these two tools, you can render HTML output. For PDF and easier building, continue below.
+
+### Full installation
+
+#### LaTeX (for PDF output)
+
+Download and install:
+
+- macOS: [MacTeX](https://www.tug.org/mactex/) (large, ~4GB)
+- Linux: `sudo apt install texlive-full` or download from [TUG](https://www.tug.org/texlive/)
+- Windows: [MiKTeX](https://miktex.org/) or [TeX Live](https://www.tug.org/texlive/)
+
+For minimal install (Linux), you need: `texlive-latex-base, texlive-fonts-recommended, texlive-latex-extra, texlive-luatex`
+
+Verify: `lualatex --version`
+
+#### `just` (build tool, optional but recommended)
+
+Makes building easier with simple commands like `just pdf` and `just html`.
+
+Install:
+
+- macOS: `brew install just`
+- Linux: `curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin`
+- Windows: `cargo install just` or download from [releases](https://github.com/casey/just/releases)
+- All platforms: see <https://github.com/casey/just#installation>
+
+#### Fonts (recommended)
+
+Install at least one linguistics-friendly font with good Unicode coverage:
+
+- [Linux Libertine](https://libertine-fonts.org/) - Classic, excellent for linguistics
+- [Noto Serif](https://fonts.google.com/noto/specimen/Noto+Serif) - Google's pan-Unicode font
 - [Charis SIL](https://software.sil.org/charis/)
 
-### VS Code
+#### Editor (optional)
 
-[VS Code](https://code.visualstudio.com/) or [VSCodium](https://vscodium.com/) is recommended for editing markdown files and running build tasks.
+[VS Code](https://code.visualstudio.com/) or [VSCodium](https://vscodium.com/) (no MS telemetry) recommended for:
 
-## Project structure and building
+- syntax highlighting for Markdown
+- integrated terminal for building
+- build tasks (Ctrl/Cmd+Shift+B)
+- markdown preview
+- citation & crossref autocompletion
+- snippets for common structures (see [`.vscode/README.md`](.vscode/README.md))
 
-`just pdf` or `just html` will auto-detect whether you have a `content.md` (single-file) or `project.yaml` (see [multi-file projects](#sec:multi-file)) and build accordingly.
-You can also specify the file directly: `just pdf my-article.md`.
-You can also run the build script directly with Python: `python3 pandoc/build.py content.md -o output.pdf`.
+---
 
-### Multi-file projects {#sec:multi-file}
+## How to use
 
-For longer documents (theses, books, complex papers), it is recommended to organize content across multiple markdown files using `project.yaml` and `metadata.yaml` for shared frontmatter:
+### Project structure
+
+**Single-file projects:**
+
+Create `content.md` with your article content. The simplest structure:
+
+```
+your-article/
+├── content.md          # Your article
+├── sources.bib         # Bibliography
+├── pandoc/             # Template files (from md-ling-template)
+└── justfile            # Build commands (optional)
+```
+
+**Multi-file projects:**
+
+For longer documents (theses, books), split content across multiple files:
+
+```
+your-thesis/
+├── project.yaml        # Lists input files
+├── metadata.yaml       # Shared frontmatter
+├── 01-intro.md
+├── 02-background.md
+├── 03-analysis.md
+├── sources.bib
+└── pandoc/             # Template files
+```
+
+Set up multi-file structure:
 
 ```bash
-# Copy template files
 cp project.yaml.template project.yaml
 cp metadata.yaml.template metadata.yaml
 ```
 
-`project.yaml` lists your chapter files:
+Edit `project.yaml` to list your chapters:
 
 ```yaml
 input-files:
-  - 01-introduction.md
+  - 01-intro.md
   - 02-background.md
   - 03-analysis.md
-  - 04-conclusion.md
 
 metadata-files:
   - metadata.yaml
 ```
 
-`metadata.yaml` contains your shared frontmatter:
+**Option 1:** Put shared metadata in `metadata.yaml` (referenced in `project.yaml`):
 
 ```yaml
 ---
 title: "My Thesis"
 author: "Your Name"
 bibliography: [sources.bib]
+documentclass: scrbook
 ---
 ```
 
-**Build:**
+**Option 2:** Put metadata inline in `project.yaml`:
+
+```yaml
+input-files:
+  - 01-intro.md
+  - 02-background.md
+  - 03-analysis.md
+
+metadata:
+  title: "My Thesis"
+  author: "Your Name"
+  bibliography: [sources.bib]
+  documentclass: scrbook
+```
+
+Both options work identically.
+
+### Building
+
+**With just (recommended):**
 
 ```bash
-just pdf              # Auto-detects project.yaml
-# or use build script directly:
+just pdf      # Auto-detects content.md or project.yaml
+just html
+just docx
+just tex
+
+# Specific file:
+just pdf my-article.md
+```
+
+**With Python build script:**
+
+```bash
+# Single file
+python3 pandoc/build.py content.md -o output.pdf
+
+# Multi-file project
 python3 pandoc/build.py --project -o output.pdf
 ```
 
-### The blueprints
-
-- [`blueprints/article.md`](blueprints/article.md) - journal article with all features demonstrated
-- [`blueprints/book.md`](blueprints/book.md) - book/thesis structure
-- [`blueprints/slides.md`](blueprints/slides.md) - slide deck template (not fully featured yet)
-
-Build the article example to see all features:
+**With pandoc directly:**
 
 ```bash
-just blueprints/article.md
-
-# Or with pandoc directly:
-pandoc blueprints/article.md \
+# Single file
+pandoc content.md \
   --defaults=pandoc/defaults.yaml \
   --template=pandoc/templates/default.latex \
-  -o article.pdf
+  -o output.pdf
 
-# Or build all blueprints & all formats:
+# Multi-file
+pandoc --defaults=pandoc/defaults.yaml \
+  --defaults=project.yaml \
+  --template=pandoc/templates/default.latex \
+  -o output.pdf
+```
+
+### Example documents
+
+The `blueprints/` directory contains example documents:
+
+- [`blueprints/article.md`](blueprints/article.md) - journal article demonstrating all features
+- [`blueprints/book.md`](blueprints/book.md) - book/thesis structure
+- [`blueprints/slides.md`](blueprints/slides.md) - Beamer presentation (Metropolis theme)
+
+Build all example formats:
+
+```bash
 just blueprints
 ```
+
+Or build individual examples:
+
+```bash
+just pdf blueprints/article.md
+```
+
+---
 
 ## Features
 
@@ -130,13 +247,13 @@ Implementation: [`pandoc/filters/linguistic-markup.lua`](pandoc/filters/linguist
 
 | semantics       | markup               | output             |
 | --------------- | -------------------- | ------------------ |
-| object language | `[tuttugu]{.ob}`     | tuttugu            |
+| object language | `[tuttugu]{.ob}`     | _tuttugu_            |
 | reconstructed   | `[qalejaw]{.rc}`     | \*_qalejaw_        |
 | gloss           | `[nom]{.gl}`         | [nom]{.smallcaps}  |
 | phonetic        | `[ˈfɾɛjhɛjtː]{.pnt}` | [ˈfɾɛjhɛjtː]{.pnt} |
 | phonemic        | `[θ]{.pnm}`          | [θ]{.pnm}          |
 
-### Interlinear Glossing with pandoc-ling
+### Interlinear glossing with `pandoc-ling`
 
 Bundled enhanced fork of [pandoc-ling](https://github.com/cysouw/pandoc-ling) (implementation: [`pandoc/filters/pandoc-ling.lua`](pandoc/filters/pandoc-ling.lua)):
 
@@ -210,9 +327,10 @@ Table: Set II {#tbl:set2}
 ```
 
 
-- implementation:
-  - [`pandoc/filters/subtables.lua`](pandoc/filters/subtables.lua)
-  - [`pandoc/filters/simple-tables.lua`](pandoc/filters/simple-tables.lua) (for auto-width tables)
+implementation:
+
+- [`pandoc/filters/subtables.lua`](pandoc/filters/subtables.lua)
+- [`pandoc/filters/simple-tables.lua`](pandoc/filters/simple-tables.lua) (for auto-width tables)
 
 ### LaTeX Figures and Diagrams
 
@@ -261,67 +379,13 @@ The structure is shown in @fig:tree.
 
 See [`figures/README.md`](figures/README.md) and [`figures/example-tree.tex`](figures/example-tree.tex) for more details.
 
-
-### LaTeX Template
-
-The [`pandoc/templates/default.latex`](pandoc/templates/default.latex) template provides:
-
-**Essential features:**
-
-- Linguistic markup commands (`\gl`, `\ob`, `\rc`, `\pnt`, `\pnm`) - required by filters
-- Underline support (lua-ul) for `.underline` in tables
-- Pandoc 3.9+ xmpquote fix
-- Subtable environment fallback
-- Keywords display below abstract
-
-**Default document class:**
-
-- Uses standard LaTeX `article` class by default
-- Recommended: KOMA-Script classes (`scrartcl`, `scrreprt`, `scrbook`) for better typography
-- Customizable via metadata:
-
-```yaml
----
-documentclass: scrartcl # or: article, report, book, etc.
----
-```
-
-The template is compatible with both standard and KOMA-Script classes.
-
-### Build System
-
-Multiple ways to build your documents:
-
-**VS Code:**
-
-- Press **Ctrl+Shift+B** (Cmd+Shift+B on Mac) → select build task
-
-**Command line with just:**
-
-```bash
-just pdf      # Auto-detects content.md or project.yaml
-just html
-just tex
-just figures  # Compile .tex files in figures/ to SVG
-just demo     # Build blueprints/article.md to all formats
-```
-
-**Direct Python:**
-
-```bash
-python3 pandoc/build.py content.md -o output.pdf
-python3 pandoc/build.py --project  # Multi-file from project.yaml
-```
-
-**Implementation:** [`justfile`](justfile), [`pandoc/build.py`](pandoc/build.py), [`.vscode/tasks.json`](.vscode/tasks.json)
-
 ---
 
 ## Customization
 
 ### Fonts
 
-Explicitly set fonts in your document metadata:
+Set fonts in your document metadata:
 
 ```yaml
 ---
@@ -351,50 +415,108 @@ Edit `pandoc/defaults.yaml` to add your own Lua filters:
 filters:
   - pandoc/filters/linguistic-markup.lua
   - pandoc/filters/my-custom-filter.lua # Your filter
-  - pandoc-crossref # Keep crossref near end
+  - pandoc-crossref # Keep crossref near end but before citeproc
 ```
 
-**Note:** Filter order matters! Most custom filters should run before `pandoc-crossref`.
+**Note:** Filter order matters! Most custom filters should run before `pandoc-crossref`. In turn, `pandoc-crossref` should run before `citeproc` (if using citations).
 
-### Standard Pandoc Features
+### Document class
+
+Set document class in your metadata:
+
+```yaml
+---
+documentclass: scrartcl  # KOMA-Script article (recommended)
+# Or: article, scrreprt, scrbook, book, report
+---
+```
+
+KOMA-Script classes (`scrartcl`, `scrreprt`, `scrbook`) provide better typography than standard classes.
+
+### Standard Pandoc features
 
 The template works with all standard Pandoc features:
 
-- **page layout:** `geometry`, `fontsize`, `papersize`
-- **citations:** `bibliography`, `csl`
-- **custom LaTeX:** `header-includes`
-- **multi-file projects:** `project.yaml`
+- page layout: `geometry`, `fontsize`, `papersize`
+- citations: `bibliography`, `csl`
+- custom LaTeX: `header-includes`
 
 ---
 
-## File Structure
+## Technical details
+
+### LaTeX template
+
+The [`pandoc/templates/default.latex`](pandoc/templates/default.latex) template provides:
+
+- Linguistic markup commands (`\gl`, `\ob`, `\rc`, `\pnt`, `\pnm`) required by filters
+- Underline support (lua-ul) for `.underline` class in tables
+- Pandoc 3.9+ xmpquote fix
+- Subtable environment fallback
+- Keywords display below abstract
+- KOMA-Script conditionals
+
+Default document class is `scrartcl` (set via build.py when not specified).
+
+### Build system
+
+Three equivalent ways to build:
+
+**1. just (recommended):**
+
+```bash
+just pdf      # Auto-detects content.md or project.yaml
+just html
+just docx
+```
+
+**2. Python build script:**
+
+```bash
+python3 pandoc/build.py content.md -o output.pdf
+python3 pandoc/build.py --project  # Multi-file
+```
+
+The build script:
+- Auto-detects Beamer presentations (`documentclass: beamer`)
+- Sets default document class to `scrartcl` if not specified
+- Applies appropriate output format flags
+
+**3. pandoc directly:**
+
+```bash
+pandoc content.md \
+  --defaults=pandoc/defaults.yaml \
+  --template=pandoc/templates/default.latex \
+  --metadata=documentclass:scrartcl \
+  -o output.pdf
+```
+
+Implementation: [`justfile`](justfile), [`pandoc/build.py`](pandoc/build.py), [`.vscode/tasks.json`](.vscode/tasks.json)
+
+
+### File structure
 
 ```
 md-ling-template/
-├── README.md              # This file
-├── CHANGELOG.md           # Version history
 ├── justfile               # Build commands
-├── blueprints/            # Starter templates
-│   ├── article.md
-│   └── book.md
-├── .vscode/               # VS Code configuration
-│   ├── tasks.json         # Build tasks
-│   └── markdown.code-snippets  # ex, gl, ob snippets
+├── blueprints/            # Example documents
+├── figures/               # LaTeX diagrams → SVG
+├── unibe/                 # University of Bern theme
 ├── pandoc/
-│   ├── defaults.yaml      # Pandoc settings
-│   ├── build.py           # Build script
-│   ├── check_gloss_markup.py  # Abbreviation checker
+│   ├── defaults.yaml      # Pandoc configuration
+│   ├── build.py           # Build script with auto-detection
+│   ├── check_gloss_markup.py
 │   ├── style.css          # HTML styling
-│   ├── filters/
-│   │   ├── linguistic-markup.lua   # .gl, .ob, .rc spans
-│   │   ├── glossing-list.lua       # Abbreviations management
-│   │   ├── subtables.lua           # Side-by-side tables
-│   │   ├── simple-tables.lua       # Auto-width tables
-│   │   └── pandoc-ling.lua         # Interlinear glossing
+│   ├── filters/           # Lua filters
+│   │   ├── linguistic-markup.lua
+│   │   ├── glossing-list.lua
+│   │   ├── subtables.lua
+│   │   ├── simple-tables.lua
+│   │   └── pandoc-ling.lua
 │   └── templates/
-│       ├── default.latex
-│       └── default.html
-└── tests/                 # Example documents
+│       └── default.latex
+└── .vscode/               # VS Code tasks & snippets
 ```
 
 ---
@@ -436,19 +558,18 @@ just check my-file.html # Specific file
 
 ---
 
-## Updating the Template
+## Updating the template
 
-If you want to pull in template updates after creating your article:
+If you want to pull in te updates after creating your article:
 
-**One-time setup:**
+One-time setup:
 
 ```bash
 cd your-article/
 git remote add template https://github.com/fmatter/md-ling-template.git
-git fetch template
 ```
 
-**Update to new version:**
+Update to new version (tags are branches that are always available):
 
 ```bash
 git fetch template
@@ -459,9 +580,9 @@ git checkout template/v1.0.0 -- pandoc/filters/ pandoc/templates/ .github/
 git commit -m "Update template to v1.0.0"
 ```
 
-**Update these:** `pandoc/filters/`, `pandoc/templates/`, `.github/`, `justfile`
+Update these: `pandoc/filters/`, `pandoc/templates/`, `.github/`, `justfile`
 
-**Keep yours:** `content.md`, `sources.bib`, `README.md`
+Keep yours: `content.md`, `sources.bib`, `README.md`
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 

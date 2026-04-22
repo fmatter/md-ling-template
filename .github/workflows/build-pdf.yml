@@ -34,7 +34,18 @@ jobs:
       - name: Install system dependencies
         if: steps.check-content.outputs.has-content == 'true'
         run: |
-          apk add --no-cache python3 py3-pip wget tar xz bash fontconfig ttf-linux-libertine
+          apk add --no-cache python3 py3-pip wget tar xz bash fontconfig ttf-linux-libertine ttf-dejavu
+          
+          # Install Noto fonts
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/full/ttf/NotoSerif-Regular.ttf
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/full/ttf/NotoSerif-Bold.ttf
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/full/ttf/NotoSerif-Italic.ttf
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/full/ttf/NotoSerif-BoldItalic.ttf
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSans/full/ttf/NotoSans-Regular.ttf
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSans/full/ttf/NotoSans-Bold.ttf
+          mkdir -p /usr/share/fonts/truetype/noto
+          mv Noto*.ttf /usr/share/fonts/truetype/noto/
+          fc-cache -fv
       
       - name: Install LaTeX packages
         if: steps.check-content.outputs.has-content == 'true'
@@ -59,13 +70,33 @@ jobs:
       - name: Install pandoc-crossref
         if: steps.check-content.outputs.has-content == 'true'
         run: |
-          # Use v0.3.18.0 for Pandoc 3.9+
-          CROSSREF_VERSION="v0.3.18.0"
-          echo "Installing pandoc-crossref $CROSSREF_VERSION"
+          # Check pandoc version and install matching pandoc-crossref
+          PANDOC_VERSION=$(pandoc --version | head -1 | cut -d' ' -f2)
+          echo "Pandoc version: $PANDOC_VERSION"
+          
+          # Map pandoc versions to pandoc-crossref versions
+          # See: https://github.com/lierdakil/pandoc-crossref/releases
+          case "$PANDOC_VERSION" in
+            3.5*)
+              CROSSREF_VERSION="v0.3.18.0"
+              ;;
+            3.4*)
+              CROSSREF_VERSION="v0.3.18.0" 
+              ;;
+            3.3*)
+              CROSSREF_VERSION="v0.3.17.1"
+              ;;
+            *)
+              CROSSREF_VERSION="v0.3.18.0"  # Latest
+              ;;
+          esac
+          
+          echo "Installing pandoc-crossref $CROSSREF_VERSION for pandoc $PANDOC_VERSION"
           wget https://github.com/lierdakil/pandoc-crossref/releases/download/${CROSSREF_VERSION}/pandoc-crossref-Linux.tar.xz
           tar -xf pandoc-crossref-Linux.tar.xz
           mv pandoc-crossref /usr/local/bin/
           chmod +x /usr/local/bin/pandoc-crossref
+          echo "Verifying versions:"
           pandoc-crossref --version
       
       - name: Verify tools
