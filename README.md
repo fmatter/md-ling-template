@@ -2,27 +2,19 @@
 
 A Pandoc template for writing linguistic articles with professional typesetting of interlinear glosses, tables, and semantic markup.
 
-**What this template provides:**
-
-- custom Lua filters for linguistics-specific formatting
-- LaTeX template optimized for linguistic articles
-- enhanced [pandoc-ling](https://github.com/cysouw/pandoc-ling) fork with additional features
-- build system (justfile, Python script, VS Code tasks)
-- starter blueprints for articles and books
-
 ---
 
 ## Quick Start
 
-### Install Dependencies
+1. install dependencies
 
 ```bash
 # macOS (Homebrew)
 brew install pandoc pandoc-crossref just
-brew install --cask mactex
-
 # Linux (Debian/Ubuntu)
-sudo apt install pandoc pandoc-crossref just texlive-full
+sudo apt install pandoc pandoc-crossref just
+# Windows: Use WSL or install via Chocolatey:
+choco install pandoc pandoc-crossref just
 
 # Or download from:
 # - Pandoc: https://pandoc.org/installing.html
@@ -30,85 +22,152 @@ sudo apt install pandoc pandoc-crossref just texlive-full
 # - just: https://github.com/casey/just
 ```
 
-**Recommended: Install a linguistics-friendly font** ([Noto Serif](https://fonts.google.com/noto/specimen/Noto+Serif), [Linux Libertine](https://libertine-fonts.org/), or [Charis SIL](https://software.sil.org/charis/))
+2. click on the "Use this template" button on github ([Link](https://github.com/new?template_name=md-ling-template&template_owner=fmatter)) and clone the repo to your computer
+   - alternatively, fork or clone the repo directly
+3. add a file `content.md`; see [`blueprints/article.md`](blueprints/article.md) for an example
+4. run `just html` to generate `output.html`
 
-### Create Your Article
+## Full installation
+
+### Local PDF generation
+
+For PDF output, you also need a LaTeX distribution with LuaLaTeX support:
 
 ```bash
-# Use this template on GitHub (click "Use this template" button)
-# Or download/clone to get started
-
-# Copy a blueprint as your starting point
-cp blueprints/article.md content.md
-
-# Build PDF
-just pdf
+# macOS
+brew install --cask mactex
+# Linux
+sudo apt install texlive-full
+# Windows
+choco install miktex
 ```
 
-### Explore the Blueprints
+### Fonts
 
-- [`blueprints/article.md`](blueprints/article.md) - Journal article with all features demonstrated
-- [`blueprints/book.md`](blueprints/book.md) - Book/thesis structure
+Some suggestions:
+
+- [Noto Serif](https://fonts.google.com/noto/specimen/Noto+Serif)
+- [Linux Libertine](https://libertine-fonts.org/)
+- [Charis SIL](https://software.sil.org/charis/)
+
+### VS Code
+
+[VS Code](https://code.visualstudio.com/) or [VSCodium](https://vscodium.com/) is recommended for editing markdown files and running build tasks.
+
+## Project structure and building
+
+`just pdf` or `just html` will auto-detect whether you have a `content.md` (single-file) or `project.yaml` (see [multi-file projects](#sec:multi-file)) and build accordingly.
+You can also specify the file directly: `just pdf my-article.md`.
+You can also run the build script directly with Python: `python3 pandoc/build.py content.md -o output.pdf`.
+
+### Multi-file projects {#sec:multi-file}
+
+For longer documents (theses, books, complex papers), it is recommended to organize content across multiple markdown files using `project.yaml` and `metadata.yaml` for shared frontmatter:
+
+```bash
+# Copy template files
+cp project.yaml.template project.yaml
+cp metadata.yaml.template metadata.yaml
+```
+
+`project.yaml` lists your chapter files:
+
+```yaml
+input-files:
+  - 01-introduction.md
+  - 02-background.md
+  - 03-analysis.md
+  - 04-conclusion.md
+
+metadata-files:
+  - metadata.yaml
+```
+
+`metadata.yaml` contains your shared frontmatter:
+
+```yaml
+---
+title: "My Thesis"
+author: "Your Name"
+bibliography: [sources.bib]
+---
+```
+
+**Build:**
+
+```bash
+just pdf              # Auto-detects project.yaml
+# or use build script directly:
+python3 pandoc/build.py --project -o output.pdf
+```
+
+### The blueprints
+
+- [`blueprints/article.md`](blueprints/article.md) - journal article with all features demonstrated
+- [`blueprints/book.md`](blueprints/book.md) - book/thesis structure
+- [`blueprints/slides.md`](blueprints/slides.md) - slide deck template (not fully featured yet)
 
 Build the article example to see all features:
 
 ```bash
-just demo  # Builds blueprints/article.md to PDF, HTML, DOCX
+just blueprints/article.md
 
 # Or with pandoc directly:
 pandoc blueprints/article.md \
   --defaults=pandoc/defaults.yaml \
   --template=pandoc/templates/default.latex \
   -o article.pdf
-```
 
----
+# Or build all blueprints & all formats:
+just blueprints
+```
 
 ## Features
 
-### Semantic Markup for Linguistic Data
+### Semantic markup for linguistic data
 
-Custom span classes that work across all output formats (PDF, HTML, DOCX):
+Implementation: [`pandoc/filters/linguistic-markup.lua`](pandoc/filters/linguistic-markup.lua)
 
-**Gloss abbreviations (smallcaps):**
+| semantics       | markup               | output             |
+| --------------- | -------------------- | ------------------ |
+| object language | `[tuttugu]{.ob}`     | tuttugu            |
+| reconstructed   | `[qalejaw]{.rc}`     | \*_qalejaw_        |
+| gloss           | `[nom]{.gl}`         | [nom]{.smallcaps}  |
+| phonetic        | `[ˈfɾɛjhɛjtː]{.pnt}` | [ˈfɾɛjhɛjtː]{.pnt} |
+| phonemic        | `[θ]{.pnm}`          | [θ]{.pnm}          |
 
-```markdown
-The word has [nom]{.gl} case marking.
-Use [s~a~]{.gl} for subscripted glosses.
-```
+### Interlinear Glossing with pandoc-ling
 
-**Object language (italics):**
-
-```markdown
-[tuttugu]{.ob} 'twenty'
-```
-
-**Reconstructed forms (asterisk + italics):**
+Bundled enhanced fork of [pandoc-ling](https://github.com/cysouw/pandoc-ling) (implementation: [`pandoc/filters/pandoc-ling.lua`](pandoc/filters/pandoc-ling.lua)):
 
 ```markdown
-[qalejaw]{.rc} 'day'
+::: {.ex formatGloss=true}
+Example preamble:
+
+a.
+| {#ex:dutch} Dutch (Germanic)
+| Deze zin is in het nederlands.
+| DEM sentence AUX in DET dutch.
+| This sentence is dutch.
+
+b.
+| {#ex:mapudungun} Mapudungun (Isolate)
+| küpatueyew chi ḻuan
+| kɨpa-tu-e-i-Ø-mew t͡ʃi l̪uan
+| come-APPL-INV-IND-3-3ACT DEF guanaco
+| 'The guanaco came to him.'
+:::
+
+The contrast between @ex:dutch and @ex:mapudungun shows...
 ```
 
-**Phonetic notation (brackets):**
-
-```markdown
-The pronunciation is [ˈfɹiːdəm]{.pnt}.
-```
-
-**Phonemic notation (slashes):**
-
-```markdown
-The phoneme [θ]{.pnm} is rare cross-linguistically.
-```
-
-**Implementation:** [`pandoc/filters/linguistic-markup.lua`](pandoc/filters/linguistic-markup.lua)
 
 ### Glossing Abbreviations Management
 
-Automatically manages glossing abbreviations used in your article:
+- implementation: [`pandoc/filters/glossing-list.lua`](pandoc/filters/glossing-list.lua)
+- define abbreviations in your metadata:
 
 ```yaml
----
 glossing-abbreviations:
   NOM: nominative
   ACC: accusative
@@ -117,36 +176,17 @@ glossing-abbreviations:
 glossing-list:
   position: after # 'before' (after intro) or 'after' (before references)
   title: "List of Glossing Abbreviations"
----
 ```
 
-**Features:**
+- inline list format: `[...]{.glossing-abbreviations-inline}`
 
-- auto-generates formatted table of abbreviations
-- links abbreviations in running text to definitions (hover tooltips in HTML)
-- warns about undefined abbreviations during build
-- inline list format: `[...]{.glossing-abbreviations-inline}` for footnotes
-
-**Implementation:** [`pandoc/filters/glossing-list.lua`](pandoc/filters/glossing-list.lua)
-
-**Check for missing abbreviations:**
+- check for missing abbreviations:
 
 ```bash
 just check              # Scans HTML output for undefined abbreviations
 ```
 
-### Professional Table Formatting
-
-**Auto-width columns** (sized to content, not stretched full-width):
-
-```markdown
-|            |                               |
-| ---------- | ----------------------------- |
-| [ps]{.gl}  | privileged syntactic argument |
-| [act]{.gl} | active voice                  |
-
-: Information status categories {#tbl:categories}
-```
+### Table formatting
 
 **Subtables** (side-by-side tables with unified caption):
 
@@ -156,26 +196,23 @@ just check              # Scans HTML output for undefined abbreviations
 
 Table: Set I {#tbl:set1}
 
-| Person | Prefix |
-| ------ | ------ |
-| 1SG    | n-     |
+| Person     | Prefix    |
+| ---------- | --------- |
+| [1SG]{.gl} | [n-]{.ob} |
 
 Table: Set II {#tbl:set2}
 
-| Person | Prefix |
-| ------ | ------ |
-| 1SG    | ha-    |
+| Person     | Prefix     |
+| ---------- | ---------- |
+| [1SG]{.gl} | [ha-]{.ob} |
 
 :::
 ```
 
-**Formatting:**
 
-- Captions above tables (linguistics convention)
-- Auto-width columns (no forced stretching)
-- Professional rules (booktabs style in LaTeX)
-
-**Implementation:** [`pandoc/filters/simple-tables.lua`](pandoc/filters/simple-tables.lua), [`pandoc/filters/subtables.lua`](pandoc/filters/subtables.lua)
+- implementation:
+  - [`pandoc/filters/subtables.lua`](pandoc/filters/subtables.lua)
+  - [`pandoc/filters/simple-tables.lua`](pandoc/filters/simple-tables.lua) (for auto-width tables)
 
 ### LaTeX Figures and Diagrams
 
@@ -220,73 +257,17 @@ The structure is shown in @fig:tree.
 - **forest** - Modern syntax trees (recommended)
 - **tikz-qtree** - Alternative tree package
 - **tikz** - General diagrams, autosegmental representations
-- **pst-asr** - Autosegmental representations (use with `latex` instead of `lualatex`)
-- **gb4e** / **linguex** - Example numbering with trees
+- **vowel** - Vowel charts with `\vowel` command
 
 See [`figures/README.md`](figures/README.md) and [`figures/example-tree.tex`](figures/example-tree.tex) for more details.
 
-### Interlinear Glossing with pandoc-ling
-
-Bundled enhanced fork of [pandoc-ling](https://github.com/cysouw/pandoc-ling) with additional functionality for professional linguistic examples:
-
-```markdown
-::: {.ex formatGloss=true}
-| Mapudungun (Isolate)
-| amuy chi weñi
-| go.IND.3 DEF man
-| 'The man went.'
-:::
-```
-
-### Multi-File Projects
-
-For longer documents (theses, books, complex papers), organize content across multiple markdown files using `project.yaml`.
-
-**Setup:**
-
-```bash
-# Copy template files
-cp project.yaml.template project.yaml
-cp metadata.yaml.template metadata.yaml
-```
-
-**project.yaml** - lists your chapter files:
-
-```yaml
-input-files:
-  - 01-introduction.md
-  - 02-background.md
-  - 03-analysis.md
-  - 04-conclusion.md
-
-metadata-files:
-  - metadata.yaml
-```
-
-**metadata.yaml** - shared frontmatter:
-
-```yaml
----
-title: "My Thesis"
-author: "Your Name"
-bibliography: [sources.bib]
----
-```
-
-**Build:**
-
-```bash
-just pdf              # Auto-detects project.yaml
-python3 pandoc/build.py --project -o output.pdf
-```
-
-Cross-references work across all files. The template configuration (filters, defaults) stays the same.
 
 ### LaTeX Template
 
 The [`pandoc/templates/default.latex`](pandoc/templates/default.latex) template provides:
 
 **Essential features:**
+
 - Linguistic markup commands (`\gl`, `\ob`, `\rc`, `\pnt`, `\pnm`) - required by filters
 - Underline support (lua-ul) for `.underline` in tables
 - Pandoc 3.9+ xmpquote fix
@@ -294,13 +275,14 @@ The [`pandoc/templates/default.latex`](pandoc/templates/default.latex) template 
 - Keywords display below abstract
 
 **Default document class:**
+
 - Uses standard LaTeX `article` class by default
 - Recommended: KOMA-Script classes (`scrartcl`, `scrreprt`, `scrbook`) for better typography
 - Customizable via metadata:
 
 ```yaml
 ---
-documentclass: scrartcl  # or: article, report, book, etc.
+documentclass: scrartcl # or: article, report, book, etc.
 ---
 ```
 
