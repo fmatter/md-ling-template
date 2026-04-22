@@ -103,7 +103,9 @@ def test_crossref_in_latex(lang, sec_prefix, tbl_prefix):
 
     # Check for the labels
     assert r"\label{sec:one}" in content
-    assert r"\caption{A test table.}\label{tbl:one}" in content
+    # Caption and label may be on separate lines after filter processing
+    assert r"\caption{A test table.}" in content
+    assert r"\label{tbl:one}" in content
     
     # Check for the references
     assert f"See {sec_prefix}~\\ref{{sec:one}}." in content

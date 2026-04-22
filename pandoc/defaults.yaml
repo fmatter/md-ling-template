@@ -1,10 +1,10 @@
 filters:
   - pandoc/filters/linguistic-markup.lua  # Semantic markup (.gl, .ob, .rc)
-  - pandoc/filters/subtables.lua  # Subtable support
   - pandoc/filters/glossing-list.lua  # Auto-discover and link glossing abbreviations (must run before pandoc-ling)
   - pandoc/filters/pandoc-ling.lua  # Linguistic examples
   - pandoc-crossref  # MUST come before citeproc
   - citeproc  # Citations - runs after pandoc-crossref
+  - pandoc/filters/subtables.lua  # Subtable support (MUST run after citeproc to handle citations in captions)
   - pandoc/filters/simple-tables.lua  # Render all tables with auto-width columns and captions above
   - pandoc/filters/docx-styles.lua  # Ensure custom styles work in DOCX output
 
