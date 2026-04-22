@@ -181,12 +181,12 @@ def build_project(output_file):
     pandoc_args = [
         "--defaults=pandoc/defaults.yaml",
         "--defaults=project.yaml"
-        
-        # For .tex output, extract media (converts SVGs to PDFs, etc.)
-        if output_path.suffix == '.tex':
-            media_dir = output_path.parent / (output_path.stem + "_media")
-            pandoc_args.append(f"--extract-media={media_dir}")
     ]
+        
+    # For .tex output, extract media (converts SVGs to PDFs, etc.)
+    if output_path.suffix == '.tex':
+        media_dir = output_path.parent / (output_path.stem + "_media")
+        pandoc_args.append(f"--extract-media={media_dir}")
     
     # Add template for LaTeX/PDF output
     if output_path.suffix in ['.pdf', '.tex']:
