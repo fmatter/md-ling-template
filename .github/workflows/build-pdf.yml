@@ -37,12 +37,12 @@ jobs:
           apk add --no-cache python3 py3-pip wget tar xz bash fontconfig ttf-linux-libertine ttf-dejavu
           
           # Install Noto fonts
-          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/full/ttf/NotoSerif-Regular.ttf
-          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/full/ttf/NotoSerif-Bold.ttf
-          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/full/ttf/NotoSerif-Italic.ttf
-          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/full/ttf/NotoSerif-BoldItalic.ttf
-          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSans/full/ttf/NotoSans-Regular.ttf
-          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSans/full/ttf/NotoSans-Bold.ttf
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/hinted/ttf/NotoSerif-Regular.ttf
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/hinted/ttf/NotoSerif-Bold.ttf
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/hinted/ttf/NotoSerif-Italic.ttf
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSerif/hinted/ttf/NotoSerif-BoldItalic.ttf
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSans/hinted/ttf/NotoSans-Regular.ttf
+          wget https://github.com/notofonts/notofonts.github.io/raw/main/fonts/NotoSans/hinted/ttf/NotoSans-Bold.ttf
           mkdir -p /usr/share/fonts/truetype/noto
           mv Noto*.ttf /usr/share/fonts/truetype/noto/
           fc-cache -fv
