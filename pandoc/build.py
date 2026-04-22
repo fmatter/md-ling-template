@@ -140,6 +140,11 @@ def build_single_file(input_file, output_file):
         else:
             # Regular documents use the custom template
             pandoc_args.append("--template=pandoc/templates/default.latex")
+        
+        # For .tex output, extract media (converts SVGs to PDFs, etc.)
+        if output_path.suffix == '.tex':
+            media_dir = output_path.parent / (output_path.stem + "_media")
+            pandoc_args.append(f"--extract-media={media_dir}")
     elif output_path.suffix == '.html' and is_beamer:
         # Beamer presentations to HTML use slidy
         pandoc_args.extend(["-t", "slidy", "--embed-resources", "--standalone"])
@@ -176,6 +181,11 @@ def build_project(output_file):
     pandoc_args = [
         "--defaults=pandoc/defaults.yaml",
         "--defaults=project.yaml"
+        
+        # For .tex output, extract media (converts SVGs to PDFs, etc.)
+        if output_path.suffix == '.tex':
+            media_dir = output_path.parent / (output_path.stem + "_media")
+            pandoc_args.append(f"--extract-media={media_dir}")
     ]
     
     # Add template for LaTeX/PDF output

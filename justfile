@@ -75,11 +75,11 @@ tex file="":
     #!/usr/bin/env bash
     if [ -n "{{file}}" ]; then \
         FILE="{{file}}"; \
-        pandoc "$FILE" --defaults=pandoc/defaults.yaml --template=pandoc/templates/default.latex -o "${FILE%.md}.tex"; \
+        python3 pandoc/build.py "$FILE" -o "${FILE%.md}.tex"; \
     elif [ -f project.yaml ]; then \
-        pandoc --defaults=pandoc/defaults.yaml --defaults=project.yaml --template=pandoc/templates/default.latex -o output.tex; \
+        python3 pandoc/build.py --project -o output.tex; \
     elif [ -f content.md ]; then \
-        pandoc content.md --defaults=pandoc/defaults.yaml --template=pandoc/templates/default.latex -o output.tex; \
+        python3 pandoc/build.py content.md -o output.tex; \
     else \
         echo "Error: No file specified and no project.yaml or content.md found."; \
         echo "Usage: just tex [filename.md]"; \
