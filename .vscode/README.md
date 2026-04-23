@@ -4,9 +4,25 @@ This directory contains VS Code configuration for the md-ling-template workflow.
 
 ## Quick Start
 
+### Keyboard Shortcuts
+
+**Note:** VS Code uses different modifiers on different platforms:
+- **Windows/Linux:** `Ctrl` = Ctrl key
+- **macOS:** `Ctrl` = Cmd key (⌘)
+
+Throughout this document:
+- `Ctrl+Shift+B` means **Ctrl+Shift+B** on Windows/Linux, **Cmd+Shift+B** (⌘⇧B) on Mac
+- `Ctrl+K V` means **Ctrl+K then V** on Windows/Linux, **Cmd+K then V** (⌘K V) on Mac
+- `Ctrl+Alt+Shift+G` means **Ctrl+Alt+Shift+G** on Windows/Linux, **Cmd+Option+Shift+G** (⌘⌥⇧G) on Mac
+
 ### Build your document
-- **Ctrl+Shift+B** (Cmd+Shift+B on Mac) → Build with default task
+- **Ctrl+Shift+B** → Build with default task
 - **Ctrl+P** then type `task ` → See all available tasks
+
+### Preview
+- **Ctrl+K V** → Open markdown preview side-by-side
+- Preview uses actual Pandoc with all filters and custom CSS!
+- **Important:** Preview only works for `.md` files in the top-level directory (not in subdirectories like `blueprints/`)
 
 ### Available Tasks
 
@@ -51,6 +67,19 @@ Workflow: `cp blueprints/slides.md my-talk.md` → open my-talk.md → Ctrl+Shif
   - Linguistic examples render correctly with pandoc-ling
   - Glossing abbreviations show in smallcaps
   - Citations and cross-references work
+
+**Important:** Preview only works for `.md` files in the **top-level directory**.
+
+❌ **Doesn't work:** `blueprints/article.md`, `chapters/intro.md` (files in subdirectories)
+
+**Why?** The preview uses `pandoc/defaults.yaml` with relative paths that only work from the workspace root.
+
+**Workaround for testing blueprints:**
+```bash
+cp blueprints/article.md test-article.md  # Copy to top level
+# Open test-article.md and use preview
+# Delete when done
+```
 
 **For single-file projects:**
 - Put metadata (title, author, bibliography) in YAML frontmatter (between `---` lines)
@@ -131,11 +160,61 @@ The template includes code snippets for quick markdown input.
 - `mex` → Multipart interlinear example (a, b)
 
 ### Semantic Markup (Keyboard Shortcuts)
+
+**Important:** VS Code does **not support workspace-level keybindings**. The `.vscode/keybindings.json` file in this template is provided as a reference only.
+
+**To use these shortcuts, you must add them to your personal user keybindings:**
+
+1. Open Command Palette: **Ctrl+Shift+P** (Windows/Linux) or **Cmd+Shift+P** (Mac)
+2. Type: **"Preferences: Open Keyboard Shortcuts (JSON)"**
+3. Copy the following into your user keybindings file:
+
+```json
+[
+  {
+    "key": "ctrl+alt+shift+g",
+    "command": "editor.action.insertSnippet",
+    "when": "editorTextFocus && editorLangId == markdown",
+    "args": {
+      "snippet": "[${TM_SELECTED_TEXT:${1:text}}]{.gl}"
+    }
+  },
+  {
+    "key": "ctrl+alt+shift+o",
+    "command": "editor.action.insertSnippet",
+    "when": "editorTextFocus && editorLangId == markdown",
+    "args": {
+      "snippet": "[${TM_SELECTED_TEXT:${1:text}}]{.ob}"
+    }
+  },
+  {
+    "key": "ctrl+alt+shift+r",
+    "command": "editor.action.insertSnippet",
+    "when": "editorTextFocus && editorLangId == markdown",
+    "args": {
+      "snippet": "[${TM_SELECTED_TEXT:${1:text}}]{.rc}"
+    }
+  }
+]
+```
+
+**On macOS:** The shortcuts will automatically adapt - `ctrl` becomes `cmd`, `alt` becomes `option`.
+
+**What the shortcuts do:**
 - **Ctrl+Alt+Shift+G** → Wrap selection in [text]{.gl} (gloss abbreviation, smallcaps)
 - **Ctrl+Alt+Shift+O** → Wrap selection in [text]{.ob} (object language, italics)
 - **Ctrl+Alt+Shift+R** → Wrap selection in [text]{.rc} (reconstructed form, *italics)
 
 **How to use:** Select text, then press the keyboard shortcut. Works in markdown files only.
+
+**Alternative: Use snippets instead**
+
+If you don't want to set up custom keybindings, use the built-in snippets:
+- Type `gl` and press **Tab** → inserts `[text]{.gl}` with cursor positioned to type
+- Type `ob` and press **Tab** → inserts `[text]{.ob}`
+- Type `rc` and press **Tab** → inserts `[text]{.rc}`
+
+These snippets work automatically without any setup.
 
 ### Tables & Figures
 - `tbl` → Table with caption and ID

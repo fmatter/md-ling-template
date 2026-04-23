@@ -33,10 +33,10 @@ Extract and move to your PATH, then check which Pandoc version it expects:
 
 ```bash
 pandoc-crossref --version
-# Shows e.g.: pandoc-crossref v0.3.23 git commit ... built with pandoc 3.9, v1.23.1.1 and GHC 9.8.4
+# Shows e.g.: pandoc-crossref v0.3.23 ... built with pandoc 3.9
 ```
 
-**2. pandoc** (must match pandoc-crossref version)
+**2. pandoc** (must match `pandoc-crossref` version)
 
 Download matching version from: <https://github.com/jgm/pandoc/releases>
 
@@ -92,10 +92,46 @@ Install at least one linguistics-friendly font with good Unicode coverage:
 
 - syntax highlighting for Markdown
 - integrated terminal for building
-- build tasks (Ctrl/Cmd+Shift+B)
-- markdown preview
+- build tasks (Ctrl+Shift+B on Windows/Linux, Cmd+Shift+B on Mac)
+- markdown preview (Ctrl+K V on Windows/Linux, Cmd+K V on Mac)
 - citation & crossref autocompletion
-- snippets for common structures (see [`.vscode/README.md`](.vscode/README.md))
+
+**Optional keyboard shortcuts for semantic markup:**
+
+You can add shortcuts to wrap selected text in linguistic markup. Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P), type "Preferences: Open Keyboard Shortcuts (JSON)", and add:
+
+```json
+[
+  {
+    "key": "ctrl+alt+shift+g",
+    "command": "editor.action.insertSnippet",
+    "when": "editorTextFocus && editorLangId == markdown",
+    "args": {
+      "snippet": "[${TM_SELECTED_TEXT:${1:text}}]{.gl}"
+    }
+  },
+  {
+    "key": "ctrl+alt+shift+o",
+    "command": "editor.action.insertSnippet",
+    "when": "editorTextFocus && editorLangId == markdown",
+    "args": {
+      "snippet": "[${TM_SELECTED_TEXT:${1:text}}]{.ob}"
+    }
+  },
+  {
+    "key": "ctrl+alt+shift+r",
+    "command": "editor.action.insertSnippet",
+    "when": "editorTextFocus && editorLangId == markdown",
+    "args": {
+      "snippet": "[${TM_SELECTED_TEXT:${1:text}}]{.rc}"
+    }
+  }
+]
+```
+
+Then: Select text → Ctrl+Alt+Shift+G → `[text]{.gl}` (on Mac, use Cmd+Option+Shift)
+
+**Note:** Throughout this documentation, keyboard shortcuts are shown as `Ctrl+Key`. On macOS, use `Cmd` (⌘) instead of `Ctrl`.
 
 ---
 
@@ -114,6 +150,18 @@ your-article/
 ├── pandoc/             # Template files (from md-ling-template)
 └── justfile            # Build commands (optional)
 ```
+
+**Template files and what they do:**
+
+- `pandoc/filters/` - Lua filters that process your markdown (linguistic markup, tables, examples). Work automatically.
+- `pandoc/templates/default.latex` - LaTeX template for PDF output. Pre-configured.
+- `pandoc/defaults.yaml` - Pandoc configuration (filters, settings). Rarely needs editing.
+- `pandoc/style.css` - HTML styling. Pre-configured.
+- `pandoc/crossref-*.yaml` - Language-specific labels (Figure, Table, etc.). Use as-is or copy to customize.
+- `.vscode/` - VS Code tasks and settings. Work automatically.
+- `justfile` - Build commands. Works out of the box.
+
+You typically only edit your own `.md` files and `sources.bib`. For advanced customization, use `project.yaml` (see below).
 
 **Multi-file projects:**
 
@@ -177,9 +225,26 @@ metadata:
 
 Both options work identically.
 
+### VS Code preview
+
+**Important:** VS Code's Markdown Preview Enhanced extension only works for **`.md` files in the top-level directory** of your workspace.
+
+**Works:** `content.md`, `article.md`, `01-intro.md` (top level)
+
+**Doesn't work:** `blueprints/article.md`, `chapters/intro.md` (subdirectories)
+
+**Why?** The preview uses `pandoc/defaults.yaml` which references filters and resources using relative paths from the workspace root. Files in subdirectories break these paths.
+
+**Workaround:** If you need to preview blueprint files:
+1. Copy the blueprint to the top level: `cp blueprints/article.md test.md`
+2. Open `test.md` and use preview
+3. Delete when done
+
+For actual writing, keep your content files in the top level (recommended structure above).
+
 ### Building
 
-**With just (recommended):**
+**With `just` (recommended):**
 
 ```bash
 just pdf      # Auto-detects content.md or project.yaml
@@ -199,6 +264,9 @@ python3 pandoc/build.py content.md -o output.pdf
 
 # Multi-file project
 python3 pandoc/build.py --project -o output.pdf
+
+# With custom template
+python3 pandoc/build.py content.md --template my-template.latex -o output.pdf
 ```
 
 **With pandoc directly:**
@@ -377,7 +445,7 @@ The structure is shown in @fig:tree.
 - **tikz** - General diagrams, autosegmental representations
 - **vowel** - Vowel charts with `\vowel` command
 
-See [`figures/README.md`](figures/README.md) and [`figures/example-tree.tex`](figures/example-tree.tex) for more details.
+See [`figures/README.md`](figures/README.md) and [`figures/vowels.tex`](figures/vowels.tex) for more details.
 
 ---
 
@@ -396,29 +464,139 @@ mainfont: "Noto Serif"
 
 ### Language Settings
 
-For German labels (Abbildung, Tabelle, Beispiel):
+**Built-in languages:** English (`en-US`) and German (`de-DE`)
 
-Edit `pandoc/defaults.yaml`:
+To use German labels (Abbildung, Tabelle, Beispiel):
 
-```yaml
-metadata-files:
-  - pandoc/crossref-de-DE.yaml # Change from en-US
+1. Edit `pandoc/defaults.yaml`:
+   ```yaml
+   metadata-files:
+     - pandoc/crossref-de-DE.yaml # Change from en-US
+   ```
+
+2. Set `lang: de-DE` in your document metadata:
+   ```yaml
+   ---
+   lang: de-DE
+   ---
+   ```
+
+**For other languages:**
+
+1. Create a crossref language file (e.g., `pandoc/crossref-fr-FR.yaml`):
+   ```yaml
+   # French labels for pandoc-crossref
+   figureTitle: "Figure"
+   tableTitle: "Tableau"
+   listingTitle: "Liste"
+   figPrefix: "fig."
+   eqnPrefix: "éq."
+   tblPrefix: "tabl."
+   lstPrefix: "list."
+   secPrefix: "sec."
+   # Add more as needed - see pandoc-crossref documentation
+   ```
+
+2. Reference it in `pandoc/defaults.yaml` or your document:
+   ```yaml
+   metadata-files:
+     - pandoc/crossref-fr-FR.yaml
+   ```
+
+3. Set the language in your document:
+   ```yaml
+   ---
+   lang: fr-FR
+   ---
+   ```
+
+**Tip:** Copy an existing crossref file as a starting point:
+```bash
+cp pandoc/crossref-en-US.yaml pandoc/crossref-fr-FR.yaml
+# Then edit the labels
 ```
 
-Also set `lang: de-DE` in your document metadata.
+See [pandoc-crossref documentation](https://lierdakil.github.io/pandoc-crossref/#settings-file) for all available labels.
 
-### Adding Custom Filters
+### Custom Configuration
 
-Edit `pandoc/defaults.yaml` to add your own Lua filters:
+**Using project.yaml for customization:**
 
+For custom settings or multi-file projects, create `project.yaml`:
+
+```yaml
+# project.yaml
+input-files:
+  - 01-intro.md
+  - 02-background.md
+
+metadata:
+  title: "My Thesis"
+  fontsize: 12pt
+  geometry: margin=1in
+```
+
+Build with:
+```bash
+just pdf              # Automatically picks up project.yaml
+# Or:
+python3 pandoc/build.py --project
+```
+
+`project.yaml` is loaded **after** `pandoc/defaults.yaml`, so your settings override the template defaults.
+
+**For single-file projects:** You can also use `project.yaml` for single files if you need custom settings:
+
+```yaml
+# project.yaml (single-file)
+input-files:
+  - content.md
+
+metadata:
+  fontsize: 12pt
+```
+
+**Adding custom filters:**
+
+Add filters to `project.yaml` (recommended) or edit `pandoc/defaults.yaml`:
+
+```yaml
+# In project.yaml
+filters:
+  - filters/my-custom-filter.lua  # Your filter
+```
+
+Or if you need to modify the filter chain, copy the entire filters section from `pandoc/defaults.yaml` to `project.yaml` and modify it there.
+
+**Important:** Filter order matters!
+- Filters that modify content should run **before** `pandoc-crossref`
+- `pandoc-crossref` must run **before** `citeproc`
+- `citeproc` must run **before** `subtables.lua` (processes citations in captions)
+- Custom filters usually go at the beginning (before crossref)
+
+**Current filter order in `pandoc/defaults.yaml`:**
 ```yaml
 filters:
-  - pandoc/filters/linguistic-markup.lua
-  - pandoc/filters/my-custom-filter.lua # Your filter
-  - pandoc-crossref # Keep crossref near end but before citeproc
+  - pandoc/filters/linguistic-markup.lua   # Semantic markup
+  - pandoc/filters/glossing-list.lua       # Glossing abbreviations
+  - pandoc/filters/pandoc-ling.lua         # Linguistic examples
+  - pandoc-crossref                        # BEFORE citeproc
+  - citeproc                               # Process citations
+  - pandoc/filters/subtables.lua           # AFTER citeproc (needs processed citations)
+  - pandoc/filters/simple-tables.lua       # Table formatting
+  - pandoc/filters/docx-styles.lua         # DOCX post-processing
 ```
 
-**Note:** Filter order matters! Most custom filters should run before `pandoc-crossref`. In turn, `pandoc-crossref` should run before `citeproc` (if using citations).
+**Using custom templates:**
+
+```bash
+# Create your custom template based on the default
+cp pandoc/templates/default.latex my-template.latex
+# Edit my-template.latex as needed
+
+# Build with your template
+python3 pandoc/build.py content.md --template my-template.latex -o output.pdf
+```
 
 ### Document class
 
@@ -475,12 +653,14 @@ just docx
 ```bash
 python3 pandoc/build.py content.md -o output.pdf
 python3 pandoc/build.py --project  # Multi-file
+python3 pandoc/build.py content.md --template my-template.latex  # Custom template
 ```
 
 The build script:
 - Auto-detects Beamer presentations (`documentclass: beamer`)
 - Sets default document class to `scrartcl` if not specified
 - Applies appropriate output format flags
+- Accepts `--template` option for custom LaTeX templates
 
 **3. pandoc directly:**
 
@@ -502,7 +682,6 @@ md-ling-template/
 ├── justfile               # Build commands
 ├── blueprints/            # Example documents
 ├── figures/               # LaTeX diagrams → SVG
-├── unibe/                 # University of Bern theme
 ├── pandoc/
 │   ├── defaults.yaml      # Pandoc configuration
 │   ├── build.py           # Build script with auto-detection

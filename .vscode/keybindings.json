@@ -1,4 +1,14 @@
 [
+  // NOTE: VS Code does NOT support workspace-level keybindings.json files.
+  // This file is provided as a REFERENCE only.
+  //
+  // To use these shortcuts, you must copy them to your PERSONAL user keybindings:
+  //   1. Press Ctrl+Shift+P (Cmd+Shift+P on Mac)
+  //   2. Type: "Preferences: Open Keyboard Shortcuts (JSON)"
+  //   3. Copy the keybindings below into your user keybindings file
+  //
+  // See .vscode/README.md for detailed instructions.
+
   {
     "key": "ctrl+alt+shift+g",
     "command": "editor.action.insertSnippet",
