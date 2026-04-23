@@ -103,7 +103,7 @@ def run_fix_docx(docx_file):
         print("Warning: fix_docx.py not found. Skipping post-processing.", file=sys.stderr)
 
 
-def build_single_file(input_file, output_file):
+def build_single_file(input_file, output_file, template=None):
     """Build a single markdown file."""
     input_path = Path(input_file)
     
@@ -139,7 +139,8 @@ def build_single_file(input_file, output_file):
             pandoc_args.extend(["-t", "beamer"])
         else:
             # Regular documents use the custom template
-            pandoc_args.append("--template=pandoc/templates/default.latex")
+            template_path = template or "pandoc/templates/default.latex"
+            pandoc_args.append(f"--template={template_path}")
         
         # For .tex output, extract media (converts SVGs to PDFs, etc.)
         if output_path.suffix == '.tex':
@@ -162,7 +163,7 @@ def build_single_file(input_file, output_file):
     print(f"✓ Created {output_path}")
 
 
-def build_project(output_file):
+def build_project(output_file, template=None):
     """Build using project.yaml configuration."""
     project_yaml = Path("project.yaml")
     
@@ -190,7 +191,8 @@ def build_project(output_file):
     
     # Add template for LaTeX/PDF output
     if output_path.suffix in ['.pdf', '.tex']:
-        pandoc_args.append("--template=pandoc/templates/default.latex")
+        template_path = template or "pandoc/templates/default.latex"
+        pandoc_args.append(f"--template={template_path}")
     
     pandoc_args.extend(["-o", str(output_path)])
     
@@ -222,6 +224,9 @@ Examples:
   
   # Multi-file to DOCX with custom name
   python3 pandoc/build.py --project -o thesis.docx
+  
+  # Use custom template
+  python3 pandoc/build.py article.md --template my-template.latex
         """
     )
     
@@ -242,12 +247,17 @@ Examples:
         help="Output file (default: input filename with .pdf extension)"
     )
     
+    parser.add_argument(
+        "--template",
+        help="Custom LaTeX template file (default: pandoc/templates/default.latex)"
+    )
+    
     args = parser.parse_args()
     
     if args.project:
-        build_project(args.output)
+        build_project(args.output, template=args.template)
     else:
-        build_single_file(args.input, args.output)
+        build_single_file(args.input, args.output, template=args.template)
 
 
 if __name__ == "__main__":
