@@ -139,16 +139,23 @@ def build_single_file(input_file, output_file, template=None):
             pandoc_args.extend(["-t", "beamer"])
         else:
             # Regular documents use the custom template
-            template_path = template or "pandoc/templates/default.latex"
-            pandoc_args.append(f"--template={template_path}")
+            if template:
+                pandoc_args.append(f"--template={template}")
+            else:
+                # Default LaTeX template
+                pandoc_args.append("--template=pandoc/templates/default.latex")
         
         # For .tex output, extract media (converts SVGs to PDFs, etc.)
         if output_path.suffix == '.tex':
             media_dir = output_path.parent / (output_path.stem + "_media")
             pandoc_args.append(f"--extract-media={media_dir}")
-    elif output_path.suffix == '.html' and is_beamer:
-        # Beamer presentations to HTML use slidy
-        pandoc_args.extend(["-t", "slidy", "--embed-resources", "--standalone"])
+    elif output_path.suffix == '.html':
+        if is_beamer:
+            # Beamer presentations to HTML use slidy
+            pandoc_args.extend(["-t", "slidy", "--embed-resources", "--standalone"])
+        elif template:
+            # Apply custom HTML template if specified
+            pandoc_args.append(f"--template={template}")
     
     pandoc_args.extend(["-o", str(output_path)])
     
@@ -189,10 +196,12 @@ def build_project(output_file, template=None):
         media_dir = output_path.parent / (output_path.stem + "_media")
         pandoc_args.append(f"--extract-media={media_dir}")
     
-    # Add template for LaTeX/PDF output
-    if output_path.suffix in ['.pdf', '.tex']:
-        template_path = template or "pandoc/templates/default.latex"
-        pandoc_args.append(f"--template={template_path}")
+    # Add template if specified (for any format)
+    if template:
+        pandoc_args.append(f"--template={template}")
+    elif output_path.suffix in ['.pdf', '.tex']:
+        # Default LaTeX template for PDF/tex output
+        pandoc_args.append("--template=pandoc/templates/default.latex")
     
     pandoc_args.extend(["-o", str(output_path)])
     
