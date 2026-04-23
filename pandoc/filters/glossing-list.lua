@@ -3,13 +3,16 @@ glossing-list.lua - Auto-discover and link glossing abbreviations
 
 This filter:
 1. Reads abbreviation definitions from metadata (glossing-abbreviations and abbreviations)
-2. Auto-discovers used abbreviations from span.gl (linguistic-markup.lua output)  
+2. Auto-discovers used abbreviations from:
+   - span.gl (linguistic-markup.lua output)
+   - SmallCaps elements (pandoc-ling.lua output with formatGloss=true)
+   - span.smallcaps (other sources)
 3. Generates a list of ALL abbreviations defined in metadata
 4. Links abbreviations to definitions in HTML output (for .gl spans)
 5. Warns about abbreviations used but not defined in metadata
+   (Note: Leipzig Glossing Rules standard abbreviations are hardcoded and won't trigger warnings)
 
-Note: Abbreviations in pandoc-ling interlinear glosses are not auto-discovered.
-Include all abbreviations you use (including those in examples) in the metadata.
+Filter order: This filter should run AFTER pandoc-ling.lua to catch SmallCaps elements.
 
 Metadata structure:
   glossing-abbreviations:  # For linguistic glosses (formatted with small caps)
@@ -42,6 +45,98 @@ local config = {
   position = "after",
   title = "List of Glossing Abbreviations",
   warn_undefined = true
+}
+
+-- Leipzig Glossing Rules abbreviations with definitions
+-- Source: https://www.eva.mpg.de/lingua/resources/glossing-rules.php
+-- These won't trigger warnings and provide tooltips if not defined in metadata
+local leipzig_abbrs = {
+  ["1"] = "first person",
+  ["2"] = "second person",
+  ["3"] = "third person",
+  A = "agent-like argument of canonical transitive verb",
+  ABL = "ablative",
+  ABS = "absolutive",
+  ACC = "accusative",
+  ADJ = "adjective",
+  ADV = "adverb(ial)",
+  AGR = "agreement",
+  ALL = "allative",
+  ANTIP = "antipassive",
+  APPL = "applicative",
+  ART = "article",
+  AUX = "auxiliary",
+  BEN = "benefactive",
+  CAUS = "causative",
+  CLF = "classifier",
+  COM = "comitative",
+  COMP = "complementizer",
+  COMPL = "completive",
+  COND = "conditional",
+  COP = "copula",
+  CVB = "converb",
+  DAT = "dative",
+  DECL = "declarative",
+  DEF = "definite",
+  DEM = "demonstrative",
+  DET = "determiner",
+  DIST = "distal",
+  DISTR = "distributive",
+  DU = "dual",
+  DUR = "durative",
+  ERG = "ergative",
+  EXCL = "exclusive",
+  F = "feminine",
+  FOC = "focus",
+  FUT = "future",
+  GEN = "genitive",
+  IMP = "imperative",
+  INCL = "inclusive",
+  IND = "indicative",
+  INDF = "indefinite",
+  INF = "infinitive",
+  INS = "instrumental",
+  INTR = "intransitive",
+  IPFV = "imperfective",
+  IRR = "irrealis",
+  LOC = "locative",
+  M = "masculine",
+  N = "neuter",
+  NEG = "negation, negative",
+  NMLZ = "nominalizer/nominalization",
+  NOM = "nominative",
+  OBJ = "object",
+  OBL = "oblique",
+  P = "patient-like argument of canonical transitive verb",
+  PASS = "passive",
+  PFV = "perfective",
+  PL = "plural",
+  POSS = "possessive",
+  PRED = "predicative",
+  PRF = "perfect",
+  PRS = "present",
+  PROG = "progressive",
+  PROH = "prohibitive",
+  PROX = "proximal/proximate",
+  PST = "past",
+  PTCP = "participle",
+  PURP = "purposive",
+  Q = "question particle/marker",
+  QUOT = "quotative",
+  RECP = "reciprocal",
+  REFL = "reflexive",
+  REL = "relative",
+  RES = "resultative",
+  S = "single argument of canonical intransitive verb",
+  SBJ = "subject",
+  SBJV = "subjunctive",
+  SG = "singular",
+  TOP = "topic",
+  TR = "transitive",
+  VOC = "vocative",
+  -- Common variations
+  NSG = "non-singular",
+  NPST = "non-past"
 }
 
 -- Parse delimited string into individual abbreviations
@@ -109,6 +204,7 @@ local function collect_abbreviations(doc)
   local span_count = 0
   local gl_count = 0
   local sc_count = 0
+  local smallcaps_count = 0
   local raw_count = 0
   
   local function collect_from_span(span)
@@ -138,6 +234,17 @@ local function collect_abbreviations(doc)
     return span
   end
   
+  -- Handle SmallCaps elements (created by pandoc.SmallCaps() in pandoc-ling)
+  local function collect_from_smallcaps(elem)
+    smallcaps_count = smallcaps_count + 1
+    local text = pandoc.utils.stringify(elem):upper()
+    local abbrs = parse_abbreviations(text)
+    for _, abbr in ipairs(abbrs) do
+      used_abbrs[abbr] = true
+    end
+    return elem
+  end
+  
   local function collect_from_raw(raw)
     raw_count = raw_count + 1
     -- For HTML raw blocks, parse for  smallcaps spans
@@ -157,6 +264,7 @@ local function collect_abbreviations(doc)
   -- Walk entire document blocks list to collect abbreviations
   doc.blocks:walk({
     Span = collect_from_span,
+    SmallCaps = collect_from_smallcaps,  -- NEW: Handle SmallCaps elements
     RawBlock = collect_from_raw,
     RawInline = collect_from_raw
   })
@@ -180,13 +288,16 @@ local function link_abbreviations(doc)
     -- For span.gl, we might have multiple abbreviations
     if span.classes:includes('gl') then
       local abbrs = parse_abbreviations(upper_text)
-      if #abbrs == 1 and abbreviations[abbrs[1]] then
-        -- Single abbreviation - wrap in abbr tag
+      if #abbrs == 1 then
         local abbr = abbrs[1]
-        local abbr_elem = pandoc.RawInline('html', 
-          '<abbr title="' .. abbreviations[abbr] .. '" class="gloss-abbr">')
-        local abbr_close = pandoc.RawInline('html', '</abbr>')
-        return {abbr_elem, span, abbr_close}
+        -- Use user definition if available, otherwise Leipzig definition
+        local definition = abbreviations[abbr] or leipzig_abbrs[abbr]
+        if definition then
+          local abbr_elem = pandoc.RawInline('html', 
+            '<abbr title="' .. definition .. '" class="gloss-abbr">')
+          local abbr_close = pandoc.RawInline('html', '</abbr>')
+          return {abbr_elem, span, abbr_close}
+        end
       end
       -- Multiple abbreviations - would need more complex parsing
     end
@@ -194,22 +305,48 @@ local function link_abbreviations(doc)
     -- For span.smallcaps, check if it's a single abbreviation
     if span.classes:includes('smallcaps') then
       local abbrs = parse_abbreviations(upper_text)
-      if #abbrs == 1 and abbreviations[abbrs[1]] then
+      if #abbrs == 1 then
         local abbr = abbrs[1]
-        local abbr_elem = pandoc.RawInline('html',
-          '<abbr title="' .. abbreviations[abbr] .. '" class="gloss-abbr">')
-        local abbr_close = pandoc.RawInline('html', '</abbr>')
-        return {abbr_elem, span, abbr_close}
+        -- Use user definition if available, otherwise Leipzig definition
+        local definition = abbreviations[abbr] or leipzig_abbrs[abbr]
+        if definition then
+          local abbr_elem = pandoc.RawInline('html',
+            '<abbr title="' .. definition .. '" class="gloss-abbr">')
+          local abbr_close = pandoc.RawInline('html', '</abbr>')
+          return {abbr_elem, span, abbr_close}
+        end
       end
     end
     
     return span
   end
   
+  -- Handle SmallCaps elements (from pandoc-ling)
+  local function link_smallcaps(elem)
+    local text = pandoc.utils.stringify(elem):upper()
+    local abbrs = parse_abbreviations(text)
+    
+    -- Only link if it's a single abbreviation with a definition
+    if #abbrs == 1 then
+      local abbr = abbrs[1]
+      -- Use user definition if available, otherwise Leipzig definition
+      local definition = abbreviations[abbr] or leipzig_abbrs[abbr]
+      if definition then
+        local abbr_elem = pandoc.RawInline('html',
+          '<abbr title="' .. definition .. '" class="gloss-abbr">')
+        local abbr_close = pandoc.RawInline('html', '</abbr>')
+        return {abbr_elem, elem, abbr_close}
+      end
+    end
+    
+    return elem
+  end
+  
   -- Walk all blocks
   local temp_div = pandoc.Div(doc.blocks)
   temp_div = temp_div:walk({
-    Span = link_span  
+    Span = link_span,
+    SmallCaps = link_smallcaps  -- NEW: Link SmallCaps elements too
   })
   doc.blocks = temp_div.content
   
@@ -391,7 +528,8 @@ local function warn_undefined()
   
   local undefined = {}
   for abbr in pairs(used_abbrs) do
-    if not abbreviations[abbr] then
+    -- Skip if defined in metadata OR if it's a Leipzig standard abbreviation
+    if not abbreviations[abbr] and not leipzig_abbrs[abbr] then
       table.insert(undefined, abbr)
     end
   end
@@ -402,6 +540,7 @@ local function warn_undefined()
     for _, abbr in ipairs(undefined) do
       io.stderr:write("  - " .. abbr .. "\n")
     end
+    io.stderr:write("\nNote: Leipzig Glossing Rules standard abbreviations are ignored.\n")
   end
 end
 

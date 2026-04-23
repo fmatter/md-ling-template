@@ -1,7 +1,7 @@
 filters:
   - pandoc/filters/linguistic-markup.lua  # Semantic markup (.gl, .ob, .rc)
-  - pandoc/filters/glossing-list.lua  # Auto-discover and link glossing abbreviations (must run before pandoc-ling)
-  - pandoc/filters/pandoc-ling.lua  # Linguistic examples
+  - pandoc/filters/pandoc-ling.lua  # Linguistic examples (creates SmallCaps elements)
+  - pandoc/filters/glossing-list.lua  # Auto-discover and link glossing abbreviations (must run AFTER pandoc-ling)
   - pandoc-crossref  # MUST come before citeproc
   - citeproc  # Citations - runs after pandoc-crossref
   - pandoc/filters/subtables.lua  # Subtable support (MUST run after citeproc to handle citations in captions)
