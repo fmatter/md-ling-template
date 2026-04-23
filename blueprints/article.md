@@ -10,20 +10,13 @@ mainfont: Linux Libertine
 abstract: |
   This document serves as a demonstration of the capabilities of a Markdown template designed for linguistic writing. It includes examples of interlinear glossing, cross-references, citations, and semantic markup.
 keywords: [markdown, linguistics, template, demonstration]
-
+formatGloss: true
 glossing-abbreviations:
-  APPL: applicative
-  INV: inverse voice
-  IND: indicative
-  3: third person
-  3ACT: third person actor
-  DEF: definite
-  NOM: nominative
-  3SG: third person singular
-
+  AGT: agent
+  HUM: human
+  S~P~: intransitive subject with patient-like properties
 glossing-list:
-  position: after
-  title: "List of Glossing Abbreviations"
+  position: null
   warn-undefined: true
 ---
 
@@ -99,7 +92,7 @@ word
 [Poems]{.smallcaps}:
 
 | You want to have lines?
-| Just make use of these line blocks!
+|     Just make use of these line blocks!
 | They will be useful.
 
 # Crossreferences
@@ -129,7 +122,7 @@ The same tree twice.
 
 ## Semantic Markup {#sec:markup}
 
-**Gloss abbreviations (`.gl`):** The word has [nom]{.gl} case and [3sg]{.gl} agreement.
+**Gloss abbreviations (`.gl`):** The word has [nom]{.gl} case and [3]{.gl}[sg]{.gl} agreement.
 
 **Object language (`.ob`):** German [Haus]{.ob} means 'house'.
 
@@ -139,26 +132,21 @@ The same tree twice.
 
 **Phonemic transcription:** [kæt]{.pnm}.
 
-**Inline abbreviations list:**
-
-::: glossing-abbreviations-inline
-:::
-
 # Linguistic Examples {#sec:examples}
 
 ## Numbered Examples
 
-::: ex
+::: {.ex}
 The cat sat on the mat.
 :::
 
-::: ex
+::: {.ex}
 \*The cat sitted on the mat.
 :::
 
 ## Interlinear Glossing {#sec:glossing}
 
-::: {#ex:mapudungunS .ex formatGloss=true}
+::: {#ex:mapudungunS .ex}
 a.
 | Mapudungun 1
 | amuymi
@@ -168,32 +156,12 @@ a.
 b.
 | Mapudungun 2
 | feymew fütra amuy Antonio
-| fejmew fɨt͡ʂa amu-i-Ø antonjo
+| fejmew fɨt͡ʂa amu-i-[Ø]{.normal} antonjo
 | then far go-IND-3 Antonio
 | 'Then, Antonio went far away.' ([antonio]{.smallcaps}: 61)
 :::
 
-## Sub-examples
-
-::: ex
-a. The dog barked.
-b. The cat meowed.
-c. The bird sang.
-:::
-
-## Grammaticality Judgments
-
-::: ex
-^\* Who do you think that will come?
-:::
-
-::: ex
-^? This sentence is marginally acceptable.
-:::
-
-::: ex
-Who do you think will come?
-:::
+## Tabulars in examples
 
 ::: {#ex:mawetooth .ex}
 
@@ -205,15 +173,17 @@ Sateré-Mawé 'tooth' (Citation)
 |---|---|
 | [2]{.gl} | [e-jãj]{.ob} |
 | [3]{.gl} | [hãj]{.ob} |
-| [1+2]{.gl} | [a-hãj]{.ob} |
+| [1+2]{.gl}[^glossing-note] | [a-hãj]{.ob} |
 | [1+3]{.gl} | [uru-hãj]{.ob} |
 | [2]{.gl}[pl]{.gl} | [e-hãj]{.ob} |
 | [3]{.gl}[pl]{.gl} | [iʔatu-jãj]{.ob} |
-| [np]{.gl} | [jãj]{.ob} |
+| NP | [jãj]{.ob} |
 
 :::
 
 :::
+
+[^glossing-note]: Glossing abbreviations: [...]{.glossing-abbreviations-inline}
 
 # More on tables {#sec:moretables}
 The template supports subtables (@tbl:arapers) and tables without headers (@tbl:animcategories).
@@ -233,7 +203,7 @@ Table: Transitive {#tbl:arapers-trans}
 
 Table: Intransitive {#tbl:arapers-intrans}
 
-|            | [S~A~]{.gl}         | [S~P~]{.gl}                               |
+|            | [s~a~]{.gl}         | [s~p~]{.gl}                               |
 | ---------- | ------------------- | ----------------------------------------- |
 | [1]{.gl}   | [w-]{.ob}/[k-]{.ob} | [j-]{.ob}[/ɨ-]{.ob}                       |
 | [2]{.gl}   | [m-]{.ob}           | [o-]{.ob}                                 |
