@@ -59,4 +59,5 @@
     "gloss",
     "lualatex"
   ],
+  "markdown-preview-enhanced.markdownParser": "pandoc",
 }
