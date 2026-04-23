@@ -385,7 +385,21 @@ function parseDiv (div)
         end
       end
       -- Now parse the example (after ID extraction and removal)
-      judgements[i], examples[i], kind[i] = parseExample(data.content[i][1])
+      -- Check if this list item has a table with optional preamble
+      local listItem = data.content[i]
+      if #listItem == 2 and listItem[2].tag == "Div" and listItem[2].classes:includes("extable") then
+        -- This is a table example with a preamble (first block)
+        judgements[i] = nil  -- tables don't have judgements
+        kind[i] = "table"
+        -- Create a structure similar to interlinear: table + optional header/preamble
+        local tableData = {}
+        tableData.table = listItem[2].content[1]  -- The actual table
+        tableData.preamble = listItem[1]  -- The preamble block (Para or Plain)
+        examples[i] = tableData
+      else
+        -- Standard parsing for single/interlinear examples
+        judgements[i], examples[i], kind[i] = parseExample(listItem[1])
+      end
     end
   else
     judgements[1], examples[1], kind[1] = parseExample(data)
@@ -1079,6 +1093,83 @@ function pandocMakeList (parsedDiv, from, to, forceJudge)
   return example
 end
 
+function pandocMakeTableSubexample (parsedDiv, label, forceJudge)
+
+  -- For table sub-examples in mixed lists
+  -- The table data includes both the table and optional preamble
+  local selection = label or 1
+  local tableData = parsedDiv.examples[selection]
+  
+  -- Extract the table and preamble
+  local userTable, subPreamble
+  if type(tableData) == "table" and tableData.table then
+    -- This is a table with preamble structure
+    userTable = tableData.table
+    subPreamble = tableData.preamble
+  else
+    -- Just a plain table
+    userTable = tableData
+    subPreamble = nil
+  end
+  
+  -- Build the table structure
+  local nCols = 1
+  local nRows = 1
+  local rowContent = { {{ userTable }} }
+  
+  -- Add label column (a, b, c, etc.)
+  local labelText = string.char(96 + selection).."."
+  local labelContent = pandoc.Plain(pandoc.Str(labelText))
+  
+  -- Add judgement column (empty for tables, but needed for alignment)
+  local judgeCol = 0
+  if forceJudge then
+    judgeCol = 1
+    nCols = nCols + 1
+    rowContent = addCol(rowContent)
+    rowContent[1][1][1] = pandoc.Plain({})
+  end
+  
+  -- Add label column
+  rowContent = addCol(rowContent)
+  nCols = nCols + 1
+  local labelColNum = judgeCol + 1
+  rowContent[1][labelColNum][1] = labelContent
+  
+  -- Add preamble if present - show it inline with the label
+  if subPreamble and pandoc.utils.stringify(subPreamble) ~= "" then
+    -- Put the preamble in the same row as the label, in the content column
+    rowContent[1][nCols][1] = subPreamble
+    -- Add the table in a new row, with empty cells for alignment
+    nRows = nRows + 1
+    local newRow = {}
+    for col = 1, nCols do
+      if col == nCols then
+        newRow[col] = { userTable }
+      else
+        newRow[col] = {}
+      end
+    end
+    table.insert(rowContent, newRow)
+  end
+  
+  -- make into table
+  local example = turnIntoTable(rowContent, nCols, judgeCol)
+
+  -- set class of label
+  example.bodies[1].body[1].cells[labelColNum].attr = {class = "linguistic-example-label"}
+  
+  -- set class of content
+  if subPreamble and pandoc.utils.stringify(subPreamble) ~= "" then
+    example.bodies[1].body[1].cells[nCols].attr = {class = "linguistic-example-preamble"}
+    example.bodies[1].body[nRows].cells[nCols].attr = {class = "linguistic-example-table-content"}
+  else
+    example.bodies[1].body[1].cells[nCols].attr = {class = "linguistic-example-table-content"}
+  end
+
+  return example
+end
+
 -----------------------------------------
 
 function pandocMakeMixedList (parsedDiv)
@@ -1111,6 +1202,12 @@ function pandocMakeMixedList (parsedDiv)
         result[resultCount].attr = pandoc.Attr(parsedDiv.subExIDs[i], {"linguistic-example"})
       end
       isInterlinear[resultCount] = true
+      resultCount = resultCount + 1
+    elseif parsedDiv.kind[i] == "table" then
+      -- Handle table examples (with optional preamble for sub-examples)
+      local label = i
+      result[resultCount]        = pandocMakeTableSubexample(parsedDiv, label, forceJudge)
+      isInterlinear[resultCount] = false
       resultCount = resultCount + 1
     elseif parsedDiv.kind[i] == "single" then
       if i==1 or parsedDiv.kind[i-1] ~= "single" then
@@ -1473,12 +1570,28 @@ function texMakeExpex (parsedDiv)
 
     elseif kind[i] == "table" then
       -- Convert the Pandoc Table to simple tabular
-      local tabular = texMakeTabular(parsedDiv.examples[i])
+      local tableData = parsedDiv.examples[i]
+      local actualTable = tableData.table or tableData
+      local tablePreamble = tableData.preamble and tableData.preamble.content or nil
+      
       if #kind > 1 then
-        texEnd("\n  \\a ", preamble)
+        if tablePreamble then
+          texFront("\n  \\a ", tablePreamble)
+          texEnd("\\\\*", tablePreamble)
+          preamble:extend(tablePreamble)
+          texEnd("\n  ", preamble)
+        else
+          texEnd("\n  \\a ", preamble)
+        end
       else
+        -- Standalone table: add line break after preamble if present
+        if parsedDiv.preamble then
+          texEnd("\\\\*", preamble)
+        end
         texEnd("\n  ", preamble)
       end
+      
+      local tabular = texMakeTabular(actualTable)
       preamble:extend(tabular)
     end
   end
@@ -1596,13 +1709,37 @@ function texMakeLinguex (parsedDiv)
 
     elseif kind[i] == "table" then
       -- Convert the Pandoc Table to simple tabular
-      local tabular = texMakeTabular(parsedDiv.examples[i])
-      -- Add line break after preamble if present
-      if parsedDiv.preamble then
-        texEnd("\\\\", preamble)
+      local tableData = parsedDiv.examples[i]
+      local actualTable = tableData.table or tableData
+      local tablePreamble = tableData.preamble and tableData.preamble.content or nil
+      
+      -- Add label for multi-part examples
+      if #kind > 1 and i == 1 then
+        if tablePreamble then
+          texFront("\n  \\a. ", tablePreamble)
+          texEnd("\\\\", tablePreamble)
+          preamble:extend(tablePreamble)
+          texEnd("\n  ", preamble)
+        else
+          texEnd("\n  \\a. ", preamble)
+        end
+      elseif #kind > 1 and i > 1 then
+        if tablePreamble then
+          texFront("\n  \\b. ", tablePreamble)
+          texEnd("\\\\", tablePreamble)
+          preamble:extend(tablePreamble)
+          texEnd("\n  ", preamble)
+        else
+          texEnd("\n  \\b. ", preamble)
+        end
+      else
+        -- Standalone table: add line break after preamble if present
+        if parsedDiv.preamble then
+          texEnd("\\\\", preamble)
+        end
       end
-      -- Add the tabular to preamble
-      texEnd("\n  ", preamble)
+      
+      local tabular = texMakeTabular(actualTable)
       preamble:extend(tabular)
     end
   end
@@ -1732,12 +1869,38 @@ function texMakeGb4e (parsedDiv)
 
     elseif kind[i] == "table" then
       -- Convert the Pandoc Table to simple tabular
-      local tabular = texMakeTabular(parsedDiv.examples[i])
-      -- Add line break after preamble if present
-      if parsedDiv.preamble then
-        texEnd("\\\\", preamble)
+      local tableData = parsedDiv.examples[i]
+      local actualTable = tableData.table or tableData
+      local tablePreamble = tableData.preamble and tableData.preamble.content or nil
+      
+      -- Add label for multi-part examples
+      if #kind > 1 and i == 1 then
+        if tablePreamble then
+          texFront("\n      \\begin{xlist}\n  \\ex ", tablePreamble)
+          texEnd("\\\\", tablePreamble)
+          preamble:extend(tablePreamble)
+          texEnd("\n  ", preamble)
+        else
+          texEnd("\n      \\begin{xlist}\n  \\ex ", preamble)
+        end
+      elseif #kind > 1 and i > 1 then
+        if tablePreamble then
+          texFront("\n  \\ex ", tablePreamble)
+          texEnd("\\\\", tablePreamble)
+          preamble:extend(tablePreamble)
+          texEnd("\n  ", preamble)
+        else
+          texEnd("\n  \\ex ", preamble)
+        end
+      else
+        -- Standalone table: add line break after preamble if present
+        if parsedDiv.preamble then
+          texEnd("\\\\", preamble)
+        end
+        texEnd("\n  ", preamble)
       end
-      texEnd("\n  ", preamble)
+      
+      local tabular = texMakeTabular(actualTable)
       preamble:extend(tabular)
     end
   end
@@ -1886,18 +2049,38 @@ function texMakeLangsci (parsedDiv)
 
     elseif kind[i] == "table" then
       -- Convert the Pandoc Table to simple tabular
-      local tabular = texMakeTabular(parsedDiv.examples[i])
-      -- Add line break after preamble if present
-      if parsedDiv.preamble then
-        texEnd("\\\\", preamble)
-      end
+      local tableData = parsedDiv.examples[i]
+      local actualTable = tableData.table or tableData
+      local tablePreamble = tableData.preamble and tableData.preamble.content or nil
+      
+      -- Add label for multi-part examples
       if #kind > 1 and i == 1 then
-        texEnd("\n  \\ea ", preamble)
+        if tablePreamble then
+          texFront("\n  \\ea ", tablePreamble)
+          texEnd("\\\\", tablePreamble)
+          preamble:extend(tablePreamble)
+          texEnd("\n  ", preamble)
+        else
+          texEnd("\n  \\ea ", preamble)
+        end
       elseif #kind > 1 and i > 1 then
-        texEnd("\n  \\ex ", preamble)
+        if tablePreamble then
+          texFront("\n  \\ex ", tablePreamble)
+          texEnd("\\\\", tablePreamble)
+          preamble:extend(tablePreamble)
+          texEnd("\n  ", preamble)
+        else
+          texEnd("\n  \\ex ", preamble)
+        end
       else
+        -- Standalone table: add line break after preamble if present
+        if parsedDiv.preamble then
+          texEnd("\\\\", preamble)
+        end
         texEnd("\n  ", preamble)
       end
+      
+      local tabular = texMakeTabular(actualTable)
       preamble:extend(tabular)
     end
   end
