@@ -26,16 +26,17 @@ Metadata structure:
     cf.: compare
   
   glossing-list:
-    position: after      # 'before' (after intro) or 'after' (before references) or null (no list)
+    position: after      # 'after' (before references) or null (no list)
     title: "List of Glossing Abbreviations"
     warn-undefined: true # warn about used but undefined abbreviations
 
 Inline abbreviations list (for use in text or footnotes):
-  Block version:  ::: glossing-abbreviations-inline
+  Block version:  ::: glossing-abbreviations-list
                   :::
+                  (Replaced with full table)
   
   Span version:   [...]{.glossing-abbreviations-inline}
-                  (The span content is replaced entirely)
+                  (Replaced with comma-separated inline list)
 ]]
 
 local abbreviations = {}  -- From metadata: { ABBR = "definition" }
@@ -492,16 +493,18 @@ end
 -- Replace inline abbreviation list placeholders
 local function replace_inline_abbr_lists(doc)
   local function process_div(div)
-    -- Check for glossing-abbreviations-inline class
-    if div.classes:includes('glossing-abbreviations-inline') then
-      local inlines = generate_inline_abbr_list()
-      return pandoc.Para(inlines)
+    -- Check for glossing-abbreviations-list class (returns full table)
+    if div.classes:includes('glossing-abbreviations-list') then
+      local table_blocks = generate_abbr_list()
+      if table_blocks then
+        return table_blocks
+      end
     end
     return div
   end
   
   local function process_span(span)
-    -- Check for glossing-abbreviations-inline class
+    -- Check for glossing-abbreviations-inline class (returns inline list)
     if span.classes:includes('glossing-abbreviations-inline') then
       local inlines = generate_inline_abbr_list()
       return inlines
@@ -559,22 +562,7 @@ function Pandoc(doc)
   if config.position then
     local abbr_list = generate_abbr_list()
     if abbr_list then
-      if config.position == "before" then
-        -- Insert after first heading (intro)
-        local inserted = false
-        local new_blocks = pandoc.List()
-        for i, block in ipairs(doc.blocks) do
-          new_blocks:insert(block)
-          if not inserted and block.t == "Header" and block.level == 1 then
-            -- Insert after first level-1 header
-            for _, list_block in ipairs(abbr_list) do
-              new_blocks:insert(list_block)
-            end
-            inserted = true
-          end
-        end
-        doc.blocks = new_blocks
-      elseif config.position == "after" then
+      if config.position == "after" then
         -- Insert before references/bibliography
         local inserted = false
         local new_blocks = pandoc.List()

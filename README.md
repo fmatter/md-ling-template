@@ -359,13 +359,18 @@ glossing-abbreviations:
   3SG: third person singular
 
 glossing-list:
-  position: after # 'before' (after intro) or 'after' (before references)
+  position: after # 'after' (before references) or null (no automatic list)
   title: "List of Glossing Abbreviations"
 ```
 
-- inline list format: `[...]{.glossing-abbreviations-inline}`
+**Features:**
+- Leipzig Glossing Rules abbreviations (APPL, IND, DEF, etc.) automatically get tooltips in HTML
+- Only user-defined abbreviations appear in the generated list
+- Insert list manually anywhere in your document:
+  - Full table: `::: glossing-abbreviations-list`
+  - Inline list: `[...]{.glossing-abbreviations-inline}`
 
-- check for missing abbreviations:
+Check for missing abbreviations:
 
 ```bash
 just check              # Scans HTML output for undefined abbreviations
