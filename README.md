@@ -664,6 +664,19 @@ The template works with all standard Pandoc features:
 
 ---
 
+## How do I...
+
+### Use traditional paragraph indentation instead of spacing?
+
+By default, pandoc uses the `parskip` package which adds space between paragraphs and removes first-line indentation.
+Setting `indent: true` in your metadata disables this, giving you traditional LaTeX formatting with indented first lines and no paragraph spacing.
+
+```yaml
+indent: true
+```
+
+---
+
 ## Technical details
 
 ### LaTeX template
