@@ -8,9 +8,6 @@ filters:
   - pandoc/filters/simple-tables.lua  # Render all tables with auto-width columns and captions above
   - pandoc/filters/docx-styles.lua  # Ensure custom styles work in DOCX output
 
-# Custom template (for LaTeX output with affiliation support)
-template: pandoc/templates/default.latex
-
 # PDF engine (use LuaLaTeX for Unicode support)
 pdf-engine: lualatex
 

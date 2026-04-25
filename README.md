@@ -305,6 +305,24 @@ pandoc --defaults=pandoc/defaults.yaml \
   -o output.pdf
 ```
 
+### Post-editing LaTeX files
+
+To manually edit the generated LaTeX before compilation:
+
+```bash
+# 1. Generate .tex file
+just tex content.md
+
+# 2. Edit content.tex as needed
+vim content.tex
+
+# 3. Compile with lualatex (requires -shell-escape for SVG support)
+lualatex -shell-escape content.tex
+lualatex -shell-escape content.tex # Run twice for references
+```
+
+**Important:** The `-shell-escape` flag is required if your document contains SVG figures. This allows the LaTeX `svg` package to call Inkscape for SVG-to-PDF conversion during compilation.
+
 ### Example documents
 
 The `blueprints/` directory contains example documents:
