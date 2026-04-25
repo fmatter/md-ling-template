@@ -626,7 +626,7 @@ end
 ------------------------------------------
 
 function formatGlossLine (s)
-  -- turn uppercase in gloss into small caps
+  -- turn uppercase in gloss into .gl spans
   -- Only fully uppercase components are treated as glosses
   
   -- Check if this is a name abbreviation (e.g., "A." or "B.")
@@ -654,38 +654,49 @@ function formatGlossLine (s)
     end
     
     if pos <= #s then
-      -- Try to match an uppercase/digit sequence
-      local upper_start, upper_end = string.find(s, "^[%u%d]+", pos)
-      if upper_start then
-        local upper_text = string.sub(s, upper_start, upper_end)
-        -- Check if this uppercase sequence is followed by lowercase (making it mixed case)
-        local next_pos = upper_end + 1
-        if next_pos <= #s then
-          local next_char = string.sub(s, next_pos, next_pos)
-          if string.match(next_char, "%l") then
-            -- Mixed case (e.g., "Ind") - don't convert, treat whole thing as regular text
-            -- Find the end of this mixed-case word
-            local mixed_end = string.find(s, "[^%a%d]", next_pos)
-            if mixed_end then
-              mixed_end = mixed_end - 1
+      -- Check for person markers first (1, 2, 3, 4, or combinations like 1+2, 1+3, etc.)
+      -- Pattern: [1-4](+[1-4])? followed by uppercase letters
+      local person_start, person_end, person_marker, rest_upper = string.find(s, "^([1-4]%+?[1-4]?)([%u]+)", pos)
+      
+      if person_start and rest_upper then
+        -- Found person marker + gloss abbreviation - split into two .gl spans
+        table.insert(split, pandoc.Span({pandoc.Str(person_marker)}, {class = "gl"}))
+        table.insert(split, pandoc.Span({pandoc.Str(pandoc.text.lower(rest_upper))}, {class = "gl"}))
+        pos = person_end + 1
+      else
+        -- Try to match an uppercase/digit sequence
+        local upper_start, upper_end = string.find(s, "^[%u%d]+", pos)
+        if upper_start then
+          local upper_text = string.sub(s, upper_start, upper_end)
+          -- Check if this uppercase sequence is followed by lowercase (making it mixed case)
+          local next_pos = upper_end + 1
+          if next_pos <= #s then
+            local next_char = string.sub(s, next_pos, next_pos)
+            if string.match(next_char, "%l") then
+              -- Mixed case (e.g., "Ind") - don't convert, treat whole thing as regular text
+              -- Find the end of this mixed-case word
+              local mixed_end = string.find(s, "[^%a%d]", next_pos)
+              if mixed_end then
+                mixed_end = mixed_end - 1
+              else
+                mixed_end = #s
+              end
+              table.insert(split, pandoc.Str(string.sub(s, upper_start, mixed_end)))
+              pos = mixed_end + 1
             else
-              mixed_end = #s
+              -- Fully uppercase - convert to .gl span
+              table.insert(split, pandoc.Span({pandoc.Str(pandoc.text.lower(upper_text))}, {class = "gl"}))
+              pos = next_pos
             end
-            table.insert(split, pandoc.Str(string.sub(s, upper_start, mixed_end)))
-            pos = mixed_end + 1
           else
-            -- Fully uppercase - convert to smallcaps
-            table.insert(split, pandoc.SmallCaps(pandoc.text.lower(upper_text)))
+            -- At end of string and all uppercase - convert
+            table.insert(split, pandoc.Span({pandoc.Str(pandoc.text.lower(upper_text))}, {class = "gl"}))
             pos = next_pos
           end
         else
-          -- At end of string and all uppercase - convert
-          table.insert(split, pandoc.SmallCaps(pandoc.text.lower(upper_text)))
-          pos = next_pos
+          -- Shouldn't happen, but handle gracefully
+          pos = pos + 1
         end
-      else
-        -- Shouldn't happen, but handle gracefully
-        pos = pos + 1
       end
     end
   end
