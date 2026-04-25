@@ -225,6 +225,26 @@ metadata:
 
 Both options work identically.
 
+**Author with affiliations:**
+
+The `author` field supports structured metadata for including affiliations (shown as footnotes in PDF):
+
+```yaml
+author:
+  - name: Alice Smith
+    affiliation: Department of Linguistics, University of Somewhere
+  - name: Bob Jones
+    affiliation: Institute of Language Studies, University of Nowhere
+```
+
+Simple string format is also supported for backward compatibility:
+
+```yaml
+author:
+  - Alice Smith
+  - Bob Jones
+```
+
 ### VS Code preview
 
 **Important:** VS Code's Markdown Preview Enhanced extension only works for **`.md` files in the top-level directory** of your workspace.
