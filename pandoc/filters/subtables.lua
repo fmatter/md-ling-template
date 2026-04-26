@@ -6,6 +6,21 @@ function Div(el)
     return nil
   end
 
+  -- Helper function to escape special LaTeX characters in captions
+  local function escape_latex(str)
+    if not str then return "" end
+    -- Only escape characters that are problematic in captions
+    -- Don't escape backslash since caption text shouldn't have raw backslashes
+    str = str:gsub("&", "\\&")
+    str = str:gsub("%%", "\\%%")
+    str = str:gsub("%$", "\\$")
+    str = str:gsub("#", "\\#")
+    str = str:gsub("_", "\\_")
+    str = str:gsub("{", "\\{")
+    str = str:gsub("}", "\\}")
+    return str
+  end
+
   -- Find all tables and the overall caption (first strong paragraph)
   local tables = {}
   local overall_caption = nil
@@ -51,6 +66,7 @@ function Div(el)
     local latex_subfloats = {}
     for _, tbl in ipairs(tables) do
       local caption = pandoc.utils.stringify(tbl.caption.long)
+      caption = escape_latex(caption)  -- Escape special LaTeX characters
       local label = (tbl.identifier ~= "")
         and ("\\label{" .. tbl.identifier .. "}")
         or ""
@@ -89,9 +105,12 @@ function Div(el)
       table.insert(latex_subfloats, subtable)
     end
 
+    -- Escape overall caption for LaTeX
+    local escaped_overall_caption = escape_latex(overall_caption or "Subtables")
+
     -- Wrap in table float
     local output = "\\begin{table}[ht]\n"
-      .. "\\caption{" .. (overall_caption or "Subtables") .. "}"
+      .. "\\caption{" .. escaped_overall_caption .. "}"
       .. "\\label{" .. id .. "}\n"
       .. "\\centering\n"
       .. table.concat(latex_subfloats, separator) .. "\n"
