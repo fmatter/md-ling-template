@@ -39,7 +39,7 @@ def test_crossref_labels(lang, sec_label, tbl_label, tbl_title):
         pandoc_args.extend(["--metadata-file", f"pandoc/crossref-{lang}.yaml"])
     
     pandoc_args.extend([
-        "--template=pandoc/templates/default.html",
+        "--template=templates/default.html",
         "--css=pandoc/style.css",
         "-o", str(output_html)
     ])
@@ -92,7 +92,7 @@ def test_crossref_in_latex(lang, sec_prefix, tbl_prefix):
         pandoc_args.extend(["--metadata-file", f"pandoc/crossref-{lang}.yaml"])
     
     pandoc_args.extend([
-        "--template=pandoc/templates/default.latex",
+        "--template=templates/default.latex",
         "-o", str(output_tex)
     ])
     

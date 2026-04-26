@@ -21,68 +21,88 @@ default:
     @just --list
 
 # Build to PDF (optional: specify filename, or auto-detects project.yaml/content.md)
-pdf file="":
+# Optional template parameter: just pdf my.md templates/thesis.latex
+pdf file="" template="":
     #!/usr/bin/env bash
+    TEMPLATE_ARG=""; \
+    if [ -n "{{template}}" ]; then \
+        TEMPLATE_ARG="--template={{template}}"; \
+    fi; \
     if [ -n "{{file}}" ]; then \
-        python3 pandoc/build.py "{{file}}"; \
+        python3 pandoc/build.py "{{file}}" $TEMPLATE_ARG; \
     elif [ -f project.yaml ]; then \
-        python3 pandoc/build.py --project -o output.pdf; \
+        python3 pandoc/build.py --project $TEMPLATE_ARG -o output.pdf; \
     elif [ -f content.md ]; then \
-        python3 pandoc/build.py content.md -o output.pdf; \
+        python3 pandoc/build.py content.md $TEMPLATE_ARG -o output.pdf; \
     else \
         echo "Error: No file specified and no project.yaml or content.md found."; \
-        echo "Usage: just pdf [filename.md]"; \
+        echo "Usage: just pdf [filename.md] [template]"; \
         echo "Or create project.yaml (multi-file) or content.md (single-file)"; \
         exit 1; \
     fi
 
 # Build to HTML (optional: specify filename, or auto-detects project.yaml/content.md)
-html file="":
+# Optional template parameter: just html my.md templates/custom.html
+html file="" template="":
     #!/usr/bin/env bash
+    TEMPLATE_ARG=""; \
+    if [ -n "{{template}}" ]; then \
+        TEMPLATE_ARG="--template={{template}}"; \
+    fi; \
     if [ -n "{{file}}" ]; then \
         FILE="{{file}}"; \
-        python3 pandoc/build.py "$FILE" -o "${FILE%.md}.html"; \
+        python3 pandoc/build.py "$FILE" $TEMPLATE_ARG -o "${FILE%.md}.html"; \
     elif [ -f project.yaml ]; then \
-        python3 pandoc/build.py --project -o output.html; \
+        python3 pandoc/build.py --project $TEMPLATE_ARG -o output.html; \
     elif [ -f content.md ]; then \
-        python3 pandoc/build.py content.md -o output.html; \
+        python3 pandoc/build.py content.md $TEMPLATE_ARG -o output.html; \
     else \
         echo "Error: No file specified and no project.yaml or content.md found."; \
-        echo "Usage: just html [filename.md]"; \
+        echo "Usage: just html [filename.md] [template]"; \
         echo "Or create project.yaml (multi-file) or content.md (single-file)"; \
         exit 1; \
     fi
 
 # Build to DOCX with post-processing (optional: specify filename, or auto-detects project.yaml/content.md)
-docx file="":
+# Optional template parameter: just docx my.md templates/custom.latex
+docx file="" template="":
     #!/usr/bin/env bash
+    TEMPLATE_ARG=""; \
+    if [ -n "{{template}}" ]; then \
+        TEMPLATE_ARG="--template={{template}}"; \
+    fi; \
     if [ -n "{{file}}" ]; then \
         FILE="{{file}}"; \
-        python3 pandoc/build.py "$FILE" -o "${FILE%.md}.docx"; \
+        python3 pandoc/build.py "$FILE" $TEMPLATE_ARG -o "${FILE%.md}.docx"; \
     elif [ -f project.yaml ]; then \
-        python3 pandoc/build.py --project -o output.docx; \
+        python3 pandoc/build.py --project $TEMPLATE_ARG -o output.docx; \
     elif [ -f content.md ]; then \
-        python3 pandoc/build.py content.md -o output.docx; \
+        python3 pandoc/build.py content.md $TEMPLATE_ARG -o output.docx; \
     else \
         echo "Error: No file specified and no project.yaml or content.md found."; \
-        echo "Usage: just docx [filename.md]"; \
+        echo "Usage: just docx [filename.md] [template]"; \
         echo "Or create project.yaml (multi-file) or content.md (single-file)"; \
         exit 1; \
     fi
 
 # Build to LaTeX (optional: specify filename, or auto-detects project.yaml/content.md)
-tex file="":
+# Optional template parameter: just tex my.md templates/thesis.latex
+tex file="" template="":
     #!/usr/bin/env bash
+    TEMPLATE_ARG=""; \
+    if [ -n "{{template}}" ]; then \
+        TEMPLATE_ARG="--template={{template}}"; \
+    fi; \
     if [ -n "{{file}}" ]; then \
         FILE="{{file}}"; \
-        python3 pandoc/build.py "$FILE" -o "${FILE%.md}.tex"; \
+        python3 pandoc/build.py "$FILE" $TEMPLATE_ARG -o "${FILE%.md}.tex"; \
     elif [ -f project.yaml ]; then \
-        python3 pandoc/build.py --project -o output.tex; \
+        python3 pandoc/build.py --project $TEMPLATE_ARG -o output.tex; \
     elif [ -f content.md ]; then \
-        python3 pandoc/build.py content.md -o output.tex; \
+        python3 pandoc/build.py content.md $TEMPLATE_ARG -o output.tex; \
     else \
         echo "Error: No file specified and no project.yaml or content.md found."; \
-        echo "Usage: just tex [filename.md]"; \
+        echo "Usage: just tex [filename.md] [template]"; \
         echo "Or create project.yaml (multi-file) or content.md (single-file)"; \
         exit 1; \
     fi

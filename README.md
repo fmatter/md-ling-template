@@ -154,7 +154,7 @@ your-article/
 **Template files and what they do:**
 
 - `pandoc/filters/` - Lua filters that process your markdown (linguistic markup, tables, examples). Work automatically.
-- `pandoc/templates/default.latex` - LaTeX template for PDF output. Pre-configured.
+- `templates/` - LaTeX and HTML templates for different document types (articles, theses, manuscripts, books).
 - `pandoc/defaults.yaml` - Pandoc configuration (filters, settings). Rarely needs editing.
 - `pandoc/style.css` - HTML styling. Pre-configured.
 - `pandoc/crossref-*.yaml` - Language-specific labels (Figure, Table, etc.). Use as-is or copy to customize.
@@ -274,6 +274,11 @@ just tex
 
 # Specific file:
 just pdf my-article.md
+
+# With template metadata flags:
+just pdf my-thesis.md    # With titlepage: true in metadata
+just pdf draft.md        # With linenos: true, draft: true in metadata
+just html article.md templates/custom.html
 ```
 
 **With Python build script:**
@@ -295,13 +300,13 @@ python3 pandoc/build.py content.md --template my-template.latex -o output.pdf
 # Single file
 pandoc content.md \
   --defaults=pandoc/defaults.yaml \
-  --template=pandoc/templates/default.latex \
+  --template=templates/default.latex \
   -o output.pdf
 
 # Multi-file
 pandoc --defaults=pandoc/defaults.yaml \
   --defaults=project.yaml \
-  --template=pandoc/templates/default.latex \
+  --template=templates/default.latex \
   -o output.pdf
 ```
 
@@ -633,12 +638,74 @@ filters:
 **Using custom templates:**
 
 ```bash
-# Create your custom template based on the default
-cp pandoc/templates/default.latex my-template.latex
+# Build with default template (handles all general use cases)
+python3 pandoc/build.py content.md -o output.pdf
+
+# Or create your own based on default
+cp templates/default.latex my-template.latex
 # Edit my-template.latex as needed
 
-# Build with your template
+# Build with your custom template
 python3 pandoc/build.py content.md --template my-template.latex -o output.pdf
+```
+
+### Available templates
+
+The `templates/` directory provides LaTeX templates:
+
+- **`default.latex`** - General-purpose template (flexible)
+  - Handles articles, papers, theses, manuscripts, drafts
+  - Document class configurable via metadata (`scrartcl`, `scrbook`, etc.)
+  - Supports thesis titlepage (with `titlepage: true`)
+  - Supports manuscript features (`linenos: true`, `draft: true`, `doublespacing: true`)
+  - Includes all linguistic markup commands
+  - Pre-configured for linguistic research
+
+- **`langsci.latex`** - Language Science Press (publisher-specific)
+  - Based on [langsci-press.org](https://langsci-press.org/templatesAndTools) requirements
+  - **Requires XeLaTeX** (not LuaLaTeX) - use two-step workflow (tex → xelatex)
+  - For authors publishing with Language Science Press
+
+- **`default.html`** - HTML template for web output
+
+**Using default.latex for different document types:**
+
+```bash
+# Article (default)
+just pdf article.md
+# With metadata: documentclass: scrartcl (or omit, it's the default)
+
+# Book/thesis
+just pdf thesis.md
+# With metadata: documentclass: scrbook, titlepage: true
+
+# Draft manuscript
+just pdf draft.md
+# With metadata: linenos: true, draft: true, doublespacing: true
+```
+
+**Example metadata for thesis with custom title page:**
+
+```yaml
+---
+title: "My PhD Thesis"
+titlepage: true
+degree: "Doctor of Philosophy (PhD)"
+department: "Department of Linguistics"
+institution: "University of Bern"
+supervisor: "Prof. Dr. Name"
+documentclass: scrbook
+---
+```
+
+**Creating your own template:**
+
+All templates are based on pandoc's template syntax. Copy an existing template and customize:
+
+```bash
+cp templates/default.latex templates/my-custom.latex
+# Edit templates/my-custom.latex
+# Use with --template=templates/my-custom.latex
 ```
 
 ### Document class
@@ -681,7 +748,7 @@ indent: true
 
 ### LaTeX template
 
-The [`pandoc/templates/default.latex`](pandoc/templates/default.latex) template provides:
+The [`templates/default.latex`](templates/default.latex) template provides:
 
 - Linguistic markup commands (`\gl`, `\ob`, `\rc`, `\pnt`, `\pnm`) required by filters
 - Underline support (lua-ul) for `.underline` class in tables
@@ -723,7 +790,7 @@ The build script:
 ```bash
 pandoc content.md \
   --defaults=pandoc/defaults.yaml \
-  --template=pandoc/templates/default.latex \
+  --template=templates/default.latex \
   --metadata=documentclass:scrartcl \
   -o output.pdf
 ```
@@ -811,11 +878,11 @@ git fetch template
 git merge template/v1.0.0 --allow-unrelated-histories
 
 # Or cherry-pick specific files:
-git checkout template/v1.0.0 -- pandoc/filters/ pandoc/templates/ .github/
+git checkout template/v1.0.0 -- pandoc/filters/ templates/ .github/
 git commit -m "Update template to v1.0.0"
 ```
 
-Update these: `pandoc/filters/`, `pandoc/templates/`, `.github/`, `justfile`
+Update these: `pandoc/filters/`, `templates/`, `.github/`, `justfile`
 
 Keep yours: `content.md`, `sources.bib`, `README.md`
 

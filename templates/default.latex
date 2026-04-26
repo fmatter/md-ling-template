@@ -36,6 +36,29 @@ $if(cancel)$
 \usepackage{cancel}
 $endif$
 
+% --- MANUSCRIPT/DRAFT FEATURES ---
+$if(linenos)$
+% Line numbering for review and editing
+\usepackage{lineno}
+\linenumbers
+\modulolinenumbers[5]  % Show line numbers every 5 lines
+$endif$
+
+$if(doublespacing)$
+% Double spacing for reviewer comments
+\usepackage{setspace}
+\doublespacing
+$endif$
+
+$if(draft)$
+% Draft watermark
+\usepackage{draftwatermark}
+\SetWatermarkText{DRAFT}
+\SetWatermarkScale{1}
+\SetWatermarkColor[gray]{0.9}
+$endif$
+% --- END MANUSCRIPT/DRAFT FEATURES ---
+
 % --- UNDERLINE SUPPORT ---
 % Load packages for \ul{} command (used by .underline class)
 % Since this template requires LuaLaTeX (uses fontspec), always load lua-ul
@@ -168,7 +191,9 @@ $if(subtitle)$
 \makeatother
 \subtitle{$subtitle$}
 $endif$
+$if(author)$
 \author{$for(author)$$if(author.name)$$author.name$$if(author.affiliation)$\thanks{$author.affiliation$}$endif$$else$$author$$endif$$sep$ \and $endfor$}
+$endif$
 \date{$date$}
 
 \begin{document}
@@ -176,15 +201,84 @@ $if(has-frontmatter)$
 \frontmatter
 $endif$
 $if(title)$
+$if(titlepage)$
+% Custom thesis title page
+\begin{titlepage}
+\begin{center}
+\vspace*{2cm}
+{\Huge\bfseries $title$\par}
+$if(subtitle)$
+\vspace{0.5cm}
+{\Large $subtitle$\par}
+$endif$
+\vspace{1cm}
+$if(degree)$
+{\large A thesis submitted for the degree of\\
+$degree$\par}
+$endif$
+\vspace{2cm}
+$if(department)$
+{\Large $department$\par}
+$endif$
+$if(institution)$
+\vspace{0.5cm}
+{\large $institution$\par}
+$endif$
+\vspace{3cm}
+$if(author)$
+{\Large $for(author)$$if(author.name)$$author.name$$else$$author$$endif$$sep$, $endfor$\par}
+$endif$
+$if(studentid)$
+\vspace{0.3cm}
+{\normalsize Student ID: $studentid$\par}
+$endif$
+$if(address)$
+\vspace{0.5cm}
+{\normalsize $address$\par}
+$endif$
+$if(contact)$
+{\normalsize $contact$\par}
+$endif$
+\vspace{3cm}
+$if(supervisor)$
+{\normalsize Supervisor: $supervisor$\par}
+$endif$
+$if(cosupervisor)$
+{\normalsize Co-supervisor: $cosupervisor$\par}
+$endif$
+\vfill
+$if(date)$
+{\normalsize $date$\par}
+$endif$
+\end{center}
+\end{titlepage}
+$else$
+% Standard title page
 \maketitle
+$endif$
+$endif$
+
+$-- Abstract and keywords (after title, outside titlepage environment)
+$-- Note: scrbook doesn't have abstract environment, so we provide one
 $if(abstract)$
+\makeatletter
+\@ifundefined{abstract}{%
+  % Define abstract environment for book classes
+  \newenvironment{abstract}{%
+    \small
+    \begin{center}%
+      {\bfseries \abstractname\vspace{-.5em}\vspace{\z@}}%
+    \end{center}%
+    \quotation
+  }{\endquotation}
+}{}
+\makeatother
 \begin{abstract}
 $abstract$
 \end{abstract}
 $endif$
 $if(keywords)$
 \noindent\textbf{Keywords:} $for(keywords)$$keywords$$sep$, $endfor$
-$endif$
 $endif$
 
 $for(include-before)$

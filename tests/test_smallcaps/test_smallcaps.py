@@ -22,7 +22,7 @@ def soup():
             "pandoc", str(input_md),
             "--defaults=pandoc/defaults.yaml",
             f"--resource-path=.:{test_dir}",
-            "--template=pandoc/templates/default.html",
+            "--template=templates/default.html",
             "--css=pandoc/style.css",
             "-o", str(output_html)
         ],
@@ -49,7 +49,7 @@ def latex_output():
             "pandoc", str(input_md),
             "--defaults=pandoc/defaults.yaml",
             f"--resource-path=.:{test_dir}",
-            "--template=pandoc/templates/default.latex",
+            "--template=templates/default.latex",
             "-o", str(output_tex)
         ],
         check=True,

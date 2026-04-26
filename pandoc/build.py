@@ -143,7 +143,7 @@ def build_single_file(input_file, output_file, template=None):
                 pandoc_args.append(f"--template={template}")
             else:
                 # Default LaTeX template
-                pandoc_args.append("--template=pandoc/templates/default.latex")
+                pandoc_args.append("--template=templates/default.latex")
         
         # For .tex output, extract media (converts SVGs to PDFs, etc.)
         if output_path.suffix == '.tex':
@@ -201,7 +201,7 @@ def build_project(output_file, template=None):
         pandoc_args.append(f"--template={template}")
     elif output_path.suffix in ['.pdf', '.tex']:
         # Default LaTeX template for PDF/tex output
-        pandoc_args.append("--template=pandoc/templates/default.latex")
+        pandoc_args.append("--template=templates/default.latex")
     
     pandoc_args.extend(["-o", str(output_path)])
     
@@ -258,7 +258,7 @@ Examples:
     
     parser.add_argument(
         "--template",
-        help="Custom LaTeX template file (default: pandoc/templates/default.latex)"
+        help="Custom LaTeX template file (default: templates/default.latex)"
     )
     
     args = parser.parse_args()
