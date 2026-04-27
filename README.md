@@ -874,12 +874,12 @@ git remote add template https://github.com/fmatter/md-ling-template.git
 Update to new version (tags are branches that are always available):
 
 ```bash
-git fetch template
-git merge template/v1.0.0 --allow-unrelated-histories
+git checkout template/main -- pandoc/ templates/ .github/
+git commit -m "Update template"
 
-# Or cherry-pick specific files:
-git checkout template/v1.0.0 -- pandoc/filters/ templates/ .github/
-git commit -m "Update template to v1.0.0"
+# Or merge (this may lead to apparent conflicts):
+git fetch template
+git merge template/main --allow-unrelated-histories
 ```
 
 Update these: `pandoc/filters/`, `templates/`, `.github/`, `justfile`
