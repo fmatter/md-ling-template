@@ -12,7 +12,7 @@ For LaTeX output, these are converted to semantic commands (\gl, \ob, \rc, \pnt,
 which are defined in the template and can be customized by users.
 ]]
 
--- Helper function to convert inlines to LaTeX, preserving subscripts/superscripts
+-- Helper function to convert inlines to LaTeX, preserving inline formatting
 local function inlines_to_latex(inlines)
   local result = {}
   for _, inline in ipairs(inlines) do
@@ -24,6 +24,12 @@ local function inlines_to_latex(inlines)
       table.insert(result, '\\textsubscript{' .. inlines_to_latex(inline.content) .. '}')
     elseif inline.t == 'Superscript' then
       table.insert(result, '\\textsuperscript{' .. inlines_to_latex(inline.content) .. '}')
+    elseif inline.t == 'Strong' then
+      table.insert(result, '\\textbf{' .. inlines_to_latex(inline.content) .. '}')
+    elseif inline.t == 'Emph' then
+      table.insert(result, '\\textit{' .. inlines_to_latex(inline.content) .. '}')
+    elseif inline.t == 'Code' then
+      table.insert(result, '\\texttt{' .. inline.text .. '}')
     else
       -- For other inline types, just stringify
       table.insert(result, pandoc.utils.stringify({inline}))
