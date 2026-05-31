@@ -476,9 +476,7 @@ local function generate_inline_abbr_list()
     
     -- Add definition in parentheses
     table.insert(inlines, pandoc.Space())
-    table.insert(inlines, pandoc.Str("("))
     table.insert(inlines, pandoc.Str(def))
-    table.insert(inlines, pandoc.Str(")"))
     
     -- Add comma separator except after last item
     if i < #abbr_list then
