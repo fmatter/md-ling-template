@@ -2184,79 +2184,198 @@ end
 
 ------------------------------------------
 
+------------------------------------------
+-- Mark nested Cites (for range/list notation)
+------------------------------------------
+
+-- Track which Cite IDs are nested in suffixes (shouldn't be processed individually)
+local nestedCiteIDs = {}
+
+function markNestedCites (cite)
+  -- Check if this cite has a nested Cite in its suffix
+  if cite.citations[1].suffix and #cite.citations[1].suffix > 0 then
+    for _, elem in ipairs(cite.citations[1].suffix) do
+      if elem.t == "Cite"then
+        -- Mark this nested Cite ID as nested
+        local nested_id = elem.citations[1].id
+        nestedCiteIDs[nested_id] = true
+      end
+    end
+  end
+  return cite
+end
+
+------------------------------------------
+-- Make cross-references
+------------------------------------------
+
 function makeCrossrefs (cite)
 
   local id = cite.citations[1].id
   
-  -- Check if this is a range reference
-  -- Pandoc converts -- to en-dash (–) and puts it in suffix
-  if cite.citations[1].suffix and #cite.citations[1].suffix > 0 then
-    local suffix_str = pandoc.utils.stringify(cite.citations[1].suffix)
-    -- Check if suffix starts with en-dash (U+2013) or em-dash (U+2014)
-    -- Use string.sub to check the first character
-    local end_id = nil
-    if string.sub(suffix_str, 1, 3) == "–" or string.sub(suffix_str, 1, 3) == "—" then
-      -- En-dash or em-dash is 3 bytes in UTF-8
-      end_id = string.sub(suffix_str, 4)
-    end
+  -- Skip nested Cites - they'll be handled by their parent
+  if nestedCiteIDs[id] then
+    return nil
+  end
+  
+  -- Check if suffix contains a nested Cite (for ranges or comma-separated lists)
+  -- Pandoc parses [@ex:first, @ex:second] and [@ex:first--@ex:second]  
+  -- with the second @ex as a nested Cite in the suffix
+  if cite.citations[1].suffix and #cite.citations[1].suffix >= 2 then
+    local suffix = cite.citations[1].suffix
     
-    if end_id then
-      -- This is a range reference
-      local start_id = id
-      
-      -- Check if both are sub-example references
-      local start_subex = subExIndex[start_id]
-      local end_subex = subExIndex[end_id]
-      
-      if start_subex and end_subex then
-        -- Both are sub-examples
-        local start_parent = start_subex.parentExID
-        local end_parent = end_subex.parentExID
-        local start_letter = start_subex.letter
-        local end_letter = end_subex.letter
-        
-        if start_parent == end_parent then
-          -- Same parent: format as (1a-c)
-          local parentNumber = indexEx[start_parent]
-          if FORMAT:match "latex" then
-            if latexPackage == "expex" then
-              return pandoc.RawInline("latex", "(\\getref{"..start_parent.."}"..start_letter.."-"..end_letter..")")
-            else
-              return pandoc.RawInline("latex", "(\\ref{"..start_parent.."}"..start_letter.."-"..end_letter..")")
-            end
-          else
-            return pandoc.Link("("..parentNumber..start_letter.."-"..end_letter..")", "#"..start_id)
-          end
-        else
-          -- Different parents: format as (1a-2c)
-          local start_number = indexEx[start_parent]
-          local end_number = indexEx[end_parent]
-          if FORMAT:match "latex" then
-            if latexPackage == "expex" then
-              return pandoc.RawInline("latex", "(\\getref{"..start_parent.."}"..start_letter.."-\\getref{"..end_parent.."}"..end_letter..")")
-            else
-              return pandoc.RawInline("latex", "(\\ref{"..start_parent.."}"..start_letter.."-\\ref{"..end_parent.."}"..end_letter..")")
-            end
-          else
-            return pandoc.Str("("..start_number..start_letter.."-"..end_number..end_letter..")")
-          end
+    -- Find if there's a Cite element in the suffix
+    local nested_cite = nil
+    local delimiter = nil
+    local is_range = false
+    local is_list = false
+    
+    -- Check first element for delimiter
+    if suffix[1].t == "Str" then
+      if suffix[1].text == "–" then
+        -- En-dash: this is a range
+       delimiter = "–"
+        is_range = true
+        -- Cite should be at position 2
+        if suffix[2] and suffix[2].t == "Cite" then
+          nested_cite = suffix[2]
         end
-      elseif indexEx[start_id] and indexEx[end_id] then
-        -- Both are regular examples: format as (1-3)
-        local start_number = indexEx[start_id]
-        local end_number = indexEx[end_id]
-        
-        if FORMAT:match "latex" then
-          if latexPackage == "expex" then
-            return pandoc.RawInline("latex", "(\\getref{"..start_id.."}-\\getref{"..end_id.."})")
-          else
-            return pandoc.RawInline("latex", "(\\ref{"..start_id.."}-\\ref{"..end_id.."})")
-          end
-        else
-          return pandoc.Link("("..start_number.."-"..end_number..")", "#"..start_id)
+      elseif suffix[1].text == "," then
+        -- Comma: this is a list
+        delimiter = ","
+        is_list = true
+        -- Cite should be at position 3 (after Space)
+        if suffix[3] and suffix[3].t == "Cite" then
+          nested_cite = suffix[3]
         end
       end
-      -- If we get here, the range was invalid - fall through to regular processing
+    end
+    
+    if nested_cite then
+      local end_id = nested_cite.citations[1].id
+      local start_id = id
+      
+      -- Validate that both IDs are example references
+      if (subExIndex[start_id] or indexEx[start_id]) and 
+         (subExIndex[end_id] or indexEx[end_id]) then
+        
+        local start_subex = subExIndex[start_id]
+        local end_subex = subExIndex[end_id]
+        
+        if is_range then
+          -- RANGE: [@ex:a--@ex:b]
+          if start_subex and end_subex then
+            -- Both are sub-examples
+            local start_parent = start_subex.parentExID
+            local end_parent = end_subex.parentExID
+            local start_letter = start_subex.letter
+            local end_letter = end_subex.letter
+            
+            if start_parent == end_parent then
+              -- Same parent: format as (1a-c)
+              local parentNumber = indexEx[start_parent]
+              if FORMAT:match "latex" then
+                if latexPackage == "expex" then
+                  return {pandoc.RawInline("latex", "(\\getref{"..start_parent.."}"..start_letter.."-"..end_letter..")")}
+                else
+                  return {pandoc.RawInline("latex", "(\\ref{"..start_parent.."}"..start_letter.."-"..end_letter..")")}
+                end
+              else
+                return {pandoc.Link("("..parentNumber..start_letter.."-"..end_letter..")", "#"..start_id)}
+              end
+            else
+              -- Different parents: format as (1a-2c)
+              local start_number = indexEx[start_parent]
+              local end_number = indexEx[end_parent]
+              if FORMAT:match "latex" then
+                if latexPackage == "expex" then
+                  return {pandoc.RawInline("latex", "(\\getref{"..start_parent.."}"..start_letter.."-\\getref{"..end_parent.."}"..end_letter..")")}
+                else
+                  return {pandoc.RawInline("latex", "(\\ref{"..start_parent.."}"..start_letter.."-\\ref{"..end_parent.."}"..end_letter..")")}
+                end
+              else
+                return {pandoc.Str("("..start_number..start_letter.."-"..end_number..end_letter..")")}
+              end
+            end
+          elseif indexEx[start_id] and indexEx[end_id] then
+            -- Both are regular examples: format as (1-3)
+            local start_number = indexEx[start_id]
+            local end_number = indexEx[end_id]
+            
+            if FORMAT:match "latex" then
+              if latexPackage == "expex" then
+                return {pandoc.RawInline("latex", "(\\getref{"..start_id.."}-\\getref{"..end_id.."})")}
+              else
+                return {pandoc.RawInline("latex", "(\\ref{"..start_id.."}-\\ref{"..end_id.."})")}
+              end
+            else
+              return {pandoc.Link("("..start_number.."-"..end_number..")", "#"..start_id)}
+            end
+          end
+        elseif is_list then
+          -- COMMA LIST: [@ex:a, @ex:b]
+          -- Build list of formatted references
+          local refs = {}
+          
+          -- Add first reference
+          if start_subex then
+            local parentNumber = indexEx[start_subex.parentExID]
+            if FORMAT:match "latex" then
+              if latexPackage == "expex" then
+                table.insert(refs, pandoc.RawInline("latex", "\\getref{"..start_subex.parentExID.."}"..start_subex.letter))
+              else
+                table.insert(refs, pandoc.RawInline("latex", "\\ref{"..start_subex.parentExID.."}"..start_subex.letter))
+              end
+            else
+              table.insert(refs, pandoc.Link(parentNumber..start_subex.letter, "#"..start_id))
+            end
+          elseif indexEx[start_id] then
+            if FORMAT:match "latex" then
+              if latexPackage == "expex" then
+                table.insert(refs, pandoc.RawInline("latex", "\\getref{"..start_id.."}"))
+              else
+                table.insert(refs, pandoc.RawInline("latex", "\\ref{"..start_id.."}"))
+              end
+            else
+              table.insert(refs, pandoc.Link(tostring(indexEx[start_id]), "#"..start_id))
+            end
+          end
+          
+          -- Add separator
+          table.insert(refs, pandoc.Str(","))
+          table.insert(refs, pandoc.Space())
+          
+          -- Add second reference
+          if end_subex then
+            local parentNumber = indexEx[end_subex.parentExID]
+            if FORMAT:match "latex" then
+              if latexPackage == "expex" then
+                table.insert(refs, pandoc.RawInline("latex", "\\getref{"..end_subex.parentExID.."}"..end_subex.letter))
+              else
+                table.insert(refs, pandoc.RawInline("latex", "\\ref{"..end_subex.parentExID.."}"..end_subex.letter))
+              end
+            else
+              table.insert(refs, pandoc.Link(parentNumber..end_subex.letter, "#"..end_id))
+            end
+          elseif indexEx[end_id] then
+            if FORMAT:match "latex" then
+              if latexPackage == "expex" then
+                table.insert(refs, pandoc.RawInline("latex", "\\getref{"..end_id.."}"))
+              else
+                table.insert(refs, pandoc.RawInline("latex", "\\ref{"..end_id.."}"))
+              end
+            else
+              table.insert(refs, pandoc.Link(tostring(indexEx[end_id]), "#"..end_id))
+            end
+          end
+          
+          -- Wrap in parentheses
+          table.insert(refs, 1, pandoc.Str("("))
+          table.insert(refs, pandoc.Str(")"))
+          
+          return refs
+        end
+      end
     end
   end
   
@@ -2282,16 +2401,22 @@ function makeCrossrefs (cite)
   -- ignore other "cite" elements
   if indexEx[id] ~= nil then 
     
-    -- only make suffix if there is something there AND it's not a range
+    -- only make suffix if there is something there AND it's not a range/list
     local suffix = ""
     if cite.citations[1].suffix and #cite.citations[1].suffix > 0 then
-      local suffix_str = pandoc.utils.stringify(cite.citations[1].suffix)
-      -- Check if it's a range (starts with en-dash or em-dash)
-      if not (string.sub(suffix_str, 1, 3) == "–" or string.sub(suffix_str, 1, 3) == "—") then
-        -- Not a range - it's backwards-compatible suffix syntax
+      -- Check if it's a range or list (has nested Cite)
+      local has_nested_cite = false
+      for _, elem in ipairs(cite.citations[1].suffix) do
+        if elem.t == "Cite" then
+          has_nested_cite = true
+          break
+        end
+      end
+      
+      if not has_nested_cite then
+        -- Not a range/list - it's backwards-compatible suffix syntax ([@ex:parent b])
         if #cite.citations[1].suffix >= 2 then
           suffix = pandoc.utils.stringify(cite.citations[1].suffix[2])
-          -- For backwards compatibility: append suffix to number ([@ex:parent b])
           suffix = xrefSuffixSep..suffix
         end
       end
@@ -2336,6 +2461,8 @@ return {
    { Cite = uniqueNextrefs },
    { Cite = resolveNextrefs },
    { Cite = removeTmpTargetrefs },
+   -- mark nested Cites for range/list notation
+   { Cite = markNestedCites },
    -- now finally all cross-references can be set
    { Cite = makeCrossrefs }
 }
